@@ -112,10 +112,17 @@ export async function search(env: CloudflareBindings, q: string, limit: number):
 	return { results, cached: false };
 }
 
-/** Best confident playable match for an import row, or null. Skips archive (weight 0.7 < HIT_SCORE) and YouTube (quota). */
-export async function resolveOne(env: CloudflareBindings, q: string): Promise<Track | null> {
-	const [best] = rank(q, await gather(env, q, 5, ["audius", "jamendo"]), 1);
-	if (!best || best.score < HIT_SCORE) return null;
+/**
+ * Best confident playable match for an import row, or null. Skips archive
+ * (weight 0.7 < HIT_SCORE) and YouTube (quota). When the row names an artist
+ * the candidate's artist must match too: covers like "The Weeknd Blinding
+ * Lights [COVER]" by "DJ-M" otherwise score high on title+artist text alone.
+ */
+export async function resolveOne(env: CloudflareBindings, q: string, artist = ""): Promise<Track | null> {
+	const best = rank(q, await gather(env, q, 5, ["audius", "jamendo"]), 5).find(
+		(t) => t.score >= HIT_SCORE && (!artist || similarity(artist, t.artist, "") >= MIN_SCORE),
+	);
+	if (!best) return null;
 	const { score: _, ...t } = best;
 	return t;
 }

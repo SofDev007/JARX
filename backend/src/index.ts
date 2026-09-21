@@ -286,7 +286,7 @@ app.post("/import/playlist", async (c) => {
 			const i = next++;
 			const row = rows[i];
 			const query = rowQuery(row);
-			const match = await resolveOne(c.env, query);
+			const match = await resolveOne(c.env, query, row.artist);
 			if (match) tracks[i] = match;
 			else {
 				unmatched.push({ line: row.line, title: row.title, artist: row.artist, reason: "no_match" });
