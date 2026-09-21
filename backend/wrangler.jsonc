@@ -1,0 +1,22 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "jarx-backend",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-22",
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true,
+	"d1_databases": [
+		{
+			"binding": "jarx_db",
+			"database_name": "jarx-db",
+			"database_id": "c244366e-6043-450c-afd2-46a93d25f6f8",
+			"migrations_dir": "migrations"
+		}
+	],
+	// Set with `wrangler secret put <NAME>` (remote) or backend/.dev.vars (local).
+	"secrets": {
+		"required": ["JARX_TOKEN", "JAMENDO_CLIENT_ID", "YOUTUBE_API_KEY"]
+	}
+}

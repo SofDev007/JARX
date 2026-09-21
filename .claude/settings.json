@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(flutter:*)",
+      "Bash(dart:*)",
+      "Bash(git:*)",
+      "Bash(curl:*)",
+      "Bash(adb:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Read(**/.dev.vars)"
+    ]
+  }
+}
