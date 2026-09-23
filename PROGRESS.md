@@ -9,12 +9,12 @@
 - [x] Internet Archive adapter (advancedsearch → item files → public MP3), tested against recorded live responses
 - [x] Jamendo adapter, tested against recorded live responses (search + track-by-id)
 - [x] YouTube adapter (metadata only), tested against a recorded live response
-- [x] Cover/remix demotion in `rank()`: a candidate whose title carries a version marker (cover|remix|flip|bootleg|mashup|karaoke|tribute|nightcore|sped up|slowed|reverb|8d) the query did not ask for scores ×0.7. Verified live: `blinding lights the weeknd` now falls back to YouTube instead of returning an Audius "[COVER]" at 0.917. `live` is deliberately not a marker (archive.org is mostly legitimate live recordings).
+- [x] Cover/remix demotion in `rank()`: a candidate whose **title or artist** carries a version marker (cover|remix(ed)|flip|bootleg|mashup|karaoke|instrumental|tribute|nightcore|sped up|slowed|reverb|8d|made famous by|originally performed by) scores ×0.7, unless the query itself asks for that same marker. Verified live: `blinding lights the weeknd` now falls back to YouTube instead of returning an Audius "[COVER]" at 0.917. `live` is deliberately not a marker (archive.org is mostly legitimate live recordings).
 - [x] SourceResolver: parallel `Promise.allSettled`, 2.5s per-source `AbortSignal`, fuzzy score × weight, dedupe, drop < 0.5, YouTube only on miss, 24h D1 cache
 - [x] Routes: health, search, stream, playlists CRUD + add/remove/reorder, favorites, recently-played (last 200), import
 - [x] zod validation, `{ error: { code, message, details? } }` error shape, no CORS
 - [x] `npx tsc --noEmit` clean
-- [x] `npm test` (sources, importer, routes, resolver): 71 passing
+- [x] `npm test` (sources, importer, routes, resolver): 81 passing
 - [x] `wrangler dev` smoke: /health, 401 without token, /search?q=lofi, cache hit, playlist create→add→reorder→read, stream, import
 - [x] `wrangler dev` smoke **with real keys against the live APIs**: Jamendo search + stream, YouTube 422 + deep link, Exportify CSV import (multi-artist, quoted commas, ` - ` title suffixes) and plain-text import
 - [ ] `wrangler deploy` + curl deployed /health and authenticated /search
@@ -34,5 +34,5 @@
 ## Open issues
 
 - Archive is slow from India (0.5–2.2s for search alone, 4–10s with item metadata), so it often returns partial or no results within 2.5s. Revisit after measuring the deployed Worker; Smart Placement is an option.
-- Large imports need Workers Paid: ~2 subrequests per row (Free plan allows 50 per request; Paid allows 10,000). Import is capped at 500 rows.
-- **Jamendo's `search=` is flaky**: the identical URL returns 5 results or 0 at random, always HTTP 200 with `status: "success"` (measured 4/6 empty in one run, 2/8 in another). `namesearch=` flakes too and ignores the artist, so it is not an upgrade. The resolver already tolerates a source returning nothing, so this just costs occasional Jamendo coverage. A retry would fix it but doubles Jamendo subrequests per imported row, which matters on the Free plan's 50-subrequest cap.
+- Staying on the **Free** plan by decision. ~2 subrequests per row against a 50-per-request cap means imports past ~25 rows must be split client-side; the app will batch them with a ~1s gap between rows. Import is capped at 500 rows server-side.
+- **Jamendo's `search=` is flaky**: the identical URL returns 5 results or 0 at random, always HTTP 200 with `status: "success"` (measured 4/6 empty in one run, 2/8 in another). `namesearch=` flakes too and ignores the artist, so it is not an upgrade. Left unfixed by decision: the resolver already tolerates an empty source, and a retry would double Jamendo subrequests per imported row against the Free plan's 50-subrequest cap. `gather()` now logs `jamendo returned 0 results ... while another source had hits`, so a rising flake rate is visible in `wrangler tail`.

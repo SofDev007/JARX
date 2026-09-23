@@ -104,6 +104,22 @@ describe("gather", () => {
 		expect(elapsed).toBeGreaterThanOrEqual(TIMEOUT_MS - 50);
 		expect(elapsed).toBeLessThan(2 * TIMEOUT_MS); // both hanging sources timed out concurrently
 	});
+
+	// Jamendo answers 200/"success" with zero results at random; the warning is the only
+	// way a rising flake rate shows up in `wrangler tail`.
+	it("warns when Jamendo comes back empty while another source had hits", async () => {
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+		mockFetch(fixtures); // the shared fixture answers Jamendo with an empty success body
+		await gather(env, "lofi", 5, ["audius", "jamendo"]);
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining("jamendo returned 0 results"));
+	});
+
+	it("stays quiet when no source found anything", async () => {
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+		mockFetch(fixtures);
+		await gather(env, "lofi", 5, ["jamendo"]);
+		expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("jamendo returned 0 results"));
+	});
 });
 
 describe("cover/remix demotion", () => {
@@ -123,9 +139,31 @@ describe("cover/remix demotion", () => {
 		}
 	});
 
-	it("keeps them at full score when the query asks for a remix", () => {
-		const t = track("audius", "remix", "The Weeknd - Blinding Lights (Soldat Remix)", "Soldat");
-		expect(byId("blinding lights soldat remix", [t]).get("remix")!.score).toBeGreaterThanOrEqual(HIT_SCORE);
+	it("demotes on the artist field, where a clean title hides a tribute act", () => {
+		const r = byId("blinding lights the weeknd", [
+			track("audius", "tribute", "Blinding Lights", "Weeknd Tribute Band"),
+			track("audius", "real", "Blinding Lights", "The Weeknd"),
+		]);
+		expect(r.get("tribute")?.score ?? 0).toBeLessThan(HIT_SCORE); // demoted, and here far enough to drop out
+		expect(r.get("real")!.score).toBeGreaterThanOrEqual(HIT_SCORE);
+	});
+
+	it.each([
+		["remix", "blinding lights soldat remix", "The Weeknd - Blinding Lights (Soldat Remix)", "Soldat"],
+		["karaoke", "blinding lights karaoke", "Blinding Lights (Karaoke Version)", "SingAlong"],
+		["instrumental", "blinding lights instrumental", "Blinding Lights - Instrumental", "The Weeknd"],
+		["made famous by", "blinding lights made famous by the weeknd", "Blinding Lights", "Made Famous By The Weeknd"],
+	])("keeps %s at full score when the query asks for it", (_label, query, title, artist) => {
+		const [top] = rank(query, [track("audius", "x", title, artist)], 1);
+		expect(top.score).toBeGreaterThanOrEqual(HIT_SCORE);
+	});
+
+	it("still demotes a marker the query did not ask for, even when it asks for another", () => {
+		const r = byId("blinding lights remix", [
+			track("audius", "remix", "Blinding Lights (Soldat Remix)", "Soldat"),
+			track("audius", "karaoke", "Blinding Lights (Karaoke)", "SingAlong"),
+		]);
+		expect(r.get("karaoke")?.score ?? 0).toBeLessThan(r.get("remix")!.score);
 	});
 
 	it("does not fire on words that merely contain a marker", () => {
