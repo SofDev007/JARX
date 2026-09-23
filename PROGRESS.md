@@ -20,6 +20,46 @@
 - [ ] `wrangler deploy` + curl deployed /health and authenticated /search — **BLOCKED on two Cloudflare account actions** (see Open issues)
 - [x] README endpoints section (`backend/README.md`) + `.dev.vars.example`
 
+## Phase 2 — Flutter app (`app/`) — DRAFT, not started
+
+No plan for this phase existed, so this checklist is my proposal. Say what to
+cut or add. Nothing here is built yet; Flutter is not installed on this machine.
+
+### Blocked on you
+- [ ] Install Flutter SDK + Android SDK/platform-tools, `flutter doctor` clean
+- [ ] Cloudflare: verify account email, register a workers.dev subdomain, then deploy
+- [ ] Confirm this checklist
+
+### Foundation
+- [ ] `flutter create` in `app/`, Android only for now, package id `com.jaiswal.jarx`
+- [ ] Riverpod + Dio + just_audio + audio_service + Drift wired, `flutter analyze` clean
+- [ ] Base URL and `JARX_TOKEN` via `--dart-define`, never committed; Dio interceptor adds the bearer header and maps `{ error: { code, message } }` to a typed failure
+- [ ] `Track` model mirroring the backend exactly, including `mbid` and `playable`
+
+### Search
+- [ ] Search screen: debounced query, results list, artwork, source badge
+- [ ] **"Found, but only on YouTube" is a first-class result state**, not an error or an empty state: when every row is `playable: false`, the screen says the track was found and offers "Open in YouTube" per row. The cover/remix penalty makes this a normal outcome for mainstream songs, so it must not read as a failure.
+- [ ] Non-playable rows are visibly distinct everywhere they appear (search, playlist, history) and tapping one opens the deep link rather than the player
+
+### Playback
+- [ ] just_audio + audio_service: background playback, lock-screen/notification controls
+- [ ] Stream URLs fetched per track at play time from `/tracks/:source/:id/stream` (they expire; never cache them)
+- [ ] Queue, next/previous, seek, resume position
+
+### Library
+- [ ] Playlists: list, create, rename, delete, add/remove/reorder
+- [ ] Favorites and recently-played, posting to the backend on play
+- [ ] Drift cache of playlists/favorites/track metadata for offline browsing (metadata only — audio is never downloaded)
+
+### Import
+- [ ] Pick an Exportify CSV or a text file and POST to `/import/playlist`
+- [ ] **Batch rows client-side (~25 per request, ~1s between rows)** to stay under the Free plan's 50-subrequest cap; show progress and list the unmatched rows afterwards
+
+### Verification for this phase
+- [ ] `flutter analyze` clean, `flutter test` green
+- [ ] Widget tests for the search states, including the YouTube-only state
+- [ ] Manual run on a real Android device against the **deployed** backend
+
 ## Decisions made without asking
 
 - **Audius hosts**: `GET https://api.audius.co` now returns only `["https://api.audius.co"]`, so the adapter skips that lookup and tries `api.audius.co` then `discoveryprovider.audius.co` (verified live to serve the same `/v1` API). Retries only on network errors/5xx; 4xx is a real answer.
