@@ -7,16 +7,17 @@
 - [x] Bearer auth on every route except `GET /health`, constant-time (SHA-256 digests + `crypto.subtle.timingSafeEqual`), fails closed if `JARX_TOKEN` is unset
 - [x] Audius adapter (search, fresh stream URL, host failover), tested against recorded live responses
 - [x] Internet Archive adapter (advancedsearch → item files → public MP3), tested against recorded live responses
-- [ ] Jamendo adapter: code done, **real fixture pending** (needs `JAMENDO_CLIENT_ID`)
-- [ ] YouTube adapter: code done, **real fixture pending** (needs `YOUTUBE_API_KEY`); resolver unit tests import it
+- [x] Jamendo adapter, tested against recorded live responses (search + track-by-id)
+- [x] YouTube adapter (metadata only), tested against a recorded live response
 - [x] SourceResolver: parallel `Promise.allSettled`, 2.5s per-source `AbortSignal`, fuzzy score × weight, dedupe, drop < 0.5, YouTube only on miss, 24h D1 cache
 - [x] Routes: health, search, stream, playlists CRUD + add/remove/reorder, favorites, recently-played (last 200), import
 - [x] zod validation, `{ error: { code, message, details? } }` error shape, no CORS
 - [x] `npx tsc --noEmit` clean
-- [x] `npm test` (sources, importer, routes): 49 passing; resolver suite waiting on the YouTube fixture
+- [x] `npm test` (sources, importer, routes, resolver): 71 passing
 - [x] `wrangler dev` smoke: /health, 401 without token, /search?q=lofi, cache hit, playlist create→add→reorder→read, stream, import
+- [x] `wrangler dev` smoke **with real keys against the live APIs**: Jamendo search + stream, YouTube 422 + deep link, Exportify CSV import (multi-artist, quoted commas, ` - ` title suffixes) and plain-text import
 - [ ] `wrangler deploy` + curl deployed /health and authenticated /search
-- [ ] README endpoints section
+- [x] README endpoints section (`backend/README.md`) + `.dev.vars.example`
 
 ## Decisions made without asking
 
@@ -32,5 +33,6 @@
 ## Open issues
 
 - Archive is slow from India (0.5–2.2s for search alone, 4–10s with item metadata), so it often returns partial or no results within 2.5s. Revisit after measuring the deployed Worker; Smart Placement is an option.
-- Mainstream songs: Audius covers/remixes titled "Artist - Song (Remix)" score ≥ 0.75, so `/search` treats them as hits and doesn't fall back to YouTube.
 - Large imports need Workers Paid: ~2 subrequests per row (Free plan allows 50 per request; Paid allows 10,000). Import is capped at 500 rows.
+- **Jamendo's `search=` is flaky**: the identical URL returns 5 results or 0 at random, always HTTP 200 with `status: "success"` (measured 4/6 empty in one run, 2/8 in another). `namesearch=` flakes too and ignores the artist, so it is not an upgrade. The resolver already tolerates a source returning nothing, so this just costs occasional Jamendo coverage. A retry would fix it but doubles Jamendo subrequests per imported row, which matters on the Free plan's 50-subrequest cap.
+- **Cover/remix problem confirmed live**: `/search?q=blinding lights the weeknd` returns an Audius "[COVER]" at 0.917 and a remix at 0.893, so nothing falls back to YouTube. Import is unaffected (the artist check rejects them). Options: raise `HIT_SCORE`, or penalize titles matching /cover|remix|flip|bootleg/ that the query did not ask for. Needs a decision.

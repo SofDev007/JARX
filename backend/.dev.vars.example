@@ -1,0 +1,4 @@
+# Copy to .dev.vars (gitignored) and fill in. See README.md for where each comes from.
+JARX_TOKEN=
+JAMENDO_CLIENT_ID=
+YOUTUBE_API_KEY=
