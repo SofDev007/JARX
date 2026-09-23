@@ -3,7 +3,7 @@
 ## Phase 1 — Backend (`backend/`)
 
 - [x] D1 schema via wrangler migrations (`0001_init.sql`), applied locally
-- [ ] D1 schema applied to remote (done right before first deploy)
+- [x] D1 schema applied to remote (`d1 migrations apply jarx-db --remote`; verified: favorite, playlist, playlist_track, recently_played, search_cache)
 - [x] Bearer auth on every route except `GET /health`, constant-time (SHA-256 digests + `crypto.subtle.timingSafeEqual`), fails closed if `JARX_TOKEN` is unset
 - [x] Audius adapter (search, fresh stream URL, host failover), tested against recorded live responses
 - [x] Internet Archive adapter (advancedsearch → item files → public MP3), tested against recorded live responses
@@ -17,7 +17,7 @@
 - [x] `npm test` (sources, importer, routes, resolver): 81 passing
 - [x] `wrangler dev` smoke: /health, 401 without token, /search?q=lofi, cache hit, playlist create→add→reorder→read, stream, import
 - [x] `wrangler dev` smoke **with real keys against the live APIs**: Jamendo search + stream, YouTube 422 + deep link, Exportify CSV import (multi-artist, quoted commas, ` - ` title suffixes) and plain-text import
-- [ ] `wrangler deploy` + curl deployed /health and authenticated /search
+- [ ] `wrangler deploy` + curl deployed /health and authenticated /search — **BLOCKED on two Cloudflare account actions** (see Open issues)
 - [x] README endpoints section (`backend/README.md`) + `.dev.vars.example`
 
 ## Decisions made without asking
@@ -36,3 +36,4 @@
 - Archive is slow from India (0.5–2.2s for search alone, 4–10s with item metadata), so it often returns partial or no results within 2.5s. Revisit after measuring the deployed Worker; Smart Placement is an option.
 - Staying on the **Free** plan by decision. ~2 subrequests per row against a 50-per-request cap means imports past ~25 rows must be split client-side; the app will batch them with a ~1s gap between rows. Import is capped at 500 rows server-side.
 - **Jamendo's `search=` is flaky**: the identical URL returns 5 results or 0 at random, always HTTP 200 with `status: "success"` (measured 4/6 empty in one run, 2/8 in another). `namesearch=` flakes too and ignores the artist, so it is not an upgrade. Left unfixed by decision: the resolver already tolerates an empty source, and a retry would double Jamendo subrequests per imported row against the Free plan's 50-subrequest cap. `gather()` now logs `jamendo returned 0 results ... while another source had hits`, so a rising flake rate is visible in `wrangler tail`.
+- **Deploy is blocked on two manual Cloudflare account actions.** (1) The account email (Arnavjaiswal.aj@gmail.com) is unverified, so every Workers script API call fails with `code: 10034`; D1 is unaffected, which is why the remote migration went through. (2) No workers.dev subdomain is registered, so there would be no URL even once verification lands. Both are one-click in the dashboard. The deploy command itself is ready: `npx wrangler deploy --minify --secrets-file .dev.vars` uploads the Worker and all three secrets in one step (secrets cannot be set in advance on a Worker that does not exist yet).
