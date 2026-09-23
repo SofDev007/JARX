@@ -1,10 +1,14 @@
 import { env } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
 import { archive, audius, decodeEntities, HttpError, jamendo, youtube } from "../src/sources";
+import jamendoSearch from "./fixtures/jamendo_search.json";
+import jamendoTrack from "./fixtures/jamendo_track.json";
 import privateFiles from "./fixtures/archive_files_private.json";
 import { calledUrls, fixtures, json, mockFetch } from "./helpers";
 
 const signal = () => AbortSignal.timeout(2500);
+
+const jamendoApi = (url: URL) => (url.host === "api.jamendo.com" ? json(url.searchParams.has("id") ? jamendoTrack : jamendoSearch) : undefined);
 
 describe("audius", () => {
 	it("maps search results and drops tracks that are not streamable", async () => {
@@ -124,6 +128,50 @@ describe("jamendo", () => {
 	it("reports API errors returned with HTTP 200", async () => {
 		mockFetch(() => json({ headers: { status: "failed", code: 5, error_message: "Your credential is not authorized.", warnings: "", results_count: 0 }, results: [] }));
 		await expect(jamendo.search("x", 5, env, signal())).rejects.toThrow("jamendo error 5");
+	});
+
+	it("maps search results", async () => {
+		const spy = mockFetch(jamendoApi);
+		const tracks = await jamendo.search("lofi", 5, env, signal());
+
+		const url = calledUrls(spy)[0];
+		expect(url.host).toBe("api.jamendo.com");
+		expect(url.searchParams.get("client_id")).toBe(env.JAMENDO_CLIENT_ID);
+		expect(url.searchParams.get("search")).toBe("lofi");
+		expect(url.searchParams.get("limit")).toBe("5");
+
+		expect(tracks).toHaveLength(5);
+		expect(tracks[0]).toMatchObject({
+			id: "jamendo:1545361",
+			source: "jamendo",
+			sourceId: "1545361",
+			title: "Master Beat inside Lofi",
+			artist: "Lysergic Tempo",
+			album: "Master Beat inside Lofi",
+			durationMs: 264_000,
+			mbid: null,
+			playable: true,
+			deepLink: null,
+		});
+		expect(tracks[0].streamUrl).toContain("storage.jamendo.com/?trackid=1545361");
+		expect(tracks[0].artworkUrl).toContain("usercontent.jamendo.com");
+	});
+
+	it("drops results with no audio", async () => {
+		mockFetch((url) => (url.host === "api.jamendo.com" ? json({ ...jamendoSearch, results: jamendoSearch.results.map((t) => ({ ...t, audio: "" })) }) : undefined));
+		expect(await jamendo.search("lofi", 5, env, signal())).toEqual([]);
+	});
+
+	it("resolves a stream URL by track id", async () => {
+		const spy = mockFetch(jamendoApi);
+		expect(await jamendo.streamUrl("1545361", env, signal())).toContain("storage.jamendo.com/?trackid=1545361");
+		expect(calledUrls(spy)[0].searchParams.get("id")).toBe("1545361");
+	});
+
+	it("rejects a non-numeric id without a request", async () => {
+		const spy = mockFetch();
+		expect(await jamendo.streamUrl("not-a-number", env, signal())).toBeNull();
+		expect(spy).not.toHaveBeenCalled();
 	});
 });
 
