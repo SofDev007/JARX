@@ -47,12 +47,12 @@ describe("rank", () => {
 			"blinding lights the weeknd",
 			[
 				track("archive", "a/live.mp3", "Blinding Lights Live", "The Weeknd"),
-				track("audius", "remix", "Blinding Lights Extended Club Remix", "The Weeknd"),
+				track("audius", "edit", "Blinding Lights Extended Club Edit", "The Weeknd"),
 				track("jamendo", "1", "Blinding Lights", "The Weeknd"),
 			],
 			10,
 		);
-		expect(results.map((r) => r.id)).toEqual(["jamendo:1", "audius:remix", "archive:a/live.mp3"]);
+		expect(results.map((r) => r.id)).toEqual(["jamendo:1", "audius:edit", "archive:a/live.mp3"]);
 		expect(results[0].score).toBe(0.95); // perfect match × jamendo weight
 		expect(results[2].score).toBeCloseTo(0.95 * 0.7, 2);
 	});
@@ -103,6 +103,36 @@ describe("gather", () => {
 		expect(tracks.map((t) => t.source)).toEqual(["audius", "audius"]);
 		expect(elapsed).toBeGreaterThanOrEqual(TIMEOUT_MS - 50);
 		expect(elapsed).toBeLessThan(2 * TIMEOUT_MS); // both hanging sources timed out concurrently
+	});
+});
+
+describe("cover/remix demotion", () => {
+	const byId = (q: string, tracks: Track[]) => new Map(rank(q, tracks, 10).map((t) => [t.sourceId, t]));
+
+	it("demotes covers and remixes the query did not ask for, below the hit bar", () => {
+		const r = byId("blinding lights the weeknd", [
+			track("audius", "cover", "The Weeknd Blinding Lights - [COVER]", "DJ-M"),
+			track("audius", "remix", "The Weeknd - Blinding Lights (Soldat Remix)", "Soldat"),
+			track("audius", "real", "Blinding Lights", "The Weeknd"),
+		]);
+
+		expect(r.get("real")!.score).toBeGreaterThanOrEqual(HIT_SCORE); // the real track is still a confident hit
+		for (const id of ["cover", "remix"]) {
+			expect(r.get(id)!.score).toBeLessThan(HIT_SCORE); // ...so on its own, /search falls back to YouTube
+			expect(r.get(id)!.score).toBeGreaterThanOrEqual(MIN_SCORE); // ...but they stay in the results
+		}
+	});
+
+	it("keeps them at full score when the query asks for a remix", () => {
+		const t = track("audius", "remix", "The Weeknd - Blinding Lights (Soldat Remix)", "Soldat");
+		expect(byId("blinding lights soldat remix", [t]).get("remix")!.score).toBeGreaterThanOrEqual(HIT_SCORE);
+	});
+
+	it("does not fire on words that merely contain a marker", () => {
+		for (const title of ["Discovery", "Undercover Martyn", "Flipper"]) {
+			const r = byId(title, [track("audius", "x", title, "A")]);
+			expect(r.get("x")!.score).toBeGreaterThanOrEqual(HIT_SCORE);
+		}
 	});
 });
 

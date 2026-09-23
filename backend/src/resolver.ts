@@ -38,6 +38,11 @@ function tokenSim(a: string, b: string): number {
 	return s >= 0.7 ? s : 0;
 }
 
+// Audius is full of covers/remixes titled like the original ("Blinding Lights - [COVER]"),
+// which otherwise outscore the real track. Demote them unless the query asked for one.
+const VERSION_RE = /\b(cover|remix|remixed|flip|bootleg|mashup|karaoke|tribute|nightcore|sped ?up|slowed|reverb|8d)\b/i;
+export const VERSION_PENALTY = 0.7;
+
 const coverage = (from: string[], to: string[]) =>
 	from.reduce((sum, a) => sum + Math.max(0, ...to.map((b) => tokenSim(a, b))), 0) / from.length;
 
@@ -55,9 +60,11 @@ export function similarity(query: string, title: string, artist: string): number
 
 /** Score, drop below MIN_SCORE, dedupe on normalized title+artist keeping the best, sort. */
 export function rank(query: string, tracks: Track[], limit: number): ScoredTrack[] {
+	const wantsVersion = VERSION_RE.test(query);
 	const best = new Map<string, ScoredTrack>();
 	for (const { score: _, ...t } of tracks as ScoredTrack[]) {
-		const score = Math.round(similarity(query, t.title, t.artist) * WEIGHT[t.source] * 1000) / 1000;
+		const penalty = !wantsVersion && VERSION_RE.test(t.title) ? VERSION_PENALTY : 1;
+		const score = Math.round(similarity(query, t.title, t.artist) * WEIGHT[t.source] * penalty * 1000) / 1000;
 		if (score < MIN_SCORE) continue;
 		const key = `${normalize(t.title)}|${normalize(t.artist)}`;
 		const prev = best.get(key);
