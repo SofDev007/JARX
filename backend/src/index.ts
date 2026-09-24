@@ -268,8 +268,13 @@ const MAX_IMPORT_ROWS = 500;
 const IMPORT_CONCURRENCY = 3; // 2 fetches per row; Workers allow 6 connections waiting on headers
 
 app.post("/import/playlist", async (c) => {
-	const { name } = parse(
-		z.object({ name: z.string().trim().min(1).max(200).default(`Imported ${new Date().toISOString().slice(0, 10)}`) }),
+	const { name, playlistId: into } = parse(
+		z.object({
+			name: z.string().trim().min(1).max(200).default(`Imported ${new Date().toISOString().slice(0, 10)}`),
+			// Appends to an existing playlist instead, so a client can split a large import across
+			// requests: each row costs ~2 subrequests and the Free plan allows 50 per request.
+			playlistId: z.string().min(1).max(100).optional(),
+		}),
 		c.req.query(),
 	);
 	const text = await c.req.text();
@@ -277,6 +282,10 @@ app.post("/import/playlist", async (c) => {
 	const { rows, malformed } = parseImport(text);
 	if (!rows.length) throw new ApiError(400, "invalid_request", "No importable rows found", { malformed });
 	if (rows.length > MAX_IMPORT_ROWS) throw new ApiError(400, "invalid_request", `At most ${MAX_IMPORT_ROWS} rows per import`);
+	const target = into
+		? await c.env.jarx_db.prepare("SELECT name FROM playlist WHERE id = ?").bind(into).first<{ name: string }>()
+		: null;
+	if (into && !target) throw notFound("Playlist");
 
 	const tracks: Track[] = new Array(rows.length);
 	const unmatched: { line: number; title: string; artist: string; reason: string }[] = [];
@@ -307,15 +316,17 @@ app.post("/import/playlist", async (c) => {
 	await Promise.all(Array.from({ length: IMPORT_CONCURRENCY }, worker));
 
 	const db = c.env.jarx_db;
-	const playlistId = crypto.randomUUID();
+	const playlistId = into ?? crypto.randomUUID();
 	const now = Date.now();
 	await db.batch([
-		db.prepare("INSERT INTO playlist (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)").bind(playlistId, name, now, now),
+		into
+			? db.prepare("UPDATE playlist SET updated_at = ? WHERE id = ?").bind(now, playlistId)
+			: db.prepare("INSERT INTO playlist (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)").bind(playlistId, name, now, now),
 		appendTracks(db, playlistId, tracks, now),
 	]);
 	unmatched.push(...malformed.map((m) => ({ line: m.line, title: m.raw, artist: "", reason: `malformed: ${m.reason}` })));
 	unmatched.sort((a, b) => a.line - b.line);
-	return c.json({ playlistId, name, matched: rows.length - unmatched.filter((u) => u.reason === "no_match").length, unmatched }, 201);
+	return c.json({ playlistId, name: target?.name ?? name, matched: rows.length - unmatched.filter((u) => u.reason === "no_match").length, unmatched }, 201);
 });
 
 export default app;

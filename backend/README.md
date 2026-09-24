@@ -96,6 +96,10 @@ still added, as `playable: false` tracks whose `deepLink` opens a YouTube
 
 Returns `{ playlistId, name, matched, unmatched: [{ line, title, artist, reason }], malformed }`.
 
+Pass `playlistId` instead of `name` to **append** to an existing playlist. Each row costs ~2
+subrequests and the Free plan allows 50 per request, so the app splits big imports into
+chunks and sends each one with the `playlistId` the first chunk returned.
+
 ## Track model
 
 ```ts

@@ -14,10 +14,11 @@
 - [x] Routes: health, search, stream, playlists CRUD + add/remove/reorder, favorites, recently-played (last 200), import
 - [x] zod validation, `{ error: { code, message, details? } }` error shape, no CORS
 - [x] `npx tsc --noEmit` clean
-- [x] `npm test` (sources, importer, routes, resolver): 81 passing
+- [x] `npm test` (sources, importer, routes, resolver): 83 passing
 - [x] `wrangler dev` smoke: /health, 401 without token, /search?q=lofi, cache hit, playlist create→add→reorder→read, stream, import
 - [x] `wrangler dev` smoke **with real keys against the live APIs**: Jamendo search + stream, YouTube 422 + deep link, Exportify CSV import (multi-artist, quoted commas, ` - ` title suffixes) and plain-text import
 - [x] Deployed to **https://jarx-backend.jarx-backend.workers.dev** (`wrangler deploy --minify --secrets-file .dev.vars`). Verified: `secret list` shows all three, no remote migrations pending, `/health` 200, 401 without/with a wrong token, authenticated `/search` 200 (~3s uncached), `/tracks/jamendo/:id/stream` 200 (flaky, see Open issues)
+- [x] `POST /import/playlist?playlistId=` appends to an existing playlist (404s an unknown id before resolving any rows), so the app can split a large import across requests under the Free plan's 50-subrequest cap
 - [x] README endpoints section (`backend/README.md`) + `.dev.vars.example`
 
 ## Phase 2 — Flutter app (`app/`) — DRAFT, not started

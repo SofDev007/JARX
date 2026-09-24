@@ -280,6 +280,36 @@ describe("POST /import/playlist", () => {
 		expect(detail.body.tracks[1].track).toMatchObject({ source: "youtube", title: "Blinding Lights", album: "After Hours", durationMs: 200040, playable: false });
 	});
 
+	it("appends to an existing playlist when given playlistId, so a client can split a big import", async () => {
+		mockFetch(fixtures);
+		const first = await api("POST", "/import/playlist?name=Big", "kirbytape mix vol. 13 - lofi house edition - omgkirby", {
+			...AUTH,
+			"content-type": "text/plain",
+		});
+		const id = first.body.playlistId;
+
+		const second = await api("POST", `/import/playlist?playlistId=${id}&name=ignored`, "Blinding Lights - The Weeknd", {
+			...AUTH,
+			"content-type": "text/plain",
+		});
+		expect(second.status).toBe(201);
+		expect(second.body).toMatchObject({ playlistId: id, name: "Big", matched: 0 }); // the real name, not the query's
+
+		const detail = await api("GET", `/playlists/${id}`);
+		expect(detail.body.tracks.map((x: any) => [x.position, x.track.id])).toEqual([
+			[0, "audius:YmJWK"],
+			[1, "youtube:search:Blinding Lights The Weeknd"],
+		]);
+		expect((await api("GET", "/playlists")).body.playlists).toHaveLength(1); // no stray playlist per chunk
+	});
+
+	it("404s an unknown playlistId before resolving any rows", async () => {
+		const spy = mockFetch(fixtures);
+		const res = await api("POST", "/import/playlist?playlistId=nope", "Blinding Lights - The Weeknd", { ...AUTH, "content-type": "text/plain" });
+		expect(res.status).toBe(404);
+		expect(spy).not.toHaveBeenCalled();
+	});
+
 	it("rejects bodies with no importable rows", async () => {
 		const res = await api("POST", "/import/playlist", "\n - x\n", { ...AUTH, "content-type": "text/plain" });
 		expect(res.status).toBe(400);
