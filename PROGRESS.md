@@ -42,7 +42,7 @@ Flutter 3.47.5 / Dart 3.13.4. Test device: realme 5 Pro (RMX1971), Android 11 / 
   | path_provider_android 2.3.1 | inherits app | drift_flutter |
 
   Highest is 24, and nothing forces a floor above 29. Pure-Dart packages (riverpod, dio, drift) have no Android floor. sqlite3 3.5.2 builds through Dart build hooks against the app's own minSdk.
-- [ ] Manifest merger at minSdk 29 (the definitive check, covering every transitive AAR such as Media3): runs with the first APK build
+- [x] Manifest merger at minSdk 29 passed, which is the definitive check covering every transitive AAR (Media3 etc.). The built APK reports `minSdkVersion 29`, `targetSdkVersion 36`, AudioService `foregroundServiceType=mediaPlayback`, and MediaButtonReceiver present
 - **Limitation:** API 29 itself cannot be tested on-device, since the only device is API 30 and there is no emulator (virtualization is off in BIOS). API 29 is covered only by build configuration (minSdk 29, manifest merger) and by reading the plugins' source for API branches. Everything else is verified on the API 30 device.
 
 ### audio_service against API 29–30 (from its 0.18.19 source, not just the README)
@@ -86,7 +86,8 @@ Flutter 3.47.5 / Dart 3.13.4. Test device: realme 5 Pro (RMX1971), Android 11 / 
 
 ### Verification for this phase
 - [x] `flutter analyze` clean, `flutter test` green (15 tests: API client, import chunking, offline cache, 6 search-state widget tests)
-- [ ] APK builds (debug and release) with minSdk 29
+- [x] Debug APK builds with minSdk 29 (`aapt2 dump badging` verified)
+- [ ] Release APK builds
 - [ ] Installed and run on the RMX1971 against the deployed backend
 
 ## Decisions made without asking
@@ -113,3 +114,4 @@ Flutter 3.47.5 / Dart 3.13.4. Test device: realme 5 Pro (RMX1971), Android 11 / 
 - **Jamendo's `search=` is flaky**: the identical URL returns 5 results or 0 at random, always HTTP 200 with `status: "success"` (measured 4/6 empty in one run, 2/8 in another). `namesearch=` flakes too and ignores the artist, so it is not an upgrade. Left unfixed by decision: the resolver already tolerates an empty source, and a retry would double Jamendo subrequests per imported row against the Free plan's 50-subrequest cap. `gather()` now logs `jamendo returned 0 results ... while another source had hits`, so a rising flake rate is visible in `wrangler tail`.
 - **Jamendo's flake also hits the `id=` lookup behind `/stream`** (1/4 direct calls answered; 2/4 via the deployed Worker), so `/tracks/jamendo/:id/stream` 404s at random. Not fixed in the backend (decision stands). The app avoids depending on it: Jamendo stream URLs do not expire (URLs recorded 2026-09-23 still served `206 audio/mpeg` on 2026-09-25), so the app plays `track.streamUrl` directly and only calls `/stream` when the player errors.
 - **`mix` is not a version marker.** Live on the deployed Worker, `blinding lights the weeknd` tops out at "The Weeknd - Blinding Lights (DJ Luciano Velocity Mix)" by Luciano Deejay at 0.85, which blocks the YouTube fallback. Adding `mix` would also demote "(Original Mix)" (the real song in Beatport-style naming) and lofi DJ mixes, a core Audius use case. **Needs a decision.**
+- **Build environment (this PC).** Its only internet is the phone's USB tethering (`Remote NDIS based Internet Sharing Device`). Brief DNS outages there broke three Gradle runs (`No such host is known`), and a USB re-enumeration reset the phone's adb authorization. Fixed on the machine, outside the repo: `~/.gradle/gradle.properties` sets `org.gradle.internal.repository.max.tentatives=8` and `initial.backoff=2000` (Gradle 9.3.1's names, confirmed in its jars), so retries outlast the outages. The SDK's `cmdline-tools/latest` is the new Android CLI, whose `sdkmanager.bat` shim crashes (`0xC0000409`) when AGP asks it for the NDK. NDK 28.2.13676358 (Flutter 3.47.5's pin) and `platforms/android-36` were installed with `android sdk install` instead.
