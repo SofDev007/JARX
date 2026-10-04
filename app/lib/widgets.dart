@@ -4,7 +4,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'api.dart';
 
-const sourceNames = {'audius': 'Audius', 'jamendo': 'Jamendo', 'archive': 'Internet Archive', 'youtube': 'YouTube'};
+/// Display name and JARX source badge per provider. Providers get their badge as they are
+/// built: J (JioSaavn), YM (YouTube Music) and L (Local) are next. Legacy providers have none.
+const providers = <String, ({String name, String? badge})>{
+  'audius': (name: 'Audius', badge: null),
+  'jamendo': (name: 'Jamendo', badge: null),
+  'archive': (name: 'Internet Archive', badge: null),
+  'youtube': (name: 'YouTube', badge: 'Y'),
+};
 
 String formatDuration(Duration d) => '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
 
@@ -45,47 +52,87 @@ class Artwork extends StatelessWidget {
   }
 }
 
-/// One row for a track anywhere in the app. Playable rows call [onPlay]; YouTube rows are
-/// visibly different and open the YouTube app instead of the player.
+/// A provider's source badge, e.g. [Y] for YouTube. Empty for providers without one.
+class SourceBadge extends StatelessWidget {
+  const SourceBadge(this.source, {super.key});
+  final String source;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = providers[source];
+    if (p?.badge == null) return const SizedBox.shrink();
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(4)),
+      child: Text(
+        p!.badge!,
+        semanticsLabel: p.name,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+}
+
+/// One row for a track anywhere in the app. Playable rows call [onPlay]. Non-playable rows
+/// are YouTube videos: they look different and open YouTube instead of the player.
 class TrackTile extends StatelessWidget {
-  const TrackTile({required this.track, required this.onPlay, this.selected = false, this.menu = true, super.key});
+  const TrackTile({required this.track, this.onPlay, this.selected = false, this.menu = true, super.key});
   final Track track;
-  final VoidCallback onPlay;
+  final VoidCallback? onPlay;
   final bool selected, menu;
 
   @override
   Widget build(BuildContext context) {
     final t = track;
+    if (!t.playable) {
+      return ListTile(
+        selected: selected,
+        leading: Stack(
+          children: [
+            Opacity(opacity: 0.6, child: Artwork(t.artworkUrl)),
+            const Positioned.fill(child: Icon(Icons.smart_display, color: Colors.white)),
+          ],
+        ),
+        title: Text(t.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (t.artist.isNotEmpty) Text(t.artist, maxLines: 1, overflow: TextOverflow.ellipsis),
+            Row(
+              children: [
+                SourceBadge(t.source),
+                const SizedBox(width: 8),
+                const Text('Watch on YouTube'),
+                const SizedBox(width: 4),
+                const Icon(Icons.open_in_new, size: 14),
+              ],
+            ),
+          ],
+        ),
+        isThreeLine: t.artist.isNotEmpty,
+        trailing: menu ? TrackMenu(t) : null,
+        onTap: () => openOnYouTube(context, t),
+      );
+    }
+    final p = providers[t.source];
     final details = [
       if (t.artist.isNotEmpty) t.artist,
-      if (t.playable) sourceNames[t.source] ?? t.source else 'YouTube · not streamable',
+      if (p?.badge == null) p?.name ?? t.source, // badged providers show the badge instead
       if (t.durationMs != null) formatDuration(Duration(milliseconds: t.durationMs!)),
     ];
     return ListTile(
       selected: selected,
-      leading: t.playable
-          ? Artwork(t.artworkUrl)
-          : Stack(
-              children: [
-                Opacity(opacity: 0.6, child: Artwork(t.artworkUrl)),
-                const Positioned.fill(child: Icon(Icons.smart_display, color: Colors.white)),
-              ],
-            ),
+      leading: Artwork(t.artworkUrl),
       title: Text(t.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(details.join(' · '), maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+      subtitle: Row(
         children: [
-          if (!t.playable)
-            TextButton.icon(
-              onPressed: () => openOnYouTube(context, t),
-              icon: const Icon(Icons.open_in_new, size: 18),
-              label: const Text('YouTube'),
-            ),
-          if (menu) TrackMenu(t),
+          if (p?.badge != null) ...[SourceBadge(t.source), const SizedBox(width: 8)],
+          Expanded(child: Text(details.join(' · '), maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
       ),
-      onTap: t.playable ? onPlay : () => openOnYouTube(context, t),
+      trailing: menu ? TrackMenu(t) : null,
+      onTap: onPlay,
     );
   }
 }

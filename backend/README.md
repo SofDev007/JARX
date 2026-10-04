@@ -48,17 +48,30 @@ Errors are always `{ "error": { "code", "message", "details"? } }`.
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/health` | `{ status: "ok" }`. The only unauthenticated route. |
-| `GET` | `/search?q=&limit=` | `limit` 1–50, default 20. Returns `{ query, results, cached }`; each result is a Track plus `score`. Cached in D1 for 24h per normalized query. |
+| `GET` | `/search?q=&limit=` | `limit` 1–50, default 20, per section. Returns `{ query, music, videos, videoError, cached, results }`. Each result is a Track (its best copy) plus `score` and `sources`. Cached in D1 for 24h per normalized query. |
 | `GET` | `/tracks/:source/:id/stream` | `{ url }` — a fresh CDN URL. `:id` may contain slashes (archive ids are `item/file.mp3`). YouTube returns `422 not_playable` with the deep link in `details`. |
 
-`/search` queries Audius, Jamendo and Internet Archive in parallel (2.5s budget
-each), scores every candidate on fuzzy title+artist similarity × a per-source
-weight, dedupes and drops anything under 0.5. YouTube is only queried when
-nothing playable scores as a confident hit, and its results are always
-`playable: false` with a `deepLink` — metadata only, never audio.
+`/search` queries the enabled music (`audio`) providers and YouTube (`video`) in
+parallel, 2.5s budget each. Every candidate scores on fuzzy title+artist
+similarity × a per-source weight, and anything under 0.5 is dropped. Music and
+videos are ranked separately and returned apart, so a video never lands in `music`:
+
+- `music`: what JARX plays. Copies of the same song (same normalized title + artist)
+  merge into one result: the best copy's fields, with every copy listed in `sources`.
+- `videos`: YouTube, metadata only. Always `playable: false` with a `deepLink` to
+  `https://www.youtube.com/watch?v=<id>`; never audio.
+- `videoError`: `null`, `"quota_exceeded"` (YouTube answered 403 `quotaExceeded`) or
+  `"unavailable"` (any other YouTube failure). Music still answers either way, and a
+  search whose videos failed is not cached, so they reappear once YouTube answers again.
+- `results`: transitional, music then videos, for app builds from before the split. Remove
+  once none are installed.
+
+Quota: `search.list` has its own bucket of 100 calls/day (Google's default; resets at
+midnight Pacific Time), and every uncached search spends one. The 24h cache makes
+repeat searches free.
 
 Every provider is declared once, in `src/providers.ts`: display name, `enabled`,
-`kind` (`audio` is queried up front, `video` only as the fallback), `weight`,
+`kind` (`audio` results go to `music`, `video` results to `videos`), `weight`,
 playback type (`local` | `native` | `embed`) and adapter. Search, import matching,
 the stream route and the Track schema all read from it. A disabled provider is
 never searched or matched against, but its stored tracks stay valid and still

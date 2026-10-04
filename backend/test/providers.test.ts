@@ -60,30 +60,31 @@ describe("enabled flag", () => {
 		expect(enabledSources()).toEqual(["jamendo", "youtube"]);
 
 		const spy = mockFetch(fixtures);
-		const { results } = await search(env, "lofi type beat", 10);
-		expect(hosts(spy)).toEqual(new Set(["api.jamendo.com", "www.googleapis.com"])); // no playable hit left, so YouTube was asked
-		expect(results.some((r) => r.source === "audius")).toBe(false);
+		const { music } = await search(env, "lofi type beat", 10);
+		expect(hosts(spy)).toEqual(new Set(["api.jamendo.com", "www.googleapis.com"]));
+		expect(music.some((r) => r.source === "audius")).toBe(false);
 	});
 
-	it("drops a disabled video provider from the fallback too", async () => {
+	it("keeps search from querying a disabled video provider", async () => {
 		PROVIDERS.youtube.enabled = false;
 		const spy = mockFetch(fixtures);
-		await search(env, "blinding lights the weeknd", 10); // no confident playable match: normally asks YouTube
+		const { videos, videoError } = await search(env, "blinding lights the weeknd", 10);
 		expect(hosts(spy)).not.toContain("www.googleapis.com");
+		expect({ videos, videoError }).toEqual({ videos: [], videoError: null }); // switched off, not failed
 	});
 
 	it("never serves answers cached under a different set of enabled providers", async () => {
 		mockFetch(fixtures);
 		const before = await search(env, "lofi type beat", 10);
-		expect(before.results.some((r) => r.source === "audius")).toBe(true);
+		expect(before.music.some((r) => r.source === "audius")).toBe(true);
 
 		PROVIDERS.audius.enabled = false;
 		const off = await search(env, "lofi type beat", 10);
 		expect(off.cached).toBe(false);
-		expect(off.results.some((r) => r.source === "audius")).toBe(false);
+		expect(off.music.some((r) => r.source === "audius")).toBe(false);
 
 		PROVIDERS.audius.enabled = true;
-		expect(await search(env, "lofi type beat", 10)).toEqual({ results: before.results, cached: true });
+		expect(await search(env, "lofi type beat", 10)).toEqual({ ...before, cached: true });
 	});
 
 	it("keeps import matching from querying a disabled provider", async () => {
@@ -112,17 +113,17 @@ describe("resolver reads the registry", () => {
 		expect(rank("blinding lights the weeknd", [exact], 1)[0].score).toBe(0.8);
 	});
 
-	it("queries a provider up front or only as the fallback according to its kind", async () => {
-		let spy = mockFetch(fixtures);
-		await search(env, "lofi type beat", 10); // Audius has a confident hit, so no fallback runs
-		expect(hosts(spy)).toContain("archive.org");
+	it("sorts a provider's results into music or videos by its kind", async () => {
+		mockFetch(fixtures);
+		const before = await search(env, "lofi", 10);
+		expect(before.music.some((r) => r.source === "archive")).toBe(true);
+		expect(before.videos.some((r) => r.source === "archive")).toBe(false);
 
-		vi.restoreAllMocks();
 		await env.jarx_db.exec("DELETE FROM search_cache");
 		PROVIDERS.archive.kind = "video";
-		spy = mockFetch(fixtures);
-		await search(env, "lofi type beat", 10);
-		expect(hosts(spy)).not.toContain("archive.org");
+		const after = await search(env, "lofi", 10);
+		expect(after.music.some((r) => r.source === "archive")).toBe(false);
+		expect(after.videos.some((r) => r.source === "archive")).toBe(true);
 	});
 
 	it("matches imports only against audio providers whose weight can reach a confident match", async () => {

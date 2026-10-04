@@ -40,7 +40,16 @@ export type CanonicalTrack = Pick<Track, "id" | "title" | "artist" | "album" | "
 	sources: [TrackSource, ...TrackSource[]];
 };
 
-export const toCanonical = ({ source, sourceId, playable, streamUrl, deepLink, ...meta }: Track): CanonicalTrack => ({
-	...meta,
-	sources: [{ provider: source, sourceId, playback: PROVIDERS[source].playback, playable, streamUrl, deepLink }],
+export const toSource = (t: Track): TrackSource => ({
+	provider: t.source,
+	sourceId: t.sourceId,
+	playback: PROVIDERS[t.source].playback,
+	playable: t.playable,
+	streamUrl: t.streamUrl,
+	deepLink: t.deepLink,
 });
+
+export function toCanonical(t: Track): CanonicalTrack {
+	const { id, title, artist, album, artworkUrl, durationMs, mbid } = t;
+	return { id, title, artist, album, artworkUrl, durationMs, mbid, sources: [toSource(t)] };
+}

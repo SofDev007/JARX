@@ -1,8 +1,10 @@
 import { env } from "cloudflare:workers";
 import { describe, expect, it, vi } from "vitest";
+import { PROVIDERS } from "../src/providers";
 import { gather, HIT_SCORE, MIN_SCORE, rank, resolveOne, search, similarity, TIMEOUT_MS } from "../src/resolver";
 import type { Source, Track } from "../src/sources";
 import audiusSearch from "./fixtures/audius_search.json";
+import youtubeKeyInvalid from "./fixtures/youtube_error_key_invalid.json";
 import youtubeSearch from "./fixtures/youtube_search.json";
 import { calledUrls, fixtures, hang, json, mockFetch } from "./helpers";
 
@@ -69,6 +71,21 @@ describe("rank", () => {
 		);
 		expect(results).toHaveLength(1);
 		expect(results[0]).toMatchObject({ id: "audius:x", score: 1 });
+	});
+
+	it("keeps the other copies as alternate sources instead of discarding them", () => {
+		const [top] = rank(
+			"blinding lights the weeknd",
+			[
+				track("archive", "a/1.mp3", "Blinding Lights", "The Weeknd"),
+				track("audius", "x", "BLINDING LIGHTS!", "the weeknd"),
+				track("jamendo", "1", "Blinding Lights", "The Weeknd"),
+			],
+			10,
+		);
+		// The best copy leads and is also the flat Track; the rest follow in the order they were found.
+		expect(top.sources.map((s) => `${s.provider}:${s.sourceId}`)).toEqual(["audius:x", "archive:a/1.mp3", "jamendo:1"]);
+		expect(top.sources[0]).toMatchObject({ provider: top.source, sourceId: top.sourceId, playback: "native", playable: true });
 	});
 
 	it(`drops results scoring below ${MIN_SCORE}`, () => {
@@ -175,46 +192,77 @@ describe("cover/remix demotion", () => {
 });
 
 describe("search", () => {
-	it("does not call YouTube when a playable result is a confident match", async () => {
-		const spy = mockFetch(fixtures);
-		const { results, cached } = await search(env, "lofi type beat", 10);
-		expect(cached).toBe(false);
-		expect(results[0]).toMatchObject({ id: "audius:ng9rl", playable: true });
-		expect(results[0].score).toBeGreaterThanOrEqual(HIT_SCORE);
-		expect(calledUrls(spy).map((u) => u.host)).not.toContain("www.googleapis.com");
-	});
+	const youtubeApi = (url: URL) => (url.host === "www.googleapis.com" ? json(youtubeSearch) : undefined);
+	// The envelope recorded live (bad key), carrying the reason Google documents for a spent quota.
+	const quotaExceeded = {
+		error: { ...youtubeKeyInvalid.error, code: 403, errors: [{ ...youtubeKeyInvalid.error.errors[0], reason: "quotaExceeded" }] },
+	};
+	const cacheRows = async () => (await env.jarx_db.prepare("SELECT COUNT(*) AS n FROM search_cache").first<number>("n")) ?? 0;
 
-	it("falls back to YouTube (metadata only) when nothing playable is a confident match", async () => {
-		const spy = mockFetch((url) => (url.host === "www.googleapis.com" ? json(youtubeSearch) : undefined), fixtures);
-		const { results } = await search(env, "blinding lights the weeknd", 10);
+	it.each([
+		["lofi type beat", true],
+		["blinding lights the weeknd", false],
+	])("queries YouTube alongside the music providers for %j (confident music hit: %s)", async (q, hit) => {
+		const spy = mockFetch(youtubeApi, fixtures);
+		const { music } = await search(env, q, 10);
 
+		expect(music.some((m) => m.playable && m.score >= HIT_SCORE)).toBe(hit);
 		const yt = calledUrls(spy).filter((u) => u.host === "www.googleapis.com");
 		expect(yt).toHaveLength(1);
 		expect(yt[0].searchParams.get("type")).toBe("video");
 		expect(yt[0].searchParams.get("videoCategoryId")).toBe("10");
-
-		expect(results.length).toBeGreaterThan(0);
-		for (const r of results.filter((r) => r.source === "youtube")) {
-			expect(r).toMatchObject({ playable: false, streamUrl: null, deepLink: `https://www.youtube.com/watch?v=${r.sourceId}` });
-		}
-		expect(results.some((r) => r.source === "youtube")).toBe(true);
 	});
 
-	it("still answers when YouTube fails (e.g. quota exceeded)", async () => {
-		mockFetch(
-			(url) => (url.host === "www.googleapis.com" ? json({ error: { code: 403, errors: [{ reason: "quotaExceeded" }] } }, 403) : undefined),
-			fixtures,
-		);
-		const { results } = await search(env, "blinding lights the weeknd", 10);
-		expect(results.every((r) => r.source !== "youtube")).toBe(true);
+	it("keeps videos out of music: YouTube results land only in videos, as non-playable embed sources", async () => {
+		mockFetch(youtubeApi, fixtures);
+		const { music, videos, videoError } = await search(env, "blinding lights the weeknd", 10);
+
+		expect(videoError).toBeNull();
+		expect(videos.length).toBeGreaterThan(0);
+		for (const v of videos) {
+			expect(PROVIDERS[v.source].kind).toBe("video");
+			expect(v).toMatchObject({ source: "youtube", playable: false, streamUrl: null, deepLink: `https://www.youtube.com/watch?v=${v.sourceId}` });
+			expect(v.sources.every((s) => s.playback === "embed" && !s.playable)).toBe(true);
+		}
+		for (const m of music) expect(PROVIDERS[m.source].kind).toBe("audio");
+	});
+
+	it("gives each video its id, title, channel, thumbnail and watch link", async () => {
+		mockFetch(youtubeApi, fixtures);
+		const { videos } = await search(env, "blinding lights the weeknd", 10);
+		expect(videos.find((v) => v.sourceId === "4NRXx6U8ABQ")).toMatchObject({
+			id: "youtube:4NRXx6U8ABQ",
+			title: expect.stringContaining("Blinding Lights"),
+			artist: "TheWeekndVEVO",
+			artworkUrl: expect.stringMatching(/^https:\/\/i\.ytimg\.com\//),
+			deepLink: "https://www.youtube.com/watch?v=4NRXx6U8ABQ",
+		});
+	});
+
+	it("still answers with music when YouTube's quota is spent, says so, and caches nothing", async () => {
+		mockFetch((url) => (url.host === "www.googleapis.com" ? json(quotaExceeded, 403) : undefined), fixtures);
+		const spent = await search(env, "lofi type beat", 10);
+		expect(spent.music[0]).toMatchObject({ id: "audius:ng9rl" });
+		expect(spent).toMatchObject({ videos: [], videoError: "quota_exceeded", cached: false });
+		expect(await cacheRows()).toBe(0); // so the videos come back once the quota resets
+
+		vi.restoreAllMocks();
+		mockFetch(youtubeApi, fixtures);
+		expect(await search(env, "lofi type beat", 10)).toMatchObject({ videoError: null, cached: false });
+	});
+
+	it("reports any other YouTube failure as unavailable", async () => {
+		mockFetch((url) => (url.host === "www.googleapis.com" ? json(youtubeKeyInvalid, 400) : undefined), fixtures);
+		expect(await search(env, "lofi type beat", 10)).toMatchObject({ videos: [], videoError: "unavailable" });
+		expect(await cacheRows()).toBe(0);
 	});
 
 	it("caches results in D1 for 24h, keyed on the normalized query", async () => {
-		const spy = mockFetch(fixtures);
+		const spy = mockFetch(youtubeApi, fixtures);
 		const first = await search(env, "lofi type beat", 10);
 		const calls = spy.mock.calls.length;
 
-		expect(await search(env, "  LOFI Type Beat! ", 10)).toEqual({ results: first.results, cached: true });
+		expect(await search(env, "  LOFI Type Beat! ", 10)).toEqual({ ...first, cached: true });
 		expect(spy.mock.calls.length).toBe(calls);
 
 		await env.jarx_db.prepare("UPDATE search_cache SET fetched_at = fetched_at - ?").bind(24 * 60 * 60 * 1000).run();
@@ -223,9 +271,8 @@ describe("search", () => {
 
 	it("does not cache an empty result", async () => {
 		mockFetch(() => json({}, 503));
-		expect((await search(env, "lofi", 10)).results).toEqual([]);
-		const { n } = (await env.jarx_db.prepare("SELECT COUNT(*) AS n FROM search_cache").first<{ n: number }>())!;
-		expect(n).toBe(0);
+		expect(await search(env, "lofi", 10)).toMatchObject({ music: [], videos: [] });
+		expect(await cacheRows()).toBe(0);
 	});
 });
 
@@ -234,6 +281,14 @@ describe("resolveOne (import)", () => {
 		const spy = mockFetch(fixtures);
 		expect(await resolveOne(env, "lofi type beat bsdu")).toMatchObject({ id: "audius:ng9rl" });
 		expect(new Set(calledUrls(spy).map((u) => u.host))).toEqual(new Set(["api.audius.co", "api.jamendo.com"]));
+	});
+
+	it("returns a flat Track, so imports never store score or sources", async () => {
+		mockFetch(fixtures);
+		const t = (await resolveOne(env, "lofi type beat bsdu"))!;
+		expect(Object.keys(t).sort()).toEqual(
+			["album", "artist", "artworkUrl", "deepLink", "durationMs", "id", "mbid", "playable", "source", "sourceId", "streamUrl", "title"],
+		);
 	});
 
 	it("returns null when nothing is a confident match", async () => {

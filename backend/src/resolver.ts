@@ -1,12 +1,14 @@
 import { enabledSources, PROVIDERS, type Source } from "./providers";
-import type { Track } from "./track";
+import { HttpError } from "./sources";
+import { toSource, type CanonicalTrack, type Track } from "./track";
 
 export const TIMEOUT_MS = 2500;
 export const MIN_SCORE = 0.5; // below this a result is dropped
 export const HIT_SCORE = 0.75; // a playable result at or above this counts as a confident match
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-export type ScoredTrack = Track & { score: number };
+/** A ranked result: the best copy as a flat Track, plus every copy found in `sources` (that one first). */
+export type ScoredTrack = Track & CanonicalTrack & { score: number };
 
 // "Lo-Fi", "lofi" and "LOFI!" normalize alike; separators become token breaks.
 export const normalize = (s: string) =>
@@ -61,28 +63,40 @@ export function similarity(query: string, title: string, artist: string): number
 	return 0.75 * coverage(q, c) + 0.25 * coverage(c, q);
 }
 
-/** Score, drop below MIN_SCORE, dedupe on normalized title+artist keeping the best, sort. */
+/**
+ * Score, drop below MIN_SCORE, merge copies with the same normalized title+artist, sort.
+ * The best-scoring copy leads (ties go to the first seen); the others stay as alternate sources.
+ */
 export function rank(query: string, tracks: Track[], limit: number): ScoredTrack[] {
 	const asked = flat(query);
-	const best = new Map<string, ScoredTrack>();
-	for (const { score: _, ...t } of tracks as ScoredTrack[]) {
+	const merged = new Map<string, ScoredTrack>();
+	for (const t of tracks) {
 		// Only demote when the query itself didn't ask for that marker.
 		const marker = (t.title.match(VERSION_RE) ?? t.artist.match(VERSION_RE))?.[0];
 		const penalty = marker && !asked.includes(flat(marker)) ? VERSION_PENALTY : 1;
 		const score = Math.round(similarity(query, t.title, t.artist) * PROVIDERS[t.source].weight * penalty * 1000) / 1000;
 		if (score < MIN_SCORE) continue;
 		const key = `${normalize(t.title)}|${normalize(t.artist)}`;
-		const prev = best.get(key);
-		if (!prev || score > prev.score) best.set(key, { ...t, score });
+		const prev = merged.get(key);
+		if (!prev) merged.set(key, { ...t, score, sources: [toSource(t)] });
+		else if (score > prev.score) merged.set(key, { ...t, score, sources: [toSource(t), ...prev.sources] });
+		else prev.sources.push(toSource(t));
 	}
-	return [...best.values()].sort((a, b) => b.score - a.score).slice(0, limit);
+	return [...merged.values()].sort((a, b) => b.score - a.score).slice(0, limit);
 }
 
 /** Query sources in parallel; each gets its own timeout and a failure only drops that source. */
 export async function gather(env: CloudflareBindings, q: string, limit: number, sources: Source[]): Promise<Track[]> {
+	return (await settle(env, q, limit, sources)).tracks;
+}
+
+/** gather(), plus why the failed sources failed. */
+async function settle(env: CloudflareBindings, q: string, limit: number, sources: Source[]): Promise<{ tracks: Track[]; errors: unknown[] }> {
 	const settled = await Promise.allSettled(sources.map((s) => PROVIDERS[s].adapter.search(q, limit, env, AbortSignal.timeout(TIMEOUT_MS))));
+	const errors: unknown[] = [];
 	const per = settled.map((r, i) => {
 		if (r.status === "fulfilled") return r.value;
+		errors.push(r.reason);
 		console.warn(`source ${sources[i]} failed: ${String(r.reason).replace(/(key|client_id)=[^&\s]+/g, "$1=***")}`);
 		return [] as Track[];
 	});
@@ -90,10 +104,14 @@ export async function gather(env: CloudflareBindings, q: string, limit: number, 
 	// seconds later. Only worth a line when a sibling source did find something.
 	const j = sources.indexOf("jamendo");
 	if (j >= 0 && !per[j].length && per.some((p) => p.length)) console.warn(`jamendo returned 0 results for "${q}" while another source had hits`);
-	return per.flat();
+	return { tracks: per.flat(), errors };
 }
 
-const hasHit = (results: ScoredTrack[]) => results.some((t) => t.playable && t.score >= HIT_SCORE);
+/** Why the video half of a search is empty when it failed, for the app to say so. */
+export type VideoError = "quota_exceeded" | "unavailable";
+export type SearchResults = { music: ScoredTrack[]; videos: ScoredTrack[]; videoError: VideoError | null };
+
+const isQuotaError = (e: unknown) => e instanceof HttpError && e.reason === "quotaExceeded";
 
 async function sha256(s: string): Promise<string> {
 	const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -101,10 +119,12 @@ async function sha256(s: string): Promise<string> {
 }
 
 /**
- * Full search: D1 cache (24h) → enabled audio providers → enabled video providers (YouTube)
- * only if nothing playable is a confident match (protects the 100 searches/day quota).
+ * Full search: D1 cache (24h), else music (enabled audio providers) and videos (enabled video
+ * providers: YouTube) fetched in parallel and ranked apart, so videos never mix into the music.
+ * Each uncached search spends one of YouTube's 100 daily search.list calls; the cache keeps
+ * repeats free.
  */
-export async function search(env: CloudflareBindings, q: string, limit: number): Promise<{ results: ScoredTrack[]; cached: boolean }> {
+export async function search(env: CloudflareBindings, q: string, limit: number): Promise<SearchResults & { cached: boolean }> {
 	const db = env.jarx_db;
 	// Keyed on the enabled providers too, so toggling one never serves answers cached under the old set.
 	const hash = await sha256(`${normalize(q)}|${limit}|${enabledSources().join(",")}`);
@@ -113,13 +133,21 @@ export async function search(env: CloudflareBindings, q: string, limit: number):
 		.prepare("SELECT results_json FROM search_cache WHERE query_hash = ? AND fetched_at > ?")
 		.bind(hash, now - CACHE_TTL_MS)
 		.first<string>("results_json");
-	if (hit) return { results: JSON.parse(hit), cached: true };
+	if (hit) return { ...(JSON.parse(hit) as SearchResults), cached: true };
 
-	let results = rank(q, await gather(env, q, limit, enabledSources("audio")), limit);
-	if (!hasHit(results)) results = rank(q, [...results, ...(await gather(env, q, limit, enabledSources("video")))], limit);
+	const [music, video] = await Promise.all([
+		settle(env, q, limit, enabledSources("audio")),
+		settle(env, q, limit, enabledSources("video")),
+	]);
+	const results: SearchResults = {
+		music: rank(q, music.tracks, limit),
+		videos: rank(q, video.tracks, limit),
+		videoError: !video.errors.length ? null : video.errors.some(isQuotaError) ? "quota_exceeded" : "unavailable",
+	};
 
-	// Don't pin an empty (possibly outage-caused) result for a day.
-	if (results.length) {
+	// Cache complete answers only. Never pin an empty (possibly outage-caused) one, nor one whose
+	// videos failed (say, YouTube's daily quota ran out), so videos return once YouTube answers again.
+	if ((results.music.length || results.videos.length) && !results.videoError) {
 		await db.batch([
 			db
 				.prepare("INSERT OR REPLACE INTO search_cache (query_hash, results_json, fetched_at) VALUES (?, ?, ?)")
@@ -127,7 +155,7 @@ export async function search(env: CloudflareBindings, q: string, limit: number):
 			db.prepare("DELETE FROM search_cache WHERE fetched_at <= ?").bind(now - CACHE_TTL_MS),
 		]);
 	}
-	return { results, cached: false };
+	return { ...results, cached: false };
 }
 
 /**
@@ -143,6 +171,6 @@ export async function resolveOne(env: CloudflareBindings, q: string, artist = ""
 		(t) => t.score >= HIT_SCORE && (!artist || similarity(artist, t.artist, "") >= MIN_SCORE),
 	);
 	if (!best) return null;
-	const { score: _, ...t } = best;
+	const { score: _, sources: _sources, ...t } = best; // stored as a flat Track
 	return t;
 }

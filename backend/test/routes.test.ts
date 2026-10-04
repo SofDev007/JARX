@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
 import app from "../src/index";
+import youtubeSearch from "./fixtures/youtube_search.json";
 import { calledUrls, fixtures, json, mockFetch } from "./helpers";
 
 const AUTH = { Authorization: "Bearer test-token" };
@@ -89,6 +90,17 @@ describe("GET /search", () => {
 		expect(res.status).toBe(200);
 		expect(res.body).toMatchObject({ query: "lofi type beat", cached: false });
 		expect(res.body.results[0]).toMatchObject({ id: "audius:ng9rl", source: "audius", playable: true, mbid: null });
+	});
+
+	it("answers with music and videos apart, plus the merged list older app builds read", async () => {
+		mockFetch((url) => (url.host === "www.googleapis.com" ? json(youtubeSearch) : undefined), fixtures);
+		const { status, body } = await api("GET", "/search?q=blinding%20lights%20the%20weeknd&limit=5");
+		expect(status).toBe(200);
+		expect(body).toMatchObject({ query: "blinding lights the weeknd", cached: false, videoError: null });
+		expect(body.videos.length).toBeGreaterThan(0);
+		expect(body.videos.every((v: any) => v.source === "youtube" && !v.playable && v.sources[0].playback === "embed")).toBe(true);
+		expect(body.music.every((m: any) => m.source !== "youtube")).toBe(true);
+		expect(body.results).toEqual([...body.music, ...body.videos]);
 	});
 });
 

@@ -14,14 +14,18 @@ export interface Adapter {
 }
 
 export class HttpError extends Error {
-	constructor(readonly status: number, host: string) {
-		super(`${host} responded ${status}`); // host only: query strings carry API keys
+	constructor(readonly status: number, host: string, readonly reason?: string) {
+		super(`${host} responded ${status}${reason ? ` (${reason})` : ""}`); // host only: query strings carry API keys
 	}
 }
 
 async function getJson(url: string, signal: AbortSignal): Promise<any> {
 	const res = await fetch(url, { signal, headers: { accept: "application/json" } });
-	if (!res.ok) throw new HttpError(res.status, new URL(url).host);
+	if (!res.ok) {
+		// Google APIs say why in error.errors[].reason, e.g. YouTube's "quotaExceeded".
+		const reason = await res.json().then((b: any) => b?.error?.errors?.[0]?.reason, () => undefined);
+		throw new HttpError(res.status, new URL(url).host, typeof reason === "string" ? reason : undefined);
+	}
 	return res.json();
 }
 

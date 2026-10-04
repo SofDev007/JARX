@@ -81,13 +81,36 @@ void main() {
   });
 
   test('sends the bearer token to the deployed backend', () async {
-    final server = _FakeServer((_) => _json({'query': 'x', 'results': [_track], 'cached': false}));
+    final server = _FakeServer(
+      (_) => _json({'query': 'x', 'music': [_track], 'videos': [], 'videoError': null, 'results': [_track], 'cached': false}),
+    );
     final results = await Api(cache, adapter: server).search('lofi');
 
-    expect(results.single.title, 'My Song');
+    expect(results.music.single.title, 'My Song');
     final sent = server.requests.single;
     expect(sent.uri.toString(), startsWith('https://jarx-backend.jarx-backend.workers.dev/search?'));
     expect(sent.headers['Authorization'], startsWith('Bearer '));
+  });
+
+  test('search keeps music and YouTube videos apart, and passes on why videos are missing', () async {
+    const video = {
+      'source': 'youtube',
+      'sourceId': '4NRXx6U8ABQ',
+      'title': 'Blinding Lights',
+      'artist': 'TheWeekndVEVO',
+      'playable': false,
+      'deepLink': 'https://www.youtube.com/watch?v=4NRXx6U8ABQ',
+    };
+    final server = _FakeServer(
+      (_) => _json({'music': [_track], 'videos': [video], 'videoError': null, 'results': [_track, video]}),
+    );
+    final r = await Api(cache, adapter: server).search('x');
+    expect(r.music.map((t) => t.id), ['archive:item/My Song #1.mp3']); // not the merged `results`
+    expect(r.videos.single, isA<Track>().having((t) => t.id, 'id', 'youtube:4NRXx6U8ABQ').having((t) => t.playable, 'playable', false));
+    expect(r.videoError, isNull);
+
+    server.handler = (_) => _json({'music': [_track], 'videos': [], 'videoError': 'quota_exceeded', 'results': [_track]});
+    expect((await Api(cache, adapter: server).search('x')).videoError, 'quota_exceeded');
   });
 
   test("turns the backend's error body into its message", () async {

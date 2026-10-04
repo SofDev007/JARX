@@ -79,6 +79,10 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
+/// A search answer: music JARX plays, and YouTube videos, which play only in YouTube.
+/// [videoError] says why [videos] is empty when YouTube failed: `quota_exceeded` or `unavailable`.
+typedef SearchAnswer = ({List<Track> music, List<Track> videos, String? videoError});
+
 class PlaylistSummary {
   const PlaylistSummary(this.id, this.name, this.trackCount);
   final String id, name;
@@ -119,9 +123,9 @@ class Api {
   final Dio _dio;
   final Cache _cache;
 
-  Future<List<Track>> search(String q) => _call(
+  Future<SearchAnswer> search(String q) => _call(
     () => _dio.get('/search', queryParameters: {'q': q, 'limit': 25}),
-    (d) => _tracks(d['results']),
+    (d) => (music: _tracks(d['music']), videos: _tracks(d['videos']), videoError: d['videoError'] as String?),
   );
 
   /// A fresh stream URL. Archive ids contain slashes, so each segment is encoded on its own.
@@ -241,7 +245,7 @@ List<String> importChunks(String text, {int size = 20}) {
 
 final apiProvider = Provider<Api>((ref) => throw UnimplementedError('overridden in main()'));
 
-final searchProvider = FutureProvider.autoDispose.family<List<Track>, String>(
+final searchProvider = FutureProvider.autoDispose.family<SearchAnswer, String>(
   (ref, q) => ref.watch(apiProvider).search(q),
 );
 final playlistsProvider = FutureProvider.autoDispose((ref) => ref.watch(apiProvider).playlists());

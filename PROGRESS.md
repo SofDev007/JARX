@@ -102,6 +102,20 @@ Scope: a provider registry and the multi-source track model only. No new provide
 - [x] `npx tsc --noEmit` clean; `npm test` 109 passing (83 existing, unmodified; 26 new in `providers.test.ts`, `track.test.ts`)
 - [x] `flutter analyze` clean; `flutter test` 16 passing (1 new: stored placeholders parse, unknown fields ignored). No app code changed.
 
+## Phase 4: Search architecture + YouTube video separation (roadmap Phase 2)
+
+- [x] CLAUDE.md rewritten for the current architecture: active target vs legacy providers (disable, never delete), the registry as the only provider list, YouTube allowed/forbidden, Spotify metadata import allowed / audio extraction forbidden, external music sites off the roadmap
+- [x] YouTube is searched on every search, in parallel with the music providers, no longer only as a fallback
+- [x] `/search` returns `music` and `videos` apart (sorted by the registry's `kind`), plus `videoError` and a transitional `results` (music then videos) for app builds from before the split
+- [x] `rank()` keeps duplicate copies as alternate `sources` instead of discarding them. Ranking and order are unchanged; import still stores flat Tracks (tested)
+- [x] Quota: verified against Google's docs (`search.list` has its own bucket, 100 calls/day by default; a spent quota answers 403 `quotaExceeded`) and the live error envelope (recorded: `test/fixtures/youtube_error_key_invalid.json`). Music still answers when YouTube fails, `videoError` says why, and a search whose videos failed is not cached
+- [x] App: music on top; below a `Divider`, "Video playback (ads included)" and the YouTube rows ([Y] badge, "Watch on YouTube", tap → existing YouTube handoff). Music still plays in the JARX player, queueing only music. The quota/unavailable note replaces silence. The old "Found on YouTube" banner is gone: it assumed YouTube only ran on a miss
+- [x] Source badges: one provider table in `app/lib/widgets.dart` (name + badge); only YouTube has one so far
+- [x] `/tracks/youtube/.../stream` still 422; openOnYouTube unchanged
+- [x] `npx tsc --noEmit` clean; `npm test` 115 passing (8 tests that encoded the old fallback or `{results}` shape rewritten; legacy adapter, importer and route tests unchanged)
+- [x] `flutter analyze` clean; `flutter test` 21 passing (the 3 banner tests replaced by section tests)
+- [ ] Verified on device against a deployed backend (not deployed)
+
 ## Decisions made without asking
 
 - **Phase 2 plan**: none existed, so the draft checklist in this file was used, per "proceed as specified in the plan".
@@ -123,8 +137,15 @@ Scope: a provider registry and the multi-source track model only. No new provide
 - **Import eligibility is derived, not listed:** enabled `audio` providers whose weight can reach `HIT_SCORE` (0.75). That is exactly Audius + Jamendo today; archive's 0.7 never could.
 - **Search-cache key now includes the enabled set**, so flipping a flag never serves a stale cached answer. One-off cost: entries cached before the next deploy are missed once. Weights and kinds are not part of the key; a change to those still takes up to 24h to reach cached queries, as before.
 - **Wire format and D1 untouched in Phase 3:** `CanonicalTrack` exists as a type plus `toCanonical()`, not yet in responses, so the app needed no code change.
+- **Search results are both shapes (Phase 4):** each result is the best copy's flat Track fields plus `sources[]` (a CanonicalTrack), so flat-Track readers keep working. The app still reads only the flat fields.
+- **Alternate sources keep the order they were found** (the best copy first); they carry no score of their own.
+- **No YouTube circuit breaker:** a request against a spent quota fails fast, runs in parallel with the music providers, and costs no quota, so remembering the outage would save one quick subrequest per search, not quota. A search is simply left uncached while YouTube fails.
+- **`limit` applies per section** (music ≤ limit, videos ≤ limit). The app still asks for 25.
+- **"Direction A" styling** is not defined anywhere in the repo; the new UI uses the app's existing Material 3 theme.
 
 ## Open issues
+
+- **YouTube quota vs as-you-type search (needs a decision).** Every uncached search spends one of 100 daily `search.list` calls. The app searches 500 ms after the last keystroke, so a typed query can spend more than one call through intermediate queries ("blin", "blinding lights"). The 24h cache only helps exact repeats. Options: ask YouTube only on submit or after a longer pause, request a quota increase from Google, or accept ~100 distinct searches/day.
 
 - Archive is slow from India (0.5–2.2s for search alone, 4–10s with item metadata), so it often returns partial or no results within 2.5s. Revisit after measuring the deployed Worker; Smart Placement is an option.
 - Staying on the **Free** plan by decision. ~2 subrequests per row against a 50-per-request cap means imports past ~25 rows must be split client-side; the app will batch them with a ~1s gap between rows. Import is capped at 500 rows server-side.

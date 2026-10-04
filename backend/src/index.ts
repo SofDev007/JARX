@@ -73,7 +73,9 @@ const searchQuery = z.object({
 
 app.get("/search", async (c) => {
 	const { q, limit } = parse(searchQuery, c.req.query());
-	return c.json({ query: q, ...(await search(c.env, q, limit)) });
+	const r = await search(c.env, q, limit);
+	// `results` (music, then videos) is for app builds that predate the split; drop it once none are left.
+	return c.json({ query: q, ...r, results: [...r.music, ...r.videos] });
 });
 
 // :id{.+} because archive ids are "<identifier>/<file>". Disabled providers still resolve

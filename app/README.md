@@ -37,5 +37,8 @@ Playback uses the stream URL a track already carries and only asks `/stream` for
 if the player fails. Jamendo's URLs never expire, Archive's are stable, and Audius's are
 signed and do expire.
 
-YouTube results are metadata only. Tapping one opens the YouTube app; JARX never plays
-YouTube audio.
+Search shows music first. YouTube videos sit below a separator labelled "Video playback
+(ads included)", each marked with the [Y] source badge. YouTube results are metadata only:
+tapping one opens the YouTube app (or a browser), ads included; JARX never plays YouTube audio.
+Source badges live in `providers` in `lib/widgets.dart`: J, YM and L get added there as those
+providers are built.
