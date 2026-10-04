@@ -57,6 +57,13 @@ weight, dedupes and drops anything under 0.5. YouTube is only queried when
 nothing playable scores as a confident hit, and its results are always
 `playable: false` with a `deepLink` — metadata only, never audio.
 
+Every provider is declared once, in `src/providers.ts`: display name, `enabled`,
+`kind` (`audio` is queried up front, `video` only as the fallback), `weight`,
+playback type (`local` | `native` | `embed`) and adapter. Search, import matching,
+the stream route and the Track schema all read from it. A disabled provider is
+never searched or matched against, but its stored tracks stay valid and still
+resolve streams.
+
 ### Playlists
 
 | Method | Path | Notes |
@@ -118,3 +125,9 @@ Track {
   deepLink      // nullable; set for YouTube
 }
 ```
+
+`src/track.ts` also defines the coming multi-source shape, `CanonicalTrack`: the
+metadata plus `sources[]`, each with its provider, `sourceId`, playback type,
+`playable`, `streamUrl` and `deepLink`. Nothing stores or serves it yet.
+`toCanonical()` lifts a stored Track into it without losing a field, keeping
+`id` as `<source>:<sourceId>`.

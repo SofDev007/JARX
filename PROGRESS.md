@@ -90,6 +90,18 @@ Flutter 3.47.5 / Dart 3.13.4. Test device: realme 5 Pro (RMX1971), Android 11 / 
 - [ ] Release APK builds
 - [ ] Installed and run on the RMX1971 against the deployed backend
 
+## Phase 3: Architecture foundation (backend)
+
+Scope: a provider registry and the multi-source track model only. No new providers, no disabling, no UI.
+
+- [x] Single provider registry, `backend/src/providers.ts`: id, display name, `enabled`, `kind` (audio | video), `weight`, playback type (local | native | embed), adapter, optional deep-link builder. `SOURCES` and the `Source` type derive from it.
+- [x] The resolver and routes read only the registry. Gone: `WEIGHT`, `PLAYABLE_SOURCES`, `ADAPTERS`, the `["youtube"]` fallback list, import's `["audius","jamendo"]` and the route's `source === "youtube"`. Search order, weights, fallback and import sources are unchanged.
+- [x] `enabled` flag: a disabled provider is never searched or matched for imports. Search-cache keys include the set of enabled providers.
+- [x] Track model moved to `backend/src/track.ts`, with the schema unchanged. Added `TrackSource` / `CanonicalTrack` (metadata + `sources[]`) and `toCanonical()`, a lossless conversion. Not stored or served yet, so there is no D1 migration and no API change.
+- [x] YouTube stream route still answers 422 with the deep link (same body), now because its playback type is `embed`.
+- [x] `npx tsc --noEmit` clean; `npm test` 109 passing (83 existing, unmodified; 26 new in `providers.test.ts`, `track.test.ts`)
+- [x] `flutter analyze` clean; `flutter test` 16 passing (1 new: stored placeholders parse, unknown fields ignored). No app code changed.
+
 ## Decisions made without asking
 
 - **Phase 2 plan**: none existed, so the draft checklist in this file was used, per "proceed as specified in the plan".
@@ -106,6 +118,11 @@ Flutter 3.47.5 / Dart 3.13.4. Test device: realme 5 Pro (RMX1971), Android 11 / 
 - **Compatibility date** lowered from 2026-09-16 to 2026-08-22: the workerd bundled with `@cloudflare/vitest-pool-workers@0.22` supports up to 2026-08-22, and tests and production should run the same runtime behavior.
 - **`remote: true` removed** from the D1 binding so `wrangler dev` and tests use a local database, never production. Static `public/` assets removed so no path bypasses auth.
 - `Track.id` is always derived as `<source>:<sourceId>` (client-supplied ids are ignored); optional fields are stored as explicit `null`.
+- **Registry holds only implemented providers.** local/jiosaavn/ytmusic get entries when they are built: the Track schema's source enum derives from the registry, and registering them early would make the backend accept those sources in stored tracks.
+- **Disabled ≠ gone.** `enabled: false` removes a provider from search and import matching only. Its stored tracks still validate and `/tracks/:source/:id/stream` still resolves them, so the library keeps playing.
+- **Import eligibility is derived, not listed:** enabled `audio` providers whose weight can reach `HIT_SCORE` (0.75). That is exactly Audius + Jamendo today; archive's 0.7 never could.
+- **Search-cache key now includes the enabled set**, so flipping a flag never serves a stale cached answer. One-off cost: entries cached before the next deploy are missed once. Weights and kinds are not part of the key; a change to those still takes up to 24h to reach cached queries, as before.
+- **Wire format and D1 untouched in Phase 3:** `CanonicalTrack` exists as a type plus `toCanonical()`, not yet in responses, so the app needed no code change.
 
 ## Open issues
 

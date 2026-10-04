@@ -1,11 +1,10 @@
-import { ADAPTERS, type Source, type Track } from "./sources";
+import { enabledSources, PROVIDERS, type Source } from "./providers";
+import type { Track } from "./track";
 
-export const WEIGHT: Record<Source, number> = { audius: 1, jamendo: 0.95, archive: 0.7, youtube: 0.9 };
 export const TIMEOUT_MS = 2500;
 export const MIN_SCORE = 0.5; // below this a result is dropped
 export const HIT_SCORE = 0.75; // a playable result at or above this counts as a confident match
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-const PLAYABLE_SOURCES: Source[] = ["audius", "jamendo", "archive"];
 
 export type ScoredTrack = Track & { score: number };
 
@@ -70,7 +69,7 @@ export function rank(query: string, tracks: Track[], limit: number): ScoredTrack
 		// Only demote when the query itself didn't ask for that marker.
 		const marker = (t.title.match(VERSION_RE) ?? t.artist.match(VERSION_RE))?.[0];
 		const penalty = marker && !asked.includes(flat(marker)) ? VERSION_PENALTY : 1;
-		const score = Math.round(similarity(query, t.title, t.artist) * WEIGHT[t.source] * penalty * 1000) / 1000;
+		const score = Math.round(similarity(query, t.title, t.artist) * PROVIDERS[t.source].weight * penalty * 1000) / 1000;
 		if (score < MIN_SCORE) continue;
 		const key = `${normalize(t.title)}|${normalize(t.artist)}`;
 		const prev = best.get(key);
@@ -81,7 +80,7 @@ export function rank(query: string, tracks: Track[], limit: number): ScoredTrack
 
 /** Query sources in parallel; each gets its own timeout and a failure only drops that source. */
 export async function gather(env: CloudflareBindings, q: string, limit: number, sources: Source[]): Promise<Track[]> {
-	const settled = await Promise.allSettled(sources.map((s) => ADAPTERS[s].search(q, limit, env, AbortSignal.timeout(TIMEOUT_MS))));
+	const settled = await Promise.allSettled(sources.map((s) => PROVIDERS[s].adapter.search(q, limit, env, AbortSignal.timeout(TIMEOUT_MS))));
 	const per = settled.map((r, i) => {
 		if (r.status === "fulfilled") return r.value;
 		console.warn(`source ${sources[i]} failed: ${String(r.reason).replace(/(key|client_id)=[^&\s]+/g, "$1=***")}`);
@@ -102,12 +101,13 @@ async function sha256(s: string): Promise<string> {
 }
 
 /**
- * Full search: D1 cache (24h) → playable sources → YouTube only if nothing
- * playable is a confident match (protects the 100 searches/day quota).
+ * Full search: D1 cache (24h) → enabled audio providers → enabled video providers (YouTube)
+ * only if nothing playable is a confident match (protects the 100 searches/day quota).
  */
 export async function search(env: CloudflareBindings, q: string, limit: number): Promise<{ results: ScoredTrack[]; cached: boolean }> {
 	const db = env.jarx_db;
-	const hash = await sha256(`${normalize(q)}|${limit}`);
+	// Keyed on the enabled providers too, so toggling one never serves answers cached under the old set.
+	const hash = await sha256(`${normalize(q)}|${limit}|${enabledSources().join(",")}`);
 	const now = Date.now();
 	const hit = await db
 		.prepare("SELECT results_json FROM search_cache WHERE query_hash = ? AND fetched_at > ?")
@@ -115,8 +115,8 @@ export async function search(env: CloudflareBindings, q: string, limit: number):
 		.first<string>("results_json");
 	if (hit) return { results: JSON.parse(hit), cached: true };
 
-	let results = rank(q, await gather(env, q, limit, PLAYABLE_SOURCES), limit);
-	if (!hasHit(results)) results = rank(q, [...results, ...(await gather(env, q, limit, ["youtube"]))], limit);
+	let results = rank(q, await gather(env, q, limit, enabledSources("audio")), limit);
+	if (!hasHit(results)) results = rank(q, [...results, ...(await gather(env, q, limit, enabledSources("video")))], limit);
 
 	// Don't pin an empty (possibly outage-caused) result for a day.
 	if (results.length) {
@@ -131,13 +131,15 @@ export async function search(env: CloudflareBindings, q: string, limit: number):
 }
 
 /**
- * Best confident playable match for an import row, or null. Skips archive
- * (weight 0.7 < HIT_SCORE) and YouTube (quota). When the row names an artist
- * the candidate's artist must match too: covers like "The Weeknd Blinding
- * Lights [COVER]" by "DJ-M" otherwise score high on title+artist text alone.
+ * Best confident playable match for an import row, or null. Queries only enabled
+ * audio providers whose weight can reach HIT_SCORE at all (so not archive at 0.7,
+ * which also saves its subrequests) and never video ones (YouTube quota). When the
+ * row names an artist the candidate's artist must match too: covers like "The
+ * Weeknd Blinding Lights [COVER]" by "DJ-M" otherwise score high on title+artist text alone.
  */
 export async function resolveOne(env: CloudflareBindings, q: string, artist = ""): Promise<Track | null> {
-	const best = rank(q, await gather(env, q, 5, ["audius", "jamendo"]), 5).find(
+	const sources = enabledSources("audio").filter((s) => PROVIDERS[s].weight >= HIT_SCORE);
+	const best = rank(q, await gather(env, q, 5, sources), 5).find(
 		(t) => t.score >= HIT_SCORE && (!artist || similarity(artist, t.artist, "") >= MIN_SCORE),
 	);
 	if (!best) return null;

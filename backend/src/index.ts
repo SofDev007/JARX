@@ -2,8 +2,9 @@ import { Hono, type Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { z } from "zod";
 import { parseImport, rowQuery } from "./importer";
+import { PROVIDERS, SOURCES } from "./providers";
 import { resolveOne, search, TIMEOUT_MS } from "./resolver";
-import { ADAPTERS, SOURCES, trackSchema, type Track } from "./sources";
+import { trackSchema, type Track } from "./track";
 
 type Env = { Bindings: CloudflareBindings };
 
@@ -75,18 +76,21 @@ app.get("/search", async (c) => {
 	return c.json({ query: q, ...(await search(c.env, q, limit)) });
 });
 
-// :id{.+} because archive ids are "<identifier>/<file>".
+// :id{.+} because archive ids are "<identifier>/<file>". Disabled providers still resolve
+// here, so tracks already in the library keep playing.
 app.get("/tracks/:source/:id{.+}/stream", async (c) => {
 	const source = parse(z.enum(SOURCES), c.req.param("source"));
 	const id = c.req.param("id");
-	if (source === "youtube") {
-		throw new ApiError(422, "not_playable", "YouTube tracks are metadata-only; open the deep link", {
-			deepLink: `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`,
+	const provider = PROVIDERS[source];
+	// Embed sources (YouTube) are metadata only: never extract or proxy their audio.
+	if (provider.playback === "embed") {
+		throw new ApiError(422, "not_playable", `${provider.name} tracks are metadata-only; open the deep link`, {
+			deepLink: provider.deepLink?.(id),
 		});
 	}
 	let url: string | null;
 	try {
-		url = await ADAPTERS[source].streamUrl(id, c.env, AbortSignal.timeout(2 * TIMEOUT_MS));
+		url = await provider.adapter.streamUrl(id, c.env, AbortSignal.timeout(2 * TIMEOUT_MS));
 	} catch (e) {
 		console.warn(`stream ${source} failed: ${String(e).replace(/(key|client_id)=[^&\s]+/g, "$1=***")}`);
 		throw new ApiError(502, "upstream_error", `Could not resolve a stream from ${source}`);

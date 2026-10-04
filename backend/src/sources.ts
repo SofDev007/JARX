@@ -1,26 +1,9 @@
-import { z } from "zod";
+import type { Track } from "./track";
 
-export const SOURCES = ["audius", "jamendo", "archive", "youtube"] as const;
-export type Source = (typeof SOURCES)[number];
-
-// Normalized track model. Optional fields default to null so stored JSON always
-// has the same shape. `id` is always derived as "<source>:<sourceId>".
-export const trackSchema = z
-	.object({
-		source: z.enum(SOURCES),
-		sourceId: z.string().min(1).max(1000),
-		title: z.string().min(1).max(500),
-		artist: z.string().max(500),
-		album: z.string().max(500).nullable().default(null),
-		artworkUrl: z.url().max(2000).nullable().default(null),
-		durationMs: z.number().int().nonnegative().nullable().default(null),
-		streamUrl: z.url().max(4000).nullable().default(null),
-		mbid: z.string().max(64).nullable().default(null),
-		playable: z.boolean(),
-		deepLink: z.url().max(2000).nullable().default(null),
-	})
-	.transform((t) => ({ id: `${t.source}:${t.sourceId}`, ...t }));
-export type Track = z.output<typeof trackSchema>;
+// The provider list and the track model live in providers.ts and track.ts; these
+// type re-exports keep older imports working.
+export type { Source } from "./providers";
+export type { Track } from "./track";
 
 type Env = CloudflareBindings;
 
@@ -193,6 +176,8 @@ export const archive: Adapter = {
 };
 
 // --- YouTube (metadata only: never extract or proxy audio) ------------------
+export const youtubeWatchUrl = (videoId: string) => `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
 export const decodeEntities = (s: string) =>
 	s.replace(/&(#x[\da-f]+|#\d+|\w+);/gi, (m, e: string) =>
@@ -219,7 +204,7 @@ export const youtube: Adapter = {
 					durationMs: null,
 					streamUrl: null,
 					playable: false,
-					deepLink: `https://www.youtube.com/watch?v=${it.id.videoId}`,
+					deepLink: youtubeWatchUrl(it.id.videoId),
 				}),
 			);
 	},
@@ -227,5 +212,3 @@ export const youtube: Adapter = {
 		return null; // never playable; the route answers with the deep link instead
 	},
 };
-
-export const ADAPTERS: Record<Source, Adapter> = { audius, jamendo, archive, youtube };

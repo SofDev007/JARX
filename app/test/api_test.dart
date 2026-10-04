@@ -59,6 +59,27 @@ void main() {
     expect(t.toJson(), {..._track}..remove('id')); // the backend derives id itself
   });
 
+  test('reads stored import placeholders as-is and ignores fields it does not know yet', () {
+    final t = Track.fromJson({
+      'id': 'youtube:search:Blinding Lights The Weeknd',
+      'source': 'youtube',
+      'sourceId': 'search:Blinding Lights The Weeknd',
+      'title': 'Blinding Lights',
+      'artist': 'The Weeknd',
+      'album': 'After Hours',
+      'artworkUrl': null,
+      'durationMs': 200040,
+      'streamUrl': null,
+      'mbid': null,
+      'playable': false,
+      'deepLink': 'https://www.youtube.com/results?search_query=Blinding%20Lights%20The%20Weeknd',
+      'sources': [{'provider': 'youtube', 'playback': 'embed'}], // the kind of field a later backend may add
+    });
+    expect(t.id, 'youtube:search:Blinding Lights The Weeknd');
+    expect(t.playable, isFalse);
+    expect(t.deepLink, startsWith('https://www.youtube.com/results?'));
+  });
+
   test('sends the bearer token to the deployed backend', () async {
     final server = _FakeServer((_) => _json({'query': 'x', 'results': [_track], 'cached': false}));
     final results = await Api(cache, adapter: server).search('lofi');
