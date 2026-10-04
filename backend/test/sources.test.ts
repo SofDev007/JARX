@@ -1,10 +1,12 @@
 import { env } from "cloudflare:workers";
-import { describe, expect, it } from "vitest";
-import { archive, audius, decodeEntities, HttpError, jamendo, youtube } from "../src/sources";
+import { describe, expect, it, vi } from "vitest";
+import { archive, audius, decodeEntities, HttpError, jamendo, jiosaavn, youtube } from "../src/sources";
 import jamendoSearch from "./fixtures/jamendo_search.json";
 import jamendoTrack from "./fixtures/jamendo_track.json";
+import jiosaavnSearch from "./fixtures/jiosaavn_search.json";
+import jiosaavnRaatBhar from "./fixtures/jiosaavn_search_raat_bhar.json";
 import privateFiles from "./fixtures/archive_files_private.json";
-import { calledUrls, fixtures, json, mockFetch } from "./helpers";
+import { calledUrls, fixtures, html, json, mockFetch } from "./helpers";
 
 const signal = () => AbortSignal.timeout(2500);
 
@@ -172,6 +174,114 @@ describe("jamendo", () => {
 		const spy = mockFetch();
 		expect(await jamendo.streamUrl("not-a-number", env, signal())).toBeNull();
 		expect(spy).not.toHaveBeenCalled();
+	});
+});
+
+describe("jiosaavn", () => {
+	const api = (body: unknown, status = 200) => (url: URL) => (url.host === "www.jiosaavn.com" ? html(body, status) : undefined);
+	const [first] = jiosaavnSearch.results;
+	// One recorded result with the given fields replaced or removed (undefined).
+	const song = (patch: Record<string, unknown> = {}, info: Record<string, unknown> = {}) => ({
+		...first,
+		...patch,
+		more_info: { ...first.more_info, ...info },
+	});
+
+	it("searches jiosaavn.com's own endpoint with the query and page size", async () => {
+		const spy = mockFetch(fixtures);
+		await jiosaavn.search("blinding lights", 25, env, signal());
+		const url = calledUrls(spy)[0];
+		expect(`${url.origin}${url.pathname}`).toBe("https://www.jiosaavn.com/api.php");
+		expect(Object.fromEntries(url.searchParams)).toMatchObject({ __call: "search.getResults", api_version: "4", q: "blinding lights", n: "25" });
+	});
+
+	it("maps a recorded song (served as text/html, like the real API) into a Track", async () => {
+		mockFetch(fixtures);
+		const tracks = await jiosaavn.search("blinding lights the weeknd", 10, env, signal());
+		expect(tracks).toHaveLength(10);
+		expect(tracks[0]).toEqual({
+			id: "jiosaavn:fW-Mxsnu",
+			source: "jiosaavn",
+			sourceId: "fW-Mxsnu",
+			title: "Blinding Lights",
+			artist: "The Weeknd",
+			album: "After Hours",
+			artworkUrl: "https://c.saavncdn.com/077/After-Hours-English-2020-20260804045014-150x150.jpg",
+			durationMs: 200_000,
+			streamUrl: null,
+			mbid: null,
+			playable: false,
+			deepLink: "https://www.jiosaavn.com/song/blinding-lights/Fj9GfAxDWUY",
+		});
+	});
+
+	it("decodes HTML entities and joins every primary artist", async () => {
+		mockFetch(api(jiosaavnRaatBhar));
+		const t = (await jiosaavn.search("raat bhar", 10, env, signal())).find((t) => t.sourceId === "8oqXkCHu")!;
+		expect(t.title).toBe('Raat Bhar (From "De De Pyaar De 2")');
+		expect(t.album).toBe('Raat Bhar (From "De De Pyaar De 2")');
+		expect(t.artist).toBe("Aditya Rikhari, Payal Dev, Aditya Dev, Kumaar");
+	});
+
+	it("never yields a stream: the encrypted media and preview fields are ignored", async () => {
+		// The recorded values are redacted; put real-looking URLs back so a leak would show.
+		const media = Object.fromEntries(
+			["encrypted_media_url", "encrypted_cache_url", "encrypted_drm_media_url", "encrypted_drm_cache_url", "vlink"].map((k) => [k, `https://media.example/${k}.mp4`]),
+		);
+		mockFetch(api({ ...jiosaavnSearch, results: jiosaavnSearch.results.map((r) => ({ ...r, more_info: { ...r.more_info, ...media } })) }));
+		const tracks = await jiosaavn.search("blinding lights the weeknd", 10, env, signal());
+		expect(tracks).toHaveLength(10);
+		for (const t of tracks) expect(t).toMatchObject({ playable: false, streamUrl: null });
+		expect(JSON.stringify(tracks)).not.toContain("media.example");
+
+		vi.restoreAllMocks();
+		const spy = mockFetch();
+		expect(await jiosaavn.streamUrl("fW-Mxsnu", env, signal())).toBeNull();
+		expect(spy).not.toHaveBeenCalled();
+	});
+
+	it("skips unusable results and tolerates missing optional fields", async () => {
+		mockFetch(
+			api({
+				results: [
+					song({ id: undefined }),
+					song({ title: "  " }),
+					song({ type: "album" }),
+					null,
+					song({ id: "partial", image: "http://insecure.example/x.jpg", perma_url: 42 }, { artistMap: undefined, album: "", duration: "n/a" }),
+					{ ...first, id: "bare", more_info: undefined },
+				],
+			}),
+		);
+		const tracks = await jiosaavn.search("x", 10, env, signal());
+		expect(tracks.map((t) => t.sourceId)).toEqual(["partial", "bare"]);
+		for (const t of tracks) {
+			expect(t).toMatchObject({ title: "Blinding Lights", artist: "", album: null, durationMs: null, playable: false, streamUrl: null });
+		}
+		expect(tracks[0]).toMatchObject({ artworkUrl: null, deepLink: null }); // only https URLs are kept
+	});
+
+	it("returns nothing for a query with no matches", async () => {
+		mockFetch(api({ total: 0, start: 1, results: [] })); // recorded live for a nonsense query
+		expect(await jiosaavn.search("zzqxqzzqx nonsense qqq", 10, env, signal())).toEqual([]);
+	});
+
+	it("reports API errors returned with HTTP 200, and malformed bodies", async () => {
+		mockFetch(api({ error: { code: "INPUT_MISSING", msg: "One or more required field missing:q" } })); // recorded live
+		await expect(jiosaavn.search("x", 10, env, signal())).rejects.toThrow("jiosaavn error INPUT_MISSING");
+
+		vi.restoreAllMocks();
+		mockFetch(api({ total: 3 }));
+		await expect(jiosaavn.search("x", 10, env, signal())).rejects.toThrow("without a results list");
+
+		vi.restoreAllMocks();
+		mockFetch(() => new Response("<html>maintenance</html>", { headers: { "content-type": "text/html" } }));
+		await expect(jiosaavn.search("x", 10, env, signal())).rejects.toThrow();
+	});
+
+	it("reports HTTP errors", async () => {
+		mockFetch(api({}, 503));
+		await expect(jiosaavn.search("x", 10, env, signal())).rejects.toBeInstanceOf(HttpError);
 	});
 });
 

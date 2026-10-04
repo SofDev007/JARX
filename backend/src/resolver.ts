@@ -65,7 +65,9 @@ export function similarity(query: string, title: string, artist: string): number
 
 /**
  * Score, drop below MIN_SCORE, merge copies with the same normalized title+artist, sort.
- * The best-scoring copy leads (ties go to the first seen); the others stay as alternate sources.
+ * The lead is what the app plays, so a copy JARX can play leads over one it can't (a JioSaavn
+ * copy never hides a playable one); then the best score, ties to the first seen. The others
+ * stay as alternate sources.
  */
 export function rank(query: string, tracks: Track[], limit: number): ScoredTrack[] {
 	const asked = flat(query);
@@ -79,7 +81,7 @@ export function rank(query: string, tracks: Track[], limit: number): ScoredTrack
 		const key = `${normalize(t.title)}|${normalize(t.artist)}`;
 		const prev = merged.get(key);
 		if (!prev) merged.set(key, { ...t, score, sources: [toSource(t)] });
-		else if (score > prev.score) merged.set(key, { ...t, score, sources: [toSource(t), ...prev.sources] });
+		else if (t.playable !== prev.playable ? t.playable : score > prev.score) merged.set(key, { ...t, score, sources: [toSource(t), ...prev.sources] });
 		else prev.sources.push(toSource(t));
 	}
 	return [...merged.values()].sort((a, b) => b.score - a.score).slice(0, limit);
@@ -160,13 +162,15 @@ export async function search(env: CloudflareBindings, q: string, limit: number):
 
 /**
  * Best confident playable match for an import row, or null. Queries only enabled
- * audio providers whose weight can reach HIT_SCORE at all (so not archive at 0.7,
- * which also saves its subrequests) and never video ones (YouTube quota). When the
- * row names an artist the candidate's artist must match too: covers like "The
- * Weeknd Blinding Lights [COVER]" by "DJ-M" otherwise score high on title+artist text alone.
+ * audio providers JARX streams (`native`; so not JioSaavn, whose rows can't play
+ * here and would push a 20-row chunk past the Free plan's 50 subrequests) whose
+ * weight can reach HIT_SCORE at all (so not archive at 0.7), and never video ones
+ * (YouTube quota). When the row names an artist the candidate's artist must match
+ * too: covers like "The Weeknd Blinding Lights [COVER]" by "DJ-M" otherwise score
+ * high on title+artist text alone.
  */
 export async function resolveOne(env: CloudflareBindings, q: string, artist = ""): Promise<Track | null> {
-	const sources = enabledSources("audio").filter((s) => PROVIDERS[s].weight >= HIT_SCORE);
+	const sources = enabledSources("audio").filter((s) => PROVIDERS[s].playback === "native" && PROVIDERS[s].weight >= HIT_SCORE);
 	const best = rank(q, await gather(env, q, 5, sources), 5).find(
 		(t) => t.score >= HIT_SCORE && (!artist || similarity(artist, t.artist, "") >= MIN_SCORE),
 	);

@@ -11,6 +11,7 @@ Private, single-user music streaming app (Android first, iOS later). One owner, 
 - Active target providers: Local, JioSaavn, YouTube Music, YouTube.
 - Legacy providers: Audius, Jamendo, Internet Archive. When the provider-retirement phase comes they are disabled (`enabled: false`), never deleted: their adapters, tests, fixtures and provider-specific code stay recoverable and re-enableable.
 - Local music is indexed on the device and is never uploaded to the backend.
+- JioSaavn has no official public API; JARX uses only jiosaavn.com's own search endpoint, for metadata. Its audio URLs are protected media: never read, decrypt (DES or otherwise), rebuild or proxy them, and never pass its preview clip off as the song. JioSaavn tracks are `playback: embed`, `playable: false`, and open their song page in JioSaavn.
 - Playback types: `local` (device file), `native` (JARX streams it), `embed` (plays only in the provider's own player).
 
 ## YouTube

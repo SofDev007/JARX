@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import app from "../src/index";
 import { enabledSources, PROVIDERS, SOURCES } from "../src/providers";
 import { rank, resolveOne, search } from "../src/resolver";
-import { archive, audius, jamendo, youtube } from "../src/sources";
+import { archive, audius, jamendo, jiosaavn, youtube } from "../src/sources";
 import { trackSchema } from "../src/track";
 import jamendoSearch from "./fixtures/jamendo_search.json";
 import jamendoTrack from "./fixtures/jamendo_track.json";
@@ -20,8 +20,9 @@ const jamendoApi = (url: URL) => (url.host === "api.jamendo.com" ? json(url.sear
 
 describe("provider registry", () => {
 	it("lists each provider once, in query order, with the weights search has always used", () => {
-		expect(SOURCES).toEqual(["audius", "jamendo", "archive", "youtube"]);
+		expect(SOURCES).toEqual(["jiosaavn", "audius", "jamendo", "archive", "youtube"]);
 		expect(PROVIDERS).toMatchObject({
+			jiosaavn: { name: "JioSaavn", enabled: true, kind: "audio", weight: 0.95, playback: "embed" },
 			audius: { name: "Audius", enabled: true, kind: "audio", weight: 1, playback: "native" },
 			jamendo: { name: "Jamendo", enabled: true, kind: "audio", weight: 0.95, playback: "native" },
 			archive: { name: "Internet Archive", enabled: true, kind: "audio", weight: 0.7, playback: "native" },
@@ -30,19 +31,19 @@ describe("provider registry", () => {
 	});
 
 	it("wires every provider to its adapter", () => {
-		expect([PROVIDERS.audius.adapter, PROVIDERS.jamendo.adapter, PROVIDERS.archive.adapter, PROVIDERS.youtube.adapter]).toEqual([
-			audius,
-			jamendo,
-			archive,
-			youtube,
-		]);
+		expect(SOURCES.map((s) => PROVIDERS[s].adapter)).toEqual([jiosaavn, audius, jamendo, archive, youtube]);
 	});
 
 	it("has YouTube as its only video provider: an embed source that links out instead of streaming", () => {
-		expect(enabledSources("audio")).toEqual(["audius", "jamendo", "archive"]);
+		expect(enabledSources("audio")).toEqual(["jiosaavn", "audius", "jamendo", "archive"]);
 		expect(enabledSources("video")).toEqual(["youtube"]);
 		expect(PROVIDERS.youtube.deepLink?.("dQw4w9WgXcQ")).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 		for (const s of LEGACY) expect(PROVIDERS[s].deepLink).toBeUndefined();
+	});
+
+	it("has JioSaavn as an audio provider that plays only in JioSaavn, so its links ride on each track", () => {
+		expect(PROVIDERS.jiosaavn).toMatchObject({ kind: "audio", playback: "embed" });
+		expect(PROVIDERS.jiosaavn.deepLink).toBeUndefined(); // song pages can't be built from an id
 	});
 
 	it("is the Track schema's list of sources", () => {
@@ -57,11 +58,11 @@ describe("enabled flag", () => {
 	it("keeps search from querying a disabled provider", async () => {
 		PROVIDERS.audius.enabled = false;
 		PROVIDERS.archive.enabled = false;
-		expect(enabledSources()).toEqual(["jamendo", "youtube"]);
+		expect(enabledSources()).toEqual(["jiosaavn", "jamendo", "youtube"]);
 
 		const spy = mockFetch(fixtures);
 		const { music } = await search(env, "lofi type beat", 10);
-		expect(hosts(spy)).toEqual(new Set(["api.jamendo.com", "www.googleapis.com"]));
+		expect(hosts(spy)).toEqual(new Set(["www.jiosaavn.com", "api.jamendo.com", "www.googleapis.com"]));
 		expect(music.some((r) => r.source === "audius")).toBe(false);
 	});
 
@@ -85,6 +86,26 @@ describe("enabled flag", () => {
 
 		PROVIDERS.audius.enabled = true;
 		expect(await search(env, "lofi type beat", 10)).toEqual({ ...before, cached: true });
+	});
+
+	it("drops JioSaavn from search when disabled, never serving answers cached while it was on", async () => {
+		const spy = mockFetch(fixtures);
+		const on = await search(env, "blinding lights the weeknd", 10);
+		expect(on.music.some((r) => r.source === "jiosaavn")).toBe(true);
+
+		PROVIDERS.jiosaavn.enabled = false;
+		spy.mockClear();
+		const off = await search(env, "blinding lights the weeknd", 10);
+		expect(off.cached).toBe(false);
+		expect(hosts(spy)).not.toContain("www.jiosaavn.com");
+		expect(off.music.some((r) => r.source === "jiosaavn")).toBe(false);
+	});
+
+	it("keeps JioSaavn out of import matching, whatever its weight: its rows can't play in JARX", async () => {
+		PROVIDERS.jiosaavn.weight = 1;
+		const spy = mockFetch(fixtures);
+		await resolveOne(env, "blinding lights the weeknd", "The Weeknd");
+		expect(hosts(spy)).toEqual(new Set(["api.audius.co", "api.jamendo.com"]));
 	});
 
 	it("keeps import matching from querying a disabled provider", async () => {
@@ -164,5 +185,13 @@ describe("legacy providers through the registry", () => {
 			},
 		});
 		expect(hosts(spy)).not.toContain("www.googleapis.com");
+	});
+
+	it("answers 422 for a JioSaavn stream without asking JioSaavn: there is no stream to give", async () => {
+		const spy = mockFetch(fixtures);
+		const res = await app.request("/tracks/jiosaavn/fW-Mxsnu/stream", { headers: AUTH }, env);
+		expect(res.status).toBe(422);
+		expect(await res.json()).toEqual({ error: { code: "not_playable", message: "JioSaavn tracks are metadata-only; open the deep link" } });
+		expect(spy).not.toHaveBeenCalled();
 	});
 });

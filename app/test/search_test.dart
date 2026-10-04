@@ -27,6 +27,17 @@ Track _video(String id) => Track(
   deepLink: 'https://www.youtube.com/watch?v=$id',
 );
 
+/// A JioSaavn song: metadata plus its song page; it plays only in JioSaavn.
+Track _saavn(String id) => Track(
+  source: 'jiosaavn',
+  sourceId: id,
+  title: 'Saavn $id',
+  artist: 'Singer $id',
+  album: 'Film $id',
+  playable: false,
+  deepLink: 'https://www.jiosaavn.com/song/saavn-$id/perma$id',
+);
+
 SearchAnswer _answer({List<Track> music = const [], List<Track> videos = const [], String? videoError}) =>
     (music: music, videos: videos, videoError: videoError);
 
@@ -109,6 +120,38 @@ void main() {
     expect(launched, hasLength(1));
     expect(launched.single['url'], 'https://www.youtube.com/watch?v=v1');
     expect(launched.single['universalLinksOnly'], isTrue); // the YouTube app first, as before
+    expect(player.played, isEmpty);
+  });
+
+  testWidgets('JioSaavn rows sit in the music section with the J badge and say they open JioSaavn', (tester) async {
+    await _pump(tester, () async => _answer(music: [_saavn('s1'), _song('a')], videos: [_video('v1')]));
+
+    final saavnRow = find.widgetWithText(ListTile, 'Saavn s1');
+    expect(find.descendant(of: saavnRow, matching: find.text('J')), findsOneWidget);
+    expect(find.descendant(of: saavnRow, matching: find.text('Open in JioSaavn')), findsOneWidget);
+    expect(find.text('Saavn s1'), findsOneWidget); // the provider stays out of the title
+    expect(_top(tester, saavnRow), lessThan(_top(tester, find.text(_videoLabel)))); // music, not video
+    // The J badge only ever marks JioSaavn rows.
+    expect(find.descendant(of: find.byType(SourceBadge), matching: find.text('J')), findsOneWidget);
+    expect(find.descendant(of: find.widgetWithText(ListTile, 'Song a'), matching: find.text('J')), findsNothing);
+    expect(find.descendant(of: find.widgetWithText(ListTile, 'Video v1'), matching: find.text('J')), findsNothing);
+  });
+
+  testWidgets('tapping a JioSaavn row opens its song page in JioSaavn, never the JARX player', (tester) async {
+    const channel = MethodChannel('plugins.flutter.io/url_launcher');
+    final launched = <Map<Object?, Object?>>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
+      launched.add(call.arguments as Map<Object?, Object?>);
+      return true;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, null));
+    final player = await _pump(tester, () async => _answer(music: [_saavn('s1'), _song('a')]));
+
+    await tester.tap(find.text('Saavn s1'));
+    await tester.pumpAndSettle();
+
+    expect(launched.single['url'], 'https://www.jiosaavn.com/song/saavn-s1/permas1');
+    expect(launched.single['universalLinksOnly'], isTrue); // the JioSaavn app first
     expect(player.played, isEmpty);
   });
 

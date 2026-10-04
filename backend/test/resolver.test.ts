@@ -4,9 +4,11 @@ import { PROVIDERS } from "../src/providers";
 import { gather, HIT_SCORE, MIN_SCORE, rank, resolveOne, search, similarity, TIMEOUT_MS } from "../src/resolver";
 import type { Source, Track } from "../src/sources";
 import audiusSearch from "./fixtures/audius_search.json";
+import jamendoSearch from "./fixtures/jamendo_search.json";
+import jiosaavnSearch from "./fixtures/jiosaavn_search.json";
 import youtubeKeyInvalid from "./fixtures/youtube_error_key_invalid.json";
 import youtubeSearch from "./fixtures/youtube_search.json";
-import { calledUrls, fixtures, hang, json, mockFetch } from "./helpers";
+import { calledUrls, fixtures, hang, html, json, mockFetch } from "./helpers";
 
 const track = (source: Source, sourceId: string, title: string, artist: string): Track => ({
 	id: `${source}:${sourceId}`,
@@ -86,6 +88,13 @@ describe("rank", () => {
 		// The best copy leads and is also the flat Track; the rest follow in the order they were found.
 		expect(top.sources.map((s) => `${s.provider}:${s.sourceId}`)).toEqual(["audius:x", "archive:a/1.mp3", "jamendo:1"]);
 		expect(top.sources[0]).toMatchObject({ provider: top.source, sourceId: top.sourceId, playback: "native", playable: true });
+	});
+
+	it("puts a copy JARX can play in the lead over one it can't, even when that copy scores lower", () => {
+		const jiosaavnCopy = { ...track("audius", "j", "Blinding Lights", "The Weeknd"), id: "jiosaavn:j", source: "jiosaavn" as const, playable: false };
+		const [top] = rank("blinding lights the weeknd", [jiosaavnCopy, track("archive", "a/1.mp3", "Blinding Lights", "The Weeknd")], 10);
+		expect(top).toMatchObject({ id: "archive:a/1.mp3", playable: true, score: 0.7 }); // archive 0.7 < JioSaavn 0.95
+		expect(top.sources.map((s) => `${s.provider}:${s.playback}`)).toEqual(["archive:native", "jiosaavn:embed"]);
 	});
 
 	it(`drops results scoring below ${MIN_SCORE}`, () => {
@@ -273,6 +282,86 @@ describe("search", () => {
 		mockFetch(() => json({}, 503));
 		expect(await search(env, "lofi", 10)).toMatchObject({ music: [], videos: [] });
 		expect(await cacheRows()).toBe(0);
+	});
+});
+
+describe("search with JioSaavn", () => {
+	const youtubeApi = (url: URL) => (url.host === "www.googleapis.com" ? json(youtubeSearch) : undefined);
+	const jiosaavnApi = (respond: (signal?: AbortSignal | null) => Response | Promise<Response>) => (url: URL, signal?: AbortSignal | null) =>
+		url.host === "www.jiosaavn.com" ? respond(signal) : undefined;
+	// The recorded copies of "Blinding Lights" by The Weeknd (one per album it appears on).
+	const originals = jiosaavnSearch.results
+		.filter((s) => s.title === "Blinding Lights" && s.more_info.artistMap.primary_artists.map((a) => a.name).join() === "The Weeknd")
+		.map((s) => `jiosaavn:${s.id}`);
+
+	it("runs alongside every other enabled provider, once each, in music", async () => {
+		const spy = mockFetch(youtubeApi, fixtures);
+		const { music } = await search(env, "blinding lights the weeknd", 10);
+		const calls = calledUrls(spy).map((u) => u.host);
+		for (const host of ["www.jiosaavn.com", "api.audius.co", "api.jamendo.com", "archive.org", "www.googleapis.com"]) expect(calls).toContain(host);
+		expect(calls.filter((h) => h === "www.jiosaavn.com")).toHaveLength(1);
+		expect(music.some((m) => m.source === "jiosaavn")).toBe(true);
+	});
+
+	it("keeps YouTube in videos and JioSaavn in music", async () => {
+		mockFetch(youtubeApi, fixtures);
+		const { music, videos } = await search(env, "blinding lights the weeknd", 10);
+		expect(music.every((m) => m.source !== "youtube")).toBe(true);
+		expect(videos.length).toBeGreaterThan(0);
+		expect(videos.every((v) => v.source === "youtube")).toBe(true);
+		expect(music.filter((m) => m.source === "jiosaavn").every((m) => !m.playable && m.streamUrl === null && m.deepLink)).toBe(true);
+	});
+
+	it("merges JioSaavn's album copies of one song into one result, keeping every copy as a source", async () => {
+		expect(originals.length).toBeGreaterThan(1);
+		mockFetch(youtubeApi, fixtures);
+		const { music } = await search(env, "blinding lights the weeknd", 10);
+		const row = music.find((m) => m.sources.some((s) => `${s.provider}:${s.sourceId}` === originals[0]))!;
+		expect(row.sources.map((s) => `${s.provider}:${s.sourceId}`)).toEqual(originals);
+		expect(row.sources.every((s) => s.playback === "embed" && !s.playable)).toBe(true);
+	});
+
+	it("lets a playable copy of the same song lead even on a tie, keeping the JioSaavn copies as its sources", async () => {
+		// Jamendo and JioSaavn both weigh 0.95 and JioSaavn is queried first, so only the
+		// playable-first rule puts Jamendo's copy in the lead.
+		const jamendoCopy = { ...jamendoSearch.results[0], id: 777, name: "Blinding Lights", artist_name: "The Weeknd" };
+		const jamendoApi = (url: URL) => (url.host === "api.jamendo.com" ? json({ ...jamendoSearch, results: [jamendoCopy] }) : undefined);
+		mockFetch(jamendoApi, youtubeApi, fixtures);
+
+		const { music } = await search(env, "blinding lights the weeknd", 10);
+		const row = music.find((m) => m.sources.some((s) => originals.includes(`${s.provider}:${s.sourceId}`)))!;
+		expect(row).toMatchObject({ id: "jamendo:777", playable: true, score: 0.95 }); // the app plays the lead
+		expect(row.sources.map((s) => `${s.provider}:${s.sourceId}`)).toEqual(["jamendo:777", ...originals]);
+	});
+
+	it.each([
+		["times out", (signal?: AbortSignal | null) => hang(signal)],
+		["answers HTTP 503", () => json({}, 503)],
+		["answers an API error", () => html({ error: { code: "INPUT_INVALID", msg: "nothing operation is not supported" } })],
+		["answers garbage", () => new Response("<html>maintenance</html>")],
+	])("still answers when JioSaavn %s: only JioSaavn drops out", async (_, respond) => {
+		const started = Date.now();
+		mockFetch(jiosaavnApi(respond), youtubeApi, fixtures);
+		const { music, videos, videoError } = await search(env, "lofi type beat", 10);
+		expect(Date.now() - started).toBeLessThan(2 * TIMEOUT_MS);
+		expect(music[0]).toMatchObject({ id: "audius:ng9rl" });
+		expect(music.some((m) => m.source === "jiosaavn")).toBe(false);
+		expect(videos.every((v) => v.source === "youtube")).toBe(true);
+		expect(videoError).toBeNull(); // a music provider failing is not a video failure
+	});
+
+	it("caches JioSaavn results with the rest, without any stream URL", async () => {
+		const spy = mockFetch(youtubeApi, fixtures);
+		const first = await search(env, "blinding lights the weeknd", 10);
+		const calls = spy.mock.calls.length;
+		expect(await search(env, "blinding lights the weeknd", 10)).toEqual({ ...first, cached: true });
+		expect(spy.mock.calls.length).toBe(calls);
+
+		const stored = (await env.jarx_db.prepare("SELECT results_json FROM search_cache").first<string>("results_json"))!;
+		const cachedJioSaavn = (JSON.parse(stored).music as Track[]).filter((t) => t.source === "jiosaavn");
+		expect(cachedJioSaavn.length).toBeGreaterThan(0);
+		expect(cachedJioSaavn.every((t) => t.streamUrl === null)).toBe(true);
+		expect(stored).not.toMatch(/REDACTED|encrypted|vlink/);
 	});
 });
 

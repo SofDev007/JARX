@@ -1,0 +1,1489 @@
+{
+  "total": 3756,
+  "start": 1,
+  "results": [
+    {
+      "id": "lx4SrGzP",
+      "title": "Raat Bhar",
+      "subtitle": "Sajid-Wajid, Arijit Singh, Shreya Ghoshal - Heropanti",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar/HBBfYgZ3TWM",
+      "image": "https://c.saavncdn.com/930/Heropanti-2014-150x150.jpg",
+      "language": "hindi",
+      "year": "2014",
+      "play_count": "33086443",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Sajid-Wajid",
+        "album_id": "1154972",
+        "album": "Heropanti",
+        "label": "T-Series",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/heropanti/mLwIctQcBSo_",
+        "duration": "326",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "©  2014 T-Series",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "705169",
+              "name": "Sajid-Wajid",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Sajid-Wajid_20180507092451_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sajid-wajid-songs/mAYUldoMZa8_"
+            },
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            },
+            {
+              "id": "455130",
+              "name": "Shreya Ghoshal",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/shreya-ghoshal-songs/lIHlwHaxTZ0_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "705169",
+              "name": "Sajid-Wajid",
+              "role": "music",
+              "image": "https://c.saavncdn.com/artists/Sajid-Wajid_20180507092451_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sajid-wajid-songs/mAYUldoMZa8_"
+            },
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            },
+            {
+              "id": "455130",
+              "name": "Shreya Ghoshal",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/shreya-ghoshal-songs/lIHlwHaxTZ0_"
+            },
+            {
+              "id": "461070",
+              "name": "Kausar Munir",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Kausar_Munir_20180416065948_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kausar-munir-songs/ZIoQfneojLU_"
+            },
+            {
+              "id": "701751",
+              "name": "Tiger Shroff",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Tiger_Shroff_002_20250728065452_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/tiger-shroff-songs/9fIi6jl-5e0_"
+            },
+            {
+              "id": "701752",
+              "name": "Kriti Sanon",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Kriti_Sanon_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kriti-sanon-songs/9UtnOColzrU_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/t-series-albums/",
+        "vcode": "010910090071226",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "false",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "8oqXkCHu",
+      "title": "Raat Bhar (From &quot;De De Pyaar De 2&quot;)",
+      "subtitle": "Aditya Rikhari, Payal Dev, Aditya Dev, Kumaar - Raat Bhar (From &quot;De De Pyaar De 2&quot;)",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar-from-de-de-pyaar-de-2/SAcaaR9zf0Y",
+      "image": "https://c.saavncdn.com/405/Raat-Bhar-From-De-De-Pyaar-De-2-Hindi-2025-20251022141003-150x150.jpg",
+      "language": "hindi",
+      "year": "2025",
+      "play_count": "949493",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Sajid-Wajid",
+        "album_id": "68965938",
+        "album": "Raat Bhar (From &quot;De De Pyaar De 2&quot;)",
+        "label": "T-Series",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/raat-bhar-from-de-de-pyaar-de-2/DRCHz0lmqA8_",
+        "duration": "192",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2025 Super Cassettes Industries Private Limited",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "7931030",
+              "name": "Aditya Rikhari",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Aditya_Rikhari_001_20240227101823_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-rikhari-songs/SJB5V8suB2E_"
+            },
+            {
+              "id": "653208",
+              "name": "Payal Dev",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Payal_Dev_002_20241001094204_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/payal-dev-songs/szd0Qcak34Q_"
+            },
+            {
+              "id": "594157",
+              "name": "Aditya Dev",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/565/Hume-Tumse-Pyaar-Kitna-Hindi-2019-20190703142859-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-dev-songs/5-mLPIy9-RY_"
+            },
+            {
+              "id": "455665",
+              "name": "Kumaar",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "7931030",
+              "name": "Aditya Rikhari",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Aditya_Rikhari_001_20240227101823_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-rikhari-songs/SJB5V8suB2E_"
+            },
+            {
+              "id": "653208",
+              "name": "Payal Dev",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Payal_Dev_002_20241001094204_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/payal-dev-songs/szd0Qcak34Q_"
+            },
+            {
+              "id": "594157",
+              "name": "Aditya Dev",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/565/Hume-Tumse-Pyaar-Kitna-Hindi-2019-20190703142859-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-dev-songs/5-mLPIy9-RY_"
+            },
+            {
+              "id": "455665",
+              "name": "Kumaar",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_"
+            },
+            {
+              "id": "464898",
+              "name": "Ajay Devgn",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Ajay_Devgn_002_20250515070339_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ajay-devgn-songs/bqtJwawEXyk_"
+            },
+            {
+              "id": "455289",
+              "name": "R. Madhavan",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/R__Madhavan_002_20240402103620_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/r.-madhavan-songs/gskaN,K9BSc_"
+            },
+            {
+              "id": "681819",
+              "name": "Rakul Preet",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Rakul_Preet_Singh_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/rakul-preet-songs/bVluPOlbIq4_"
+            },
+            {
+              "id": "17125763",
+              "name": "Meezan Jafri",
+              "role": "starring",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/meezan-jafri-songs/-EE0Tw1jsX0_"
+            },
+            {
+              "id": "719626",
+              "name": "Javed Jafri",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/235/Bombay-Boys-Hindi-2016-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/javed-jafri-songs/KqAOU7ml8E4_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/t-series-albums/",
+        "vcode": "010912023418273",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "false",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "3X_aS7ce",
+      "title": "Raat Bhar",
+      "subtitle": "Aditya Rikhari, Payal Dev, Aditya Dev, Kumaar - De De Pyaar De 2 Deluxe Album",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar/QzA0UCcHVFY",
+      "image": "https://c.saavncdn.com/976/De-De-Pyaar-De-2-Deluxe-Album-Hindi-2025-20251120191014-150x150.jpg",
+      "language": "hindi",
+      "year": "2025",
+      "play_count": "949451",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Payal Dev-Aditya Dev",
+        "album_id": "69951525",
+        "album": "De De Pyaar De 2 Deluxe Album",
+        "label": "T-Series",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/de-de-pyaar-de-2-deluxe-album/mT5P5rCNkj4_",
+        "duration": "192",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2025 Super Cassettes Industries Private Limited",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "7931030",
+              "name": "Aditya Rikhari",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Aditya_Rikhari_001_20240227101823_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-rikhari-songs/SJB5V8suB2E_"
+            },
+            {
+              "id": "653208",
+              "name": "Payal Dev",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Payal_Dev_002_20241001094204_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/payal-dev-songs/szd0Qcak34Q_"
+            },
+            {
+              "id": "594157",
+              "name": "Aditya Dev",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/565/Hume-Tumse-Pyaar-Kitna-Hindi-2019-20190703142859-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-dev-songs/5-mLPIy9-RY_"
+            },
+            {
+              "id": "455665",
+              "name": "Kumaar",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "23682886",
+              "name": "Payal Dev-Aditya Dev",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/payal-dev-aditya-dev-songs/RNU-5BRabH8_"
+            },
+            {
+              "id": "7931030",
+              "name": "Aditya Rikhari",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Aditya_Rikhari_001_20240227101823_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-rikhari-songs/SJB5V8suB2E_"
+            },
+            {
+              "id": "653208",
+              "name": "Payal Dev",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Payal_Dev_002_20241001094204_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/payal-dev-songs/szd0Qcak34Q_"
+            },
+            {
+              "id": "594157",
+              "name": "Aditya Dev",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/565/Hume-Tumse-Pyaar-Kitna-Hindi-2019-20190703142859-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-dev-songs/5-mLPIy9-RY_"
+            },
+            {
+              "id": "455665",
+              "name": "Kumaar",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_"
+            },
+            {
+              "id": "455665",
+              "name": "Kumaar",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_"
+            },
+            {
+              "id": "456099",
+              "name": "Akshay Kumar",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Akshay_Kumar_003_20230228120453_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/akshay-kumar-songs/ZZntYtxiAAM_"
+            },
+            {
+              "id": "461818",
+              "name": "Ashwini Bhave",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/763/Chhan-Chhan-Goshti-Part-5-1993-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ashwini-bhave-songs/MnQjO,UKGn8_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/t-series-albums/",
+        "vcode": "010912023418273",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "ye9kin7x",
+      "title": "Raat Bhar",
+      "subtitle": "Aditya Rikhari, Payal Dev, Aditya Dev, Kumaar - De De Pyaar De 2",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar/CQ1SWh1eAEs",
+      "image": "https://c.saavncdn.com/740/De-De-Pyaar-De-2-Hindi-2025-20251120161027-150x150.jpg",
+      "language": "hindi",
+      "year": "2025",
+      "play_count": "949451",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Payal Dev-Aditya Dev",
+        "album_id": "69547529",
+        "album": "De De Pyaar De 2",
+        "label": "T-Series",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/de-de-pyaar-de-2/qW0MJfY3NRU_",
+        "duration": "192",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2025 Super Cassettes Industries Private Limited",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "7931030",
+              "name": "Aditya Rikhari",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Aditya_Rikhari_001_20240227101823_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-rikhari-songs/SJB5V8suB2E_"
+            },
+            {
+              "id": "653208",
+              "name": "Payal Dev",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Payal_Dev_002_20241001094204_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/payal-dev-songs/szd0Qcak34Q_"
+            },
+            {
+              "id": "594157",
+              "name": "Aditya Dev",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/565/Hume-Tumse-Pyaar-Kitna-Hindi-2019-20190703142859-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-dev-songs/5-mLPIy9-RY_"
+            },
+            {
+              "id": "455665",
+              "name": "Kumaar",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "23682886",
+              "name": "Payal Dev-Aditya Dev",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/payal-dev-aditya-dev-songs/RNU-5BRabH8_"
+            },
+            {
+              "id": "7931030",
+              "name": "Aditya Rikhari",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Aditya_Rikhari_001_20240227101823_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-rikhari-songs/SJB5V8suB2E_"
+            },
+            {
+              "id": "653208",
+              "name": "Payal Dev",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Payal_Dev_002_20241001094204_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/payal-dev-songs/szd0Qcak34Q_"
+            },
+            {
+              "id": "594157",
+              "name": "Aditya Dev",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/565/Hume-Tumse-Pyaar-Kitna-Hindi-2019-20190703142859-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/aditya-dev-songs/5-mLPIy9-RY_"
+            },
+            {
+              "id": "455665",
+              "name": "Kumaar",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_"
+            },
+            {
+              "id": "455665",
+              "name": "Kumaar",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_"
+            },
+            {
+              "id": "719626",
+              "name": "Javed Jaffrey",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/235/Bombay-Boys-Hindi-2016-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/javed-jaffrey-songs/KqAOU7ml8E4_"
+            },
+            {
+              "id": "681819",
+              "name": "Rakul Preet",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Rakul_Preet_Singh_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/rakul-preet-songs/bVluPOlbIq4_"
+            },
+            {
+              "id": "17125763",
+              "name": "Meezan Jafri",
+              "role": "starring",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/meezan-jafri-songs/-EE0Tw1jsX0_"
+            },
+            {
+              "id": "455289",
+              "name": "R. Madhavan",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/R__Madhavan_002_20240402103620_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/r.-madhavan-songs/gskaN,K9BSc_"
+            },
+            {
+              "id": "464898",
+              "name": "Ajay Devgn",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Ajay_Devgn_002_20250515070339_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ajay-devgn-songs/bqtJwawEXyk_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/t-series-albums/",
+        "vcode": "010912023418273",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "m_LM3cyX",
+      "title": "Raat Bhar",
+      "subtitle": "Vilen, Ravator - Raat Bhar",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar/HTcnfEdTTms",
+      "image": "https://c.saavncdn.com/423/Raat-Bhar-Hindi-2025-20250215053511-150x150.jpg",
+      "language": "hindi",
+      "year": "2025",
+      "play_count": "94112",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Vilen, Ravator",
+        "album_id": "62052513",
+        "album": "Raat Bhar",
+        "label": "Universal Music India Pvt Ltd.",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/raat-bhar/hz9uzPEPtSI_",
+        "duration": "161",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2025 Universal Music India Pvt. Ltd.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "1921093",
+              "name": "Vilen",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Vilen_001_20230420105401_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/vilen-songs/oIxlz5ekSFo_"
+            },
+            {
+              "id": "5456551",
+              "name": "Ravator",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Ravator_000_20201030105003.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ravator-songs/X0GrG7ViKG0_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "1921093",
+              "name": "Vilen",
+              "role": "music",
+              "image": "https://c.saavncdn.com/artists/Vilen_001_20230420105401_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/vilen-songs/oIxlz5ekSFo_"
+            },
+            {
+              "id": "5456551",
+              "name": "Ravator",
+              "role": "music",
+              "image": "https://c.saavncdn.com/artists/Ravator_000_20201030105003.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ravator-songs/X0GrG7ViKG0_"
+            },
+            {
+              "id": "1921093",
+              "name": "Vilen",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Vilen_001_20230420105401_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/vilen-songs/oIxlz5ekSFo_"
+            },
+            {
+              "id": "5456551",
+              "name": "Ravator",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Ravator_000_20201030105003.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ravator-songs/X0GrG7ViKG0_"
+            },
+            {
+              "id": "1921093",
+              "name": "Vilen",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Vilen_001_20230420105401_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/vilen-songs/oIxlz5ekSFo_"
+            },
+            {
+              "id": "719626",
+              "name": "Javed Jaffrey",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/235/Bombay-Boys-Hindi-2016-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/javed-jaffrey-songs/KqAOU7ml8E4_"
+            },
+            {
+              "id": "681819",
+              "name": "Rakul Preet",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Rakul_Preet_Singh_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/rakul-preet-songs/bVluPOlbIq4_"
+            },
+            {
+              "id": "17125763",
+              "name": "Meezan Jafri",
+              "role": "starring",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/meezan-jafri-songs/-EE0Tw1jsX0_"
+            },
+            {
+              "id": "455289",
+              "name": "R. Madhavan",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/R__Madhavan_002_20240402103620_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/r.-madhavan-songs/gskaN,K9BSc_"
+            },
+            {
+              "id": "464898",
+              "name": "Ajay Devgn",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Ajay_Devgn_002_20250515070339_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ajay-devgn-songs/bqtJwawEXyk_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/universal-music-india-pvt-ltd.-albums/",
+        "vcode": "010912292933608",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "wZDDS2KX",
+      "title": "Raat Bhar Nachaib",
+      "subtitle": "Tuntun Yadav, Neha Raj - Raat Bhar Nachaib",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar-nachaib/BzIvdScCfGs",
+      "image": "https://c.saavncdn.com/385/Raat-Bhar-Nachaib-Bhojpuri-2022-20221118223145-150x150.jpg",
+      "language": "bhojpuri",
+      "year": "2022",
+      "play_count": "1870622",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Arya Sharma",
+        "album_id": "40079031",
+        "album": "Raat Bhar Nachaib",
+        "label": "Tuntun Yadav Official",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/raat-bhar-nachaib/Un2toZAq2xI_",
+        "duration": "222",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "© 2022 Tuntun Yadav Official",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "3167119",
+              "name": "Tuntun Yadav",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Tuntun_Yadav_002_20241119105337_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/tuntun-yadav-songs/2,GARj6n10k_"
+            },
+            {
+              "id": "762825",
+              "name": "Neha Raj",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Neha_Raj_001_20230613111027_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/neha-raj-songs/MzgEalxZQX8_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "4483232",
+              "name": "Arya Sharma",
+              "role": "music",
+              "image": "https://c.saavncdn.com/artists/Arya_Sharma_001_20250114093218_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arya-sharma-songs/IDNxx6czk4k_"
+            },
+            {
+              "id": "3167119",
+              "name": "Tuntun Yadav",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Tuntun_Yadav_002_20241119105337_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/tuntun-yadav-songs/2,GARj6n10k_"
+            },
+            {
+              "id": "762825",
+              "name": "Neha Raj",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Neha_Raj_001_20230613111027_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/neha-raj-songs/MzgEalxZQX8_"
+            },
+            {
+              "id": "532677",
+              "name": "Sunil Sagar",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/436/Un-Dino-Ki-Yaad-English-2019-20190910020713-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sunil-sagar-songs/98I51Hyn73M_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/tuntun-yadav-official-albums/",
+        "vcode": "010912292118197",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "JKzrzrwE",
+      "title": "Raat Bhar Jaam Se",
+      "subtitle": "Kalyanji-Anandji, Alisha Chinai - Tridev",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar-jaam-se/OiMRQw5CQHY",
+      "image": "https://c.saavncdn.com/315/Tridev-1989-150x150.jpg",
+      "language": "hindi",
+      "year": "1989",
+      "play_count": "918001",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Kalyanji-Anandji",
+        "album_id": "1052315",
+        "album": "Tridev",
+        "label": "T-Series",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/tridev/5vdtixrJkJU_",
+        "duration": "267",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "©  1989 T-Series",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "599595",
+              "name": "Kalyanji-Anandji",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Kalyanji_Anandji_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kalyanji-anandji-songs/ZgLdmLRnjfU_"
+            },
+            {
+              "id": "458158",
+              "name": "Alisha Chinai",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Alisha_Chinai_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/alisha-chinai-songs/UgqNz7yU508_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "599595",
+              "name": "Kalyanji-Anandji",
+              "role": "music",
+              "image": "https://c.saavncdn.com/artists/Kalyanji_Anandji_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kalyanji-anandji-songs/ZgLdmLRnjfU_"
+            },
+            {
+              "id": "458158",
+              "name": "Alisha Chinai",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Alisha_Chinai_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/alisha-chinai-songs/UgqNz7yU508_"
+            },
+            {
+              "id": "456000",
+              "name": "Anand Bakshi",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Anand_Bakshi_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/anand-bakshi-songs/4mKShzeuIzU_"
+            },
+            {
+              "id": "455444",
+              "name": "Anupam Kher",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Anupam_Kher_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/anupam-kher-songs/2ju,RkjV688_"
+            },
+            {
+              "id": "456734",
+              "name": "Amrish Puri",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Amrish_Puri_001_20230613123407_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/amrish-puri-songs/mauvJl656-Y_"
+            },
+            {
+              "id": "456344",
+              "name": "Raza Murad",
+              "role": "starring",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/raza-murad-songs/GLq0g2cCPMA_"
+            },
+            {
+              "id": "457233",
+              "name": "Dalip Tahil",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/242/Raaz-Ki-Baaten-Hindi-2019-20190528053812-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/dalip-tahil-songs/iS1mw9wExfk_"
+            },
+            {
+              "id": "459886",
+              "name": "Sharat Saxena",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/258/Bhavani-Junction-OST--Hindi-2012-20180902213928-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sharat-saxena-songs/htpp-PJEUn4_"
+            },
+            {
+              "id": "456390",
+              "name": "Tej Sapru",
+              "role": "starring",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/tej-sapru-songs/dsQ9oGXH6yM_"
+            },
+            {
+              "id": "455200",
+              "name": "Naseeruddin Shah",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Naseeruddin_Shah_002_20230623105511_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/naseeruddin-shah-songs/dA8lo8DwptU_"
+            },
+            {
+              "id": "455110",
+              "name": "Jackie Shroff",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Jackie_Shroff_003_20230602115513_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jackie-shroff-songs/Xw55Ro1ws-E_"
+            },
+            {
+              "id": "455627",
+              "name": "Sunny Deol",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Sunny_Deol_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sunny-deol-songs/OpniZFFn41o_"
+            },
+            {
+              "id": "457236",
+              "name": "Sonam",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/001/Golden-Temple-Gujarati-2017-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sonam-songs/cS,Hy-Emr20_"
+            },
+            {
+              "id": "455113",
+              "name": "Madhuri Dixit",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Madhuri_Dixit_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/madhuri-dixit-songs/he0RI4RDPKM_"
+            },
+            {
+              "id": "468391",
+              "name": "Sangeeta Bijlani",
+              "role": "starring",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sangeeta-bijlani-songs/fdV,kjnXWgg_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/t-series-albums/",
+        "vcode": "010910090121627",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "false",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "sGX3Trdw",
+      "title": "Raat Bhar",
+      "subtitle": "Arijit Singh, Shreya Ghoshal - Arijit Singh - Party Songs",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar/Ay8zAiBCU0Q",
+      "image": "https://c.saavncdn.com/233/Arijit-Singh-Party-Songs-Hindi-2015-150x150.jpg",
+      "language": "hindi",
+      "year": "2015",
+      "play_count": "33009733",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Sajid-Wajid",
+        "album_id": "1242094",
+        "album": "Arijit Singh - Party Songs",
+        "label": "T-Series",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/arijit-singh-party-songs/siOygrxjY7s_",
+        "duration": "326",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "©  2015 T-Series",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            },
+            {
+              "id": "455130",
+              "name": "Shreya Ghoshal",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/shreya-ghoshal-songs/lIHlwHaxTZ0_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "705169",
+              "name": "Sajid-Wajid",
+              "role": "music",
+              "image": "https://c.saavncdn.com/artists/Sajid-Wajid_20180507092451_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sajid-wajid-songs/mAYUldoMZa8_"
+            },
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            },
+            {
+              "id": "455130",
+              "name": "Shreya Ghoshal",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/shreya-ghoshal-songs/lIHlwHaxTZ0_"
+            },
+            {
+              "id": "461070",
+              "name": "Kausar Munir",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Kausar_Munir_20180416065948_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kausar-munir-songs/ZIoQfneojLU_"
+            },
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/t-series-albums/",
+        "vcode": "010910090071226",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "false",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "k28xFBPt",
+      "title": "Raat Bhar",
+      "subtitle": "Sajid-Wajid, Arijit Singh, Shreya Ghoshal - Music Cafe Arijit Singh",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar/G1pTSTJyZ0c",
+      "image": "https://c.saavncdn.com/271/Music-Cafe-Arijit-Singh-Hindi-2014-150x150.jpg",
+      "language": "hindi",
+      "year": "2014",
+      "play_count": "33009633",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Sajid-Wajid",
+        "album_id": "1193553",
+        "album": "Music Cafe Arijit Singh",
+        "label": "T-Series",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/music-cafe-arijit-singh/JfiT1SciMB0_",
+        "duration": "326",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "©  2014 T-Series",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "705169",
+              "name": "Sajid-Wajid",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Sajid-Wajid_20180507092451_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sajid-wajid-songs/mAYUldoMZa8_"
+            },
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            },
+            {
+              "id": "455130",
+              "name": "Shreya Ghoshal",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/shreya-ghoshal-songs/lIHlwHaxTZ0_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "705169",
+              "name": "Sajid-Wajid",
+              "role": "music",
+              "image": "https://c.saavncdn.com/artists/Sajid-Wajid_20180507092451_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sajid-wajid-songs/mAYUldoMZa8_"
+            },
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            },
+            {
+              "id": "455130",
+              "name": "Shreya Ghoshal",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/shreya-ghoshal-songs/lIHlwHaxTZ0_"
+            },
+            {
+              "id": "461070",
+              "name": "Kausar Munir",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Kausar_Munir_20180416065948_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kausar-munir-songs/ZIoQfneojLU_"
+            },
+            {
+              "id": "701751",
+              "name": "Tiger Shroff",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Tiger_Shroff_002_20250728065452_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/tiger-shroff-songs/9fIi6jl-5e0_"
+            },
+            {
+              "id": "701752",
+              "name": "Kriti Sanon",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Kriti_Sanon_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kriti-sanon-songs/9UtnOColzrU_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/t-series-albums/",
+        "vcode": "010910090071226",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "false",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "OHzvHoY3",
+      "title": "Raat Bhar (From &quot;Heropanti&quot;)",
+      "subtitle": "Arijit Singh, Shreya Ghoshal - Groove With Arijit Singh",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/raat-bhar-from-heropanti/PyARRzxfbgA",
+      "image": "https://c.saavncdn.com/528/Groove-With-Arijit-Singh-Hindi-2019-20250829181027-150x150.jpg",
+      "language": "hindi",
+      "year": "2019",
+      "play_count": "33009674",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Sajid-Wajid",
+        "album_id": "15963019",
+        "album": "Groove With Arijit Singh",
+        "label": "T-Series",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/groove-with-arijit-singh/dLES4lYnaNM_",
+        "duration": "325",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "true",
+        "lyrics_snippet": "Lyrics",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2019 Super Cassettes Industries Private Limited",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            },
+            {
+              "id": "455130",
+              "name": "Shreya Ghoshal",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/shreya-ghoshal-songs/lIHlwHaxTZ0_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "705169",
+              "name": "Sajid-Wajid",
+              "role": "music",
+              "image": "https://c.saavncdn.com/artists/Sajid-Wajid_20180507092451_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/sajid-wajid-songs/mAYUldoMZa8_"
+            },
+            {
+              "id": "459320",
+              "name": "Arijit Singh",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/arijit-singh-songs/LlRWpHzy3Hk_"
+            },
+            {
+              "id": "455130",
+              "name": "Shreya Ghoshal",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/shreya-ghoshal-songs/lIHlwHaxTZ0_"
+            },
+            {
+              "id": "461070",
+              "name": "Kausar Munir",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/artists/Kausar_Munir_20180416065948_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kausar-munir-songs/ZIoQfneojLU_"
+            },
+            {
+              "id": "701751",
+              "name": "Tiger Shroff",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Tiger_Shroff_002_20250728065452_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/tiger-shroff-songs/9fIi6jl-5e0_"
+            },
+            {
+              "id": "701752",
+              "name": "Kriti Sanon",
+              "role": "starring",
+              "image": "https://c.saavncdn.com/artists/Kriti_Sanon_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/kriti-sanon-songs/9UtnOColzrU_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/t-series-albums/",
+        "vcode": "010910090071226",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true",
+        "lyrics_id": ""
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    }
+  ]
+}

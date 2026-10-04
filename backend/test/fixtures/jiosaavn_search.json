@@ -1,0 +1,1647 @@
+{
+  "total": 78,
+  "start": 1,
+  "results": [
+    {
+      "id": "fW-Mxsnu",
+      "title": "Blinding Lights",
+      "subtitle": "The Weeknd - After Hours",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights/Fj9GfAxDWUY",
+      "image": "https://c.saavncdn.com/077/After-Hours-English-2020-20260804045014-150x150.jpg",
+      "language": "english",
+      "year": "2020",
+      "play_count": "38304889",
+      "explicit_content": "1",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "19531208",
+        "album": "After Hours",
+        "label": "Republic Records",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/after-hours/y0pOEMYQFWQ_",
+        "duration": "200",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2019 The Weeknd XO, Inc., manufactured and marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/republic-records-albums/",
+        "vcode": "010912291152065",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "pizXlfUB",
+      "title": "Blinding Lights",
+      "subtitle": "The Weeknd - The Highlights",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights/AAERaRhWYnE",
+      "image": "https://c.saavncdn.com/396/The-Highlights-English-2021-20240207045714-150x150.jpg",
+      "language": "english",
+      "year": "2021",
+      "play_count": "38306411",
+      "explicit_content": "1",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "25118096",
+        "album": "The Highlights",
+        "label": "The Weeknd/Lyric",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/the-highlights/U4LxdjTyzrM_",
+        "duration": "204",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2019 The Weeknd XO, Inc., manufactured and marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/the-weekndlyric-albums/",
+        "vcode": "010912291152065",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "pW-kkdqr",
+      "title": "Blinding Lights",
+      "subtitle": "The Weeknd - Blinding Lights",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights/AD9GWh9URkE",
+      "image": "https://c.saavncdn.com/820/Blinding-Lights-English-2020-20200912094411-150x150.jpg",
+      "language": "english",
+      "year": "2020",
+      "play_count": "38306323",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "22440947",
+        "album": "Blinding Lights",
+        "label": "The Weeknd/Lyric",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/blinding-lights/3HhDLnRZyf8_",
+        "duration": "204",
+        "rights": {
+          "code": "0",
+          "cacheable": "false",
+          "delete_cached_object": "true",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2019 The Weeknd XO, Inc., manufactured and marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/the-weekndlyric-albums/",
+        "vcode": "010912291152065",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "VIBvI7hb",
+      "title": "Blinding Lights (Major Lazer Remix)",
+      "subtitle": "The Weeknd ft. Major Lazer - Blinding Lights",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights-major-lazer-remix/JiEpRz0HX1E",
+      "image": "https://c.saavncdn.com/820/Blinding-Lights-English-2020-20200912094411-150x150.jpg",
+      "language": "english",
+      "year": "2020",
+      "play_count": "227381",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "22440947",
+        "album": "Blinding Lights",
+        "label": "The Weeknd/Lyric",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/blinding-lights/3HhDLnRZyf8_",
+        "duration": "198",
+        "rights": {
+          "code": "0",
+          "cacheable": "false",
+          "delete_cached_object": "true",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2020 The Weeknd XO, Inc., marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [
+            {
+              "id": "609987",
+              "name": "Major Lazer",
+              "role": "featured_artists",
+              "image": "https://c.saavncdn.com/artists/Major_Lazer_003_20191014092542_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/major-lazer-songs/cCTZc4aUU,U_"
+            }
+          ],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/the-weekndlyric-albums/",
+        "vcode": "010912291649836",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "ESdbJZkE",
+      "title": "Blinding Lights (Major Lazer Remix)",
+      "subtitle": "The Weeknd ft. Major Lazer - Blinding Lights (Major Lazer Remix)",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights-major-lazer-remix/NTsPUz5qXHY",
+      "image": "https://c.saavncdn.com/294/Blinding-Lights-Major-Lazer-Remix--English-2020-20200415042129-150x150.jpg",
+      "language": "english",
+      "year": "2020",
+      "play_count": "227416",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "19892185",
+        "album": "Blinding Lights (Major Lazer Remix)",
+        "label": "Republic Records",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/blinding-lights-major-lazer-remix/OATMnjEQRd0_",
+        "duration": "198",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2020 The Weeknd XO, Inc., marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [
+            {
+              "id": "609987",
+              "name": "Major Lazer",
+              "role": "featured_artists",
+              "image": "https://c.saavncdn.com/artists/Major_Lazer_003_20191014092542_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/major-lazer-songs/cCTZc4aUU,U_"
+            }
+          ],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/republic-records-albums/",
+        "vcode": "010912291649836",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "yxS-Ojiv",
+      "title": "Blinding Lights (Instrumental)",
+      "subtitle": "The Weeknd ft. Major Lazer - Blinding Lights (Instrumental)",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights-instrumental/CRA4HDtaXkU",
+      "image": "https://c.saavncdn.com/745/Blinding-Lights-Instrumental--English-2020-20200912091904-150x150.jpg",
+      "language": "unknown",
+      "year": "2020",
+      "play_count": "93889",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "22440738",
+        "album": "Blinding Lights (Instrumental)",
+        "label": "Republic Records",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/blinding-lights-instrumental/rW8sA2PXg6Y_",
+        "duration": "201",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2020 The Weeknd XO, Inc., manufactured and marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [
+            {
+              "id": "609987",
+              "name": "Major Lazer",
+              "role": "featured_artists",
+              "image": "https://c.saavncdn.com/artists/Major_Lazer_003_20191014092542_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/major-lazer-songs/cCTZc4aUU,U_"
+            }
+          ],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/republic-records-albums/",
+        "vcode": "010912292132713",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "w1LZMplW",
+      "title": "Blinding Lights (Instrumental)",
+      "subtitle": "The Weeknd ft. Major Lazer - Blinding Lights",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights-instrumental/B1knazlAW2Q",
+      "image": "https://c.saavncdn.com/820/Blinding-Lights-English-2020-20200912094411-150x150.jpg",
+      "language": "english",
+      "year": "2020",
+      "play_count": "93895",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "22440947",
+        "album": "Blinding Lights",
+        "label": "The Weeknd/Lyric",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/blinding-lights/3HhDLnRZyf8_",
+        "duration": "201",
+        "rights": {
+          "code": "0",
+          "cacheable": "false",
+          "delete_cached_object": "true",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2020 The Weeknd XO, Inc., manufactured and marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [
+            {
+              "id": "609987",
+              "name": "Major Lazer",
+              "role": "featured_artists",
+              "image": "https://c.saavncdn.com/artists/Major_Lazer_003_20191014092542_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/major-lazer-songs/cCTZc4aUU,U_"
+            }
+          ],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/the-weekndlyric-albums/",
+        "vcode": "010912292132713",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "1GjJrwl6",
+      "title": "Blinding Lights (Chromatics Remix)",
+      "subtitle": "The Weeknd ft. Chromatics - Blinding Lights",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights-chromatics-remix/QS8BewZHWwU",
+      "image": "https://c.saavncdn.com/820/Blinding-Lights-English-2020-20200912094411-150x150.jpg",
+      "language": "english",
+      "year": "2020",
+      "play_count": "126990",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Nathaniel Stanton Miller, John David Padgett, Abel &quot;The Weeknd&quot; Tesfaye, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "22440947",
+        "album": "Blinding Lights",
+        "label": "The Weeknd/Lyric",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/blinding-lights/3HhDLnRZyf8_",
+        "duration": "261",
+        "rights": {
+          "code": "0",
+          "cacheable": "false",
+          "delete_cached_object": "true",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2020 The Weeknd XO, Inc., manufactured and marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [
+            {
+              "id": "906052",
+              "name": "Chromatics",
+              "role": "featured_artists",
+              "image": "https://c.saavncdn.com/587/Girls-Just-Wanna-Have-Fun-English-2015-20171102190207-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/chromatics-songs/5Hso,jeDkHA_"
+            }
+          ],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "9502130",
+              "name": "Nathaniel Stanton Miller",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/nathaniel-stanton-miller-songs/wwmW0IkEYOo_"
+            },
+            {
+              "id": "9502128",
+              "name": "John David Padgett",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/john-david-padgett-songs/Gy5LYp4tT6c_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "9502130",
+              "name": "Nathaniel Stanton Miller",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/nathaniel-stanton-miller-songs/wwmW0IkEYOo_"
+            },
+            {
+              "id": "9502128",
+              "name": "John David Padgett",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/john-david-padgett-songs/Gy5LYp4tT6c_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/the-weekndlyric-albums/",
+        "vcode": "010912292132530",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "mNcJLmd6",
+      "title": "Blinding Lights (Live)",
+      "subtitle": "The Weeknd ft. Chromatics - Live At SoFi Stadium",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights-live/HSYIezhdUwU",
+      "image": "https://c.saavncdn.com/378/After-Hours-Live-At-SoFi-Stadium-English-2023-20230303063350-150x150.jpg",
+      "language": "english",
+      "year": "2023",
+      "play_count": "8655",
+      "explicit_content": "1",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "43115109",
+        "album": "Live At SoFi Stadium",
+        "label": "The Weeknd/Lyric",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/live-at-sofi-stadium/khcc0Sjz4AU_",
+        "duration": "253",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2023 The Weeknd XO, Inc., manufactured and marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [
+            {
+              "id": "906052",
+              "name": "Chromatics",
+              "role": "featured_artists",
+              "image": "https://c.saavncdn.com/587/Girls-Just-Wanna-Have-Fun-English-2015-20171102190207-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/chromatics-songs/5Hso,jeDkHA_"
+            }
+          ],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/the-weekndlyric-albums/",
+        "vcode": "010912292769010",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    },
+    {
+      "id": "KgZPBz7a",
+      "title": "Blinding Lights",
+      "subtitle": "The Weeknd ft. Chromatics - After Hours (Deluxe)",
+      "header_desc": "",
+      "type": "song",
+      "perma_url": "https://www.jiosaavn.com/song/blinding-lights/Ow8xYTZKAFI",
+      "image": "https://c.saavncdn.com/342/After-Hours-Deluxe-English-2020-20240207050742-150x150.jpg",
+      "language": "english",
+      "year": "2020",
+      "play_count": "38305258",
+      "explicit_content": "0",
+      "list_count": "0",
+      "list_type": "",
+      "list": "",
+      "more_info": {
+        "music": "Max Martin, Oscar Holter, Abel &quot;The Weeknd&quot; Tesfaye, Ahmad Balshe, Jason &quot;daheala&quot; Quenneville",
+        "album_id": "19719754",
+        "album": "After Hours (Deluxe)",
+        "label": "Republic Records",
+        "label_id": null,
+        "origin": "search",
+        "is_dolby_content": false,
+        "320kbps": "true",
+        "encrypted_media_url": "REDACTED",
+        "encrypted_cache_url": "",
+        "encrypted_drm_cache_url": "",
+        "encrypted_drm_media_url": "REDACTED",
+        "album_url": "https://www.jiosaavn.com/album/after-hours-deluxe/vAxFO3Ev2EE_",
+        "duration": "204",
+        "rights": {
+          "code": "0",
+          "cacheable": "true",
+          "delete_cached_object": "false",
+          "reason": ""
+        },
+        "cache_state": "false",
+        "has_lyrics": "false",
+        "lyrics_snippet": "",
+        "has_trivia": "false",
+        "trivia": [],
+        "starred": "false",
+        "copyright_text": "℗ 2019 The Weeknd XO, Inc., manufactured and marketed by Republic Records, a division of UMG Recordings, Inc.",
+        "artistMap": {
+          "primary_artists": [
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "primary_artists",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            }
+          ],
+          "featured_artists": [
+            {
+              "id": "906052",
+              "name": "Chromatics",
+              "role": "featured_artists",
+              "image": "https://c.saavncdn.com/587/Girls-Just-Wanna-Have-Fun-English-2015-20171102190207-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/chromatics-songs/5Hso,jeDkHA_"
+            }
+          ],
+          "artists": [
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "music",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "music",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            },
+            {
+              "id": "615155",
+              "name": "The Weeknd",
+              "role": "singer",
+              "image": "https://c.saavncdn.com/artists/The_Weeknd_002_20241003071400_150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/the-weeknd-songs/FJRb7GbYWrQ_"
+            },
+            {
+              "id": "511907",
+              "name": "Max Martin",
+              "role": "lyricist",
+              "image": "https://c.saavncdn.com/848/Beautiful-Day-English-2009-150x150.jpg",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/max-martin-songs/NuQcWCsPYYM_"
+            },
+            {
+              "id": "618428",
+              "name": "Oscar Holter",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/oscar-holter-songs/96cuCLjnHA0_"
+            },
+            {
+              "id": "1433699",
+              "name": "Abel &quot;The Weeknd&quot; Tesfaye",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/abel-the-weeknd-tesfaye-songs/CuYcoqJxpWs_"
+            },
+            {
+              "id": "677917",
+              "name": "Ahmad Balshe",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/ahmad-balshe-songs/96-GjrzUJjY_"
+            },
+            {
+              "id": "777513",
+              "name": "Jason &quot;daheala&quot; Quenneville",
+              "role": "lyricist",
+              "image": "",
+              "type": "artist",
+              "perma_url": "https://www.jiosaavn.com/artist/jason-daheala-quenneville-songs/kokTX8Akaac_"
+            }
+          ]
+        },
+        "release_date": null,
+        "label_url": "/label/republic-records-albums/",
+        "vcode": "010912291152065",
+        "vlink": "REDACTED",
+        "triller_available": false,
+        "request_jiotune_flag": false,
+        "webp": "true"
+      },
+      "button_tooltip_info": [],
+      "pro_hva_campaigns": []
+    }
+  ]
+}

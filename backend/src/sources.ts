@@ -216,3 +216,46 @@ export const youtube: Adapter = {
 		return null; // never playable; the route answers with the deep link instead
 	},
 };
+
+// --- JioSaavn (metadata only: plays in JioSaavn) ----------------------------
+// No official public API exists. This is jiosaavn.com's own web search endpoint, validated
+// live (test/fixtures/jiosaavn_*.json). Its audio URLs are encrypted, protected media: JARX
+// never reads, decrypts or rebuilds them (nor passes its short preview clip off as the song),
+// so tracks are not playable here and their song page opens JioSaavn instead.
+const httpsUrl = (v: unknown) => (typeof v === "string" && v.startsWith("https://") ? v : null);
+const text = (v: unknown) => (typeof v === "string" ? decodeEntities(v).trim() : "");
+
+export const jiosaavn: Adapter = {
+	async search(q, limit, _env, signal) {
+		// Seen live: n is clamped to 10..40, and the JSON comes back as text/html.
+		const body = await getJson(
+			`https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&_marker=0&api_version=4&ctx=web6dot0&p=1&n=${limit}&q=${encodeURIComponent(q)}`,
+			signal,
+		);
+		// Errors arrive with HTTP 200: {"error":{"code":"INPUT_MISSING","msg":"..."}}.
+		if (body?.error) throw new Error(`jiosaavn error ${body.error.code}: ${body.error.msg}`);
+		if (!Array.isArray(body?.results)) throw new Error("jiosaavn answered without a results list");
+		return (body.results as any[])
+			.filter((s) => s?.type === "song" && typeof s.id === "string" && s.id && text(s.title))
+			.map((s) => {
+				const info = s.more_info ?? {};
+				const artists = Array.isArray(info.artistMap?.primary_artists) ? info.artistMap.primary_artists.map((a: any) => text(a?.name)) : [];
+				const seconds = Number(info.duration);
+				return track({
+					source: "jiosaavn",
+					sourceId: s.id,
+					title: text(s.title),
+					artist: artists.filter(Boolean).join(", "),
+					album: text(info.album) || null,
+					artworkUrl: httpsUrl(s.image),
+					durationMs: Number.isInteger(seconds) && seconds > 0 ? seconds * 1000 : null,
+					streamUrl: null,
+					playable: false,
+					deepLink: httpsUrl(s.perma_url),
+				});
+			});
+	},
+	async streamUrl() {
+		return null; // never playable in JARX; the stream route answers 422
+	},
+};

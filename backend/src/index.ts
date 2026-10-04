@@ -86,9 +86,13 @@ app.get("/tracks/:source/:id{.+}/stream", async (c) => {
 	const provider = PROVIDERS[source];
 	// Embed sources (YouTube) are metadata only: never extract or proxy their audio.
 	if (provider.playback === "embed") {
-		throw new ApiError(422, "not_playable", `${provider.name} tracks are metadata-only; open the deep link`, {
-			deepLink: provider.deepLink?.(id),
-		});
+		// JioSaavn's song links can't be built from an id; its tracks carry their own deepLink.
+		throw new ApiError(
+			422,
+			"not_playable",
+			`${provider.name} tracks are metadata-only; open the deep link`,
+			provider.deepLink && { deepLink: provider.deepLink(id) },
+		);
 	}
 	let url: string | null;
 	try {

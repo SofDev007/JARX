@@ -49,15 +49,19 @@ Errors are always `{ "error": { "code", "message", "details"? } }`.
 | --- | --- | --- |
 | `GET` | `/health` | `{ status: "ok" }`. The only unauthenticated route. |
 | `GET` | `/search?q=&limit=` | `limit` 1–50, default 20, per section. Returns `{ query, music, videos, videoError, cached, results }`. Each result is a Track (its best copy) plus `score` and `sources`. Cached in D1 for 24h per normalized query. |
-| `GET` | `/tracks/:source/:id/stream` | `{ url }` — a fresh CDN URL. `:id` may contain slashes (archive ids are `item/file.mp3`). YouTube returns `422 not_playable` with the deep link in `details`. |
+| `GET` | `/tracks/:source/:id/stream` | `{ url }` — a fresh CDN URL. `:id` may contain slashes (archive ids are `item/file.mp3`). YouTube returns `422 not_playable` with the deep link in `details`; JioSaavn returns `422 not_playable` too (its tracks carry their own `deepLink`). |
 
 `/search` queries the enabled music (`audio`) providers and YouTube (`video`) in
 parallel, 2.5s budget each. Every candidate scores on fuzzy title+artist
 similarity × a per-source weight, and anything under 0.5 is dropped. Music and
 videos are ranked separately and returned apart, so a video never lands in `music`:
 
-- `music`: what JARX plays. Copies of the same song (same normalized title + artist)
-  merge into one result: the best copy's fields, with every copy listed in `sources`.
+- `music`: songs from JioSaavn, Audius, Jamendo and Internet Archive. Copies of the same
+  song (same normalized title + artist) merge into one result, with every copy listed in
+  `sources`. The flat fields are the lead copy's: one JARX can play beats one it can't,
+  then the best score wins.
+  JioSaavn rows are metadata only (`playable: false`, `deepLink` to the song page on
+  jiosaavn.com) because its audio is protected media JARX never touches; they open JioSaavn.
 - `videos`: YouTube, metadata only. Always `playable: false` with a `deepLink` to
   `https://www.youtube.com/watch?v=<id>`; never audio.
 - `videoError`: `null`, `"quota_exceeded"` (YouTube answered 403 `quotaExceeded`) or

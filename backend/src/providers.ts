@@ -1,4 +1,4 @@
-import { archive, audius, jamendo, youtube, youtubeWatchUrl, type Adapter } from "./sources";
+import { archive, audius, jamendo, jiosaavn, youtube, youtubeWatchUrl, type Adapter } from "./sources";
 
 /** audio: a music result JARX ranks as such. video: a separate class of result (YouTube). */
 export type Kind = "audio" | "video";
@@ -25,6 +25,11 @@ export interface Provider {
 // The one list of providers. Order matters: sources are queried and merged in this order,
 // which decides ties in rank().
 const registry = {
+	// Metadata only: its audio is protected media, so tracks open JioSaavn instead of playing here.
+	// Weight from live checks (6 queries, Indian and international): the intended original led each
+	// one, versions are labelled in titles, a nonsense query returns nothing. That's Jamendo-level
+	// trust, kept under Audius so an equally good match JARX can actually play sorts first.
+	jiosaavn: { name: "JioSaavn", enabled: true, kind: "audio", weight: 0.95, playback: "embed", adapter: jiosaavn },
 	// Legacy: to be disabled (never deleted) once their replacements exist.
 	audius: { name: "Audius", enabled: true, kind: "audio", weight: 1, playback: "native", adapter: audius },
 	jamendo: { name: "Jamendo", enabled: true, kind: "audio", weight: 0.95, playback: "native", adapter: jamendo },

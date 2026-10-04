@@ -49,7 +49,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 ? const MessageView(
                     icon: Icons.library_music_outlined,
                     title: 'Search for music',
-                    body: 'Music plays in JARX. YouTube videos are listed separately and open in YouTube.',
+                    body: 'Music plays in JARX unless a row says it opens elsewhere. '
+                        'YouTube videos are listed separately and open in YouTube.',
                   )
                 : SearchResults(query: _query),
           ),

@@ -116,6 +116,21 @@ Scope: a provider registry and the multi-source track model only. No new provide
 - [x] `flutter analyze` clean; `flutter test` 21 passing (the 3 banner tests replaced by section tests)
 - [ ] Verified on device against a deployed backend (not deployed)
 
+## Phase 5: JioSaavn provider (roadmap Phase 3)
+
+- [x] Research: JioSaavn has no official public API; third-party wrappers exist (some advertise "DRM-free songs", i.e. the decryption bypass) and are not used. JARX calls only jiosaavn.com's own `api.php?__call=search.getResults` (api_version 4, ctx web6dot0)
+- [x] Live validation from this PC (India), 2026-10-04: 0.35–0.53s per search; 160 results over 4 queries all `type: song`, `rights.code "0"`, integer seconds in `more_info.duration`, https `image` (150x150) and `perma_url` (song page answers 200); HTML entities in titles, albums and artist names; `n` clamped to 10..40; errors come back as HTTP 200 `{"error":{code,msg}}`; JSON served as `text/html`; works with no User-Agent; repeat queries consistent (only same-song copies reorder), unlike Jamendo
+- [x] Fixtures recorded: `jiosaavn_search.json` (blinding lights the weeknd), `jiosaavn_search_raat_bhar.json` (entities, multiple artists). Encrypted media URL and `vlink` preview values redacted to "REDACTED"
+- [x] Adapter `jiosaavn` in `sources.ts`: title, artist (primary artists joined), album, artwork, duration, song-page deepLink. `streamUrl: null`, `playable: false`, `streamUrl()` → null. Encrypted media and preview fields are never read
+- [x] Registry: `jiosaavn` (audio, `playback: embed`, weight 0.95, enabled), queried first. Legacy providers unchanged and enabled
+- [x] Merging: a copy JARX can play now leads its group over one it can't, so a JioSaavn copy never hides a playable copy of the same song (it stays in `sources`)
+- [x] Import still matches only `native` providers (Audius + Jamendo): JioSaavn rows can't play, and a third provider would push 20-row chunks past the Free plan's 50 subrequests
+- [x] `/tracks/jiosaavn/:id/stream` → 422 `not_playable`, no upstream request
+- [x] App: provider table gains JioSaavn ([J], "Open in JioSaavn"); non-playable rows take their label from the table; `openOnYouTube` → `openInProvider` (same app-then-browser behavior); the overlay icon on non-playable rows is now a neutral "opens elsewhere" icon (was a video icon)
+- [x] `npx tsc --noEmit` clean; `npm test` 137 passing (3 registry-contents tests updated for the new provider, none removed); mutation checks for the lead rule, the import filter and the stream guard all caught
+- [x] `flutter analyze` clean; `flutter test` 23 passing
+- [ ] Verified from a deployed Worker (Cloudflare egress may be treated differently from this PC's Indian residential IP) and on device (does the JioSaavn app claim jiosaavn.com song links?)
+
 ## Decisions made without asking
 
 - **Phase 2 plan**: none existed, so the draft checklist in this file was used, per "proceed as specified in the plan".
@@ -142,8 +157,17 @@ Scope: a provider registry and the multi-source track model only. No new provide
 - **No YouTube circuit breaker:** a request against a spent quota fails fast, runs in parallel with the music providers, and costs no quota, so remembering the outage would save one quick subrequest per search, not quota. A search is simply left uncached while YouTube fails.
 - **`limit` applies per section** (music ≤ limit, videos ≤ limit). The app still asks for 25.
 - **"Direction A" styling** is not defined anywhere in the repo; the new UI uses the app's existing Material 3 theme.
+- **JioSaavn is `playback: embed`, not playable (Phase 5).** The only audio URLs in its response are encrypted protected media (the bypass is out of bounds) and `vlink`, a short JioTune preview; using that as `streamUrl` would fake the song. So: metadata + song page, like YouTube.
+- **JioSaavn weight 0.95**: the intended original led all 6 real queries tried (Blinding Lights, Tum Hi Ho, Raat Bhar, Kesariya, lofi, lofi type beat), versions are labelled in titles (so the cover/remix demotion catches them), and a nonsense query returned nothing. Same trust as Jamendo, under Audius so an equally good playable match sorts first.
+- **Registry order: JioSaavn first** (active providers before legacy). Order only breaks exact ties.
+- **Artwork as given (150x150).** A larger size can be had by editing the URL, but that's an unvalidated URL guess; 150px suits list rows, and JioSaavn rows never reach the Now Playing screen.
+- **`rights.code` is not used**: only "0" was ever seen, so its other meanings are unvalidated.
 
 ## Open issues
+
+- **JioSaavn's endpoint is unofficial.** It is jiosaavn.com's own undocumented web API: it can change or block without notice, and using it outside their site may conflict with JioSaavn's terms. Only metadata is taken; nothing protected is touched.
+- **A JioSaavn failure still gets cached.** The cache rule only skips searches whose *videos* failed (so YouTube quota isn't re-spent). If JioSaavn times out, that query's answer is cached without JioSaavn for 24h. Fixing it means re-spending YouTube quota on retries: a decision for the quota discussion.
+- **The app shows only each result's lead copy.** `sources[]` (e.g. a JioSaavn copy behind a playable Jamendo one) isn't surfaced in the UI yet.
 
 - **YouTube quota vs as-you-type search (needs a decision).** Every uncached search spends one of 100 daily `search.list` calls. The app searches 500 ms after the last keystroke, so a typed query can spend more than one call through intermediate queries ("blin", "blinding lights"). The 24h cache only helps exact repeats. Options: ask YouTube only on submit or after a longer pause, request a quota increase from Google, or accept ~100 distinct searches/day.
 

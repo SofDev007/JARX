@@ -4,13 +4,15 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'api.dart';
 
-/// Display name and JARX source badge per provider. Providers get their badge as they are
-/// built: J (JioSaavn), YM (YouTube Music) and L (Local) are next. Legacy providers have none.
-const providers = <String, ({String name, String? badge})>{
-  'audius': (name: 'Audius', badge: null),
-  'jamendo': (name: 'Jamendo', badge: null),
-  'archive': (name: 'Internet Archive', badge: null),
-  'youtube': (name: 'YouTube', badge: 'Y'),
+/// Display name, JARX source badge and, for providers whose tracks play only in their own app,
+/// the action that opens it. Providers get their badge as they are built: YM (YouTube Music)
+/// and L (Local) are next. Legacy providers have none.
+const providers = <String, ({String name, String? badge, String? handoff})>{
+  'jiosaavn': (name: 'JioSaavn', badge: 'J', handoff: 'Open in JioSaavn'),
+  'audius': (name: 'Audius', badge: null, handoff: null),
+  'jamendo': (name: 'Jamendo', badge: null, handoff: null),
+  'archive': (name: 'Internet Archive', badge: null, handoff: null),
+  'youtube': (name: 'YouTube', badge: 'Y', handoff: 'Watch on YouTube'),
 };
 
 String formatDuration(Duration d) => '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
@@ -18,16 +20,17 @@ String formatDuration(Duration d) => '${d.inMinutes}:${(d.inSeconds % 60).toStri
 void toast(BuildContext context, String message) =>
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 
-/// Opens a YouTube row in the YouTube app. On Android 11+ the first attempt refuses
-/// browsers, so the app wins when it's installed; the second falls back to a browser.
-Future<void> openOnYouTube(BuildContext context, Track t) async {
+/// Opens a track that plays only in its provider's own app (YouTube, JioSaavn) via its deep
+/// link. On Android 11+ the first attempt refuses browsers, so the app wins when it's
+/// installed; the second falls back to a browser.
+Future<void> openInProvider(BuildContext context, Track t) async {
   final link = t.deepLink;
   if (link == null) return;
   final uri = Uri.parse(link);
   final opened =
       await launchUrl(uri, mode: LaunchMode.externalNonBrowserApplication) ||
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-  if (!opened && context.mounted) toast(context, "Couldn't open YouTube");
+  if (!opened && context.mounted) toast(context, "Couldn't open ${providers[t.source]?.name ?? 'the link'}");
 }
 
 class Artwork extends StatelessWidget {
@@ -75,7 +78,7 @@ class SourceBadge extends StatelessWidget {
 }
 
 /// One row for a track anywhere in the app. Playable rows call [onPlay]. Non-playable rows
-/// are YouTube videos: they look different and open YouTube instead of the player.
+/// (YouTube, JioSaavn) look different and open the provider's own app instead of the player.
 class TrackTile extends StatelessWidget {
   const TrackTile({required this.track, this.onPlay, this.selected = false, this.menu = true, super.key});
   final Track track;
@@ -85,13 +88,14 @@ class TrackTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = track;
+    final p = providers[t.source];
     if (!t.playable) {
       return ListTile(
         selected: selected,
         leading: Stack(
           children: [
             Opacity(opacity: 0.6, child: Artwork(t.artworkUrl)),
-            const Positioned.fill(child: Icon(Icons.smart_display, color: Colors.white)),
+            const Positioned.fill(child: Icon(Icons.open_in_new, color: Colors.white)),
           ],
         ),
         title: Text(t.title, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -103,19 +107,16 @@ class TrackTile extends StatelessWidget {
               children: [
                 SourceBadge(t.source),
                 const SizedBox(width: 8),
-                const Text('Watch on YouTube'),
-                const SizedBox(width: 4),
-                const Icon(Icons.open_in_new, size: 14),
+                Text(p?.handoff ?? 'Open in ${p?.name ?? t.source}'),
               ],
             ),
           ],
         ),
         isThreeLine: t.artist.isNotEmpty,
         trailing: menu ? TrackMenu(t) : null,
-        onTap: () => openOnYouTube(context, t),
+        onTap: () => openInProvider(context, t),
       );
     }
-    final p = providers[t.source];
     final details = [
       if (t.artist.isNotEmpty) t.artist,
       if (p?.badge == null) p?.name ?? t.source, // badged providers show the badge instead

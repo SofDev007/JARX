@@ -40,5 +40,7 @@ signed and do expire.
 Search shows music first. YouTube videos sit below a separator labelled "Video playback
 (ads included)", each marked with the [Y] source badge. YouTube results are metadata only:
 tapping one opens the YouTube app (or a browser), ads included; JARX never plays YouTube audio.
-Source badges live in `providers` in `lib/widgets.dart`: J, YM and L get added there as those
-providers are built.
+JioSaavn rows sit with the music, marked [J] and "Open in JioSaavn": JARX can't play them
+(their audio is protected media), so tapping one opens the song in the JioSaavn app or a browser.
+Source badges and those hand-off labels live in `providers` in `lib/widgets.dart`; YM and L get
+added there as those providers are built.
