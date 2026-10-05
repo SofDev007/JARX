@@ -42,6 +42,13 @@ export type Source = keyof typeof registry;
 export const PROVIDERS: Record<Source, Provider> = registry;
 export const SOURCES = Object.keys(registry) as [Source, ...Source[]];
 
+/**
+ * Whether JARX can stream a provider's tracks: anything but embed. This, not the flag an
+ * adapter or a stored row carries, decides Track.playable, so changing a provider's playback
+ * type here changes search results and the library alike. Unknown sources can't stream.
+ */
+export const streamable = (source: string) => Object.hasOwn(PROVIDERS, source) && PROVIDERS[source as Source].playback !== "embed";
+
 /** Enabled providers, optionally only those of one kind, in registry order. */
 export const enabledSources = (kind?: Kind): Source[] =>
 	SOURCES.filter((s) => PROVIDERS[s].enabled && (!kind || PROVIDERS[s].kind === kind));

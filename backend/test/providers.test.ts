@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import app from "../src/index";
-import { enabledSources, PROVIDERS, SOURCES } from "../src/providers";
+import { enabledSources, PROVIDERS, SOURCES, streamable } from "../src/providers";
 import { rank, resolveOne, search } from "../src/resolver";
 import { archive, audius, jamendo, jiosaavn, youtube } from "../src/sources";
 import { trackSchema } from "../src/track";
@@ -157,6 +157,59 @@ describe("resolver reads the registry", () => {
 		spy = mockFetch(fixtures);
 		await resolveOne(env, "lofi type beat bsdu");
 		expect(hosts(spy)).toEqual(new Set(["api.audius.co", "api.jamendo.com", "archive.org"]));
+	});
+});
+
+describe("playable follows the registry", () => {
+	// Simulates what adding a legitimate stream source to a provider would change: its playback type.
+	const goNative = () => (PROVIDERS.jiosaavn.playback = "native");
+
+	it("is everything but embed, and false for names that aren't providers", () => {
+		expect(SOURCES.filter((s) => streamable(s))).toEqual(["audius", "jamendo", "archive"]);
+		for (const name of ["local", "spotify", "toString", "__proto__", ""]) expect(streamable(name), name).toBe(false);
+	});
+
+	it("decides search results, whatever the adapter said, and a change skips the old cached answer", async () => {
+		mockFetch(fixtures);
+		const before = await search(env, "blinding lights the weeknd", 10);
+		expect(before.music.filter((r) => r.source === "jiosaavn").every((r) => !r.playable)).toBe(true);
+
+		goNative();
+		const after = await search(env, "blinding lights the weeknd", 10);
+		expect(after.cached).toBe(false);
+		const saavn = after.music.filter((r) => r.source === "jiosaavn");
+		expect(saavn.length).toBeGreaterThan(0);
+		expect(saavn.every((r) => r.playable)).toBe(true);
+	});
+
+	it("decides stored tracks as they are read, in favorites, playlists and history", async () => {
+		const call = async (method: string, path: string, body?: unknown) => {
+			const res = await app.request(path, { method, headers: { ...AUTH, "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) }, env);
+			return (await res.json()) as any;
+		};
+		const saavn = { source: "jiosaavn", sourceId: "fW-Mxsnu", title: "Blinding Lights", artist: "The Weeknd", playable: false };
+		const legacy = { source: "audius", sourceId: "a", title: "A", artist: "B", playable: true };
+		await call("POST", "/favorites", { track: saavn });
+		const { id } = await call("POST", "/playlists", { name: "P" });
+		await call("POST", `/playlists/${id}/tracks`, { tracks: [saavn, legacy] });
+		await call("POST", "/recently-played", { track: saavn });
+		const read = async () =>
+			[
+				...(await call("GET", "/favorites")).items.map((i: any) => i.track),
+				...(await call("GET", `/playlists/${id}`)).tracks.map((t: any) => t.track),
+				...(await call("GET", "/recently-played")).items.map((i: any) => i.track),
+			].map((t) => `${t.id}=${t.playable}`);
+
+		expect(await read()).toEqual(["jiosaavn:fW-Mxsnu=false", "jiosaavn:fW-Mxsnu=false", "audius:a=true", "jiosaavn:fW-Mxsnu=false"]);
+		goNative();
+		expect(await read()).toEqual(["jiosaavn:fW-Mxsnu=true", "jiosaavn:fW-Mxsnu=true", "audius:a=true", "jiosaavn:fW-Mxsnu=true"]);
+	});
+
+	it("reads a stored track whose provider has left the registry as not playable", async () => {
+		const gone = { id: "gone:1", source: "gone", sourceId: "1", title: "T", artist: "A", playable: true };
+		await env.jarx_db.prepare("INSERT INTO favorite (track_key, track_json, added_at) VALUES (?, ?, 1)").bind(gone.id, JSON.stringify(gone)).run();
+		const res = await app.request("/favorites", { headers: AUTH }, env);
+		expect(((await res.json()) as any).items[0].track).toMatchObject({ id: "gone:1", playable: false });
 	});
 });
 

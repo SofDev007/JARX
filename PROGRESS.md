@@ -131,6 +131,21 @@ Scope: a provider registry and the multi-source track model only. No new provide
 - [x] `flutter analyze` clean; `flutter test` 23 passing
 - [ ] Verified from a deployed Worker (Cloudflare egress may be treated differently from this PC's Indian residential IP) and on device (does the JioSaavn app claim jiosaavn.com song links?)
 
+## Phase 6: Playback contract (roadmap Phase 2)
+
+Track → TrackRef → resolveStreams → StreamCandidate[] → QualitySelector → PlayableSource → Player. No provider gained a new playback ability: JioSaavn and YouTube stay embed.
+
+- [x] Player characterization tests first (`app/test/player_test.dart`, 10): load + history, non-playable filtering, lookup failure, one refetch after a load failure, queue progression, notification/lock-screen state, restore. Green against the old player, and unchanged after the rewrite. Needed only an optional `audio:` injection; `main.dart` wiring unchanged
+- [x] `app/lib/playback.dart`: `TrackRef` (parsed from Track.id at the first colon), `StreamCandidate`, `PlayableSource` (uri + headers, headers null when none), `QualitySelector.pick` (expiry margin 30s; https/content/file only; best = highest known bitrate, dataSaver = lowest; unknown last; ties keep provider order), `SourceResolver` (resolve / prefetch / invalidate; in-memory cache; typed `PlaybackException`: not_playable, no_stream, unavailable, invalid_source). Transitional: candidates come from the existing `/stream`; a stored `streamUrl` is tried once as a legacy hint
+- [x] Player: `_load` resolves through `SourceResolver` and plays `AudioSource.uri(uri, headers:)`; no `streamUrl`, `/stream` or `setUrl` left in it. Load failure → invalidate, resolve again, retry once → second failure: report and skip to the next track. A resolution failure (offline, say) reports and stays. Next track prefetched after a successful load
+- [x] Backend: `Adapter.streamUrl` → `resolveStreams` (StreamCandidate[]) in every adapter, optional `details` slot; `GET /tracks/:source/:id/streams` (422 embed, 404 no_stream, 502 upstream, 400 unknown); `/stream` now derives from the same path (first candidate)
+- [x] `Track.playable` derived from the registry (`streamable()`) in search and on every library read; search-cache key includes each provider's playback type
+- [x] `npx tsc --noEmit` clean; `npm test` 146 passing (7 adapter assertions moved from `streamUrl` to `resolveStreams`; no other existing test touched)
+- [x] `flutter analyze` clean; `flutter test` 59 passing (17 player, 19 playback contract)
+- [x] Mutation checks caught: retry without invalidate, skip on every failure, search ignoring the registry, cache key without playback types
+- [ ] App resolver switched from `/stream` to `/streams` (next step; kept on `/stream` this phase as instructed)
+- [ ] Verified on device (the phone's current debug build points at a stopped local backend)
+
 ## Decisions made without asking
 
 - **Phase 2 plan**: none existed, so the draft checklist in this file was used, per "proceed as specified in the plan".
@@ -162,8 +177,15 @@ Scope: a provider registry and the multi-source track model only. No new provide
 - **Registry order: JioSaavn first** (active providers before legacy). Order only breaks exact ties.
 - **Artwork as given (150x150).** A larger size can be had by editing the URL, but that's an unvalidated URL guess; 150px suits list rows, and JioSaavn rows never reach the Now Playing screen.
 - **`rights.code` is not used**: only "0" was ever seen, so its other meanings are unvalidated.
+- **Skip only after a source fails to load twice (Phase 6).** A track whose stream can't even be resolved (offline, server down) stays put with the reason shown; skipping would run through the whole queue whenever the network drops.
+- **Resolution cache lives in memory only.** Stream URLs are short-lived; nothing new is persisted, Drift is untouched. Candidates without an expiry are reused until playback fails, which is exactly the old behavior.
+- **No candidate carries a mimeType or bitrate yet.** No provider states them reliably today, so the backend sends nulls rather than guesses.
+- **`details` is declared, not implemented.** Nothing consumes it yet.
 
 ## Open issues
+
+- **Hand-off crashes silently when no app claims the link (seen on device, 2026-10-04).** `openInProvider` expects `launchUrl(externalNonBrowserApplication)` to return false, but url_launcher_android throws `PlatformException(ACTIVITY_NOT_FOUND)`, so the browser fallback never runs and nothing opens (no toast either). Hits JioSaavn rows when the JioSaavn app isn't installed, and YouTube rows without the YouTube app. Known compatibility issue; deliberately not fixed yet.
+- **The app on the phone points at a stopped local backend** (debug build with `JARX_URL=http://localhost:8787`). The deployed Worker is still Phase 1 code.
 
 - **JioSaavn's endpoint is unofficial.** It is jiosaavn.com's own undocumented web API: it can change or block without notice, and using it outside their site may conflict with JioSaavn's terms. Only metadata is taken; nothing protected is touched.
 - **A JioSaavn failure still gets cached.** The cache rule only skips searches whose *videos* failed (so YouTube quota isn't re-spent). If JioSaavn times out, that query's answer is cached without JioSaavn for 24h. Fixing it means re-spending YouTube quota on retries: a decision for the quota discussion.

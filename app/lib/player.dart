@@ -7,13 +7,18 @@ import 'package:just_audio/just_audio.dart';
 
 import 'api.dart';
 import 'db.dart';
+import 'playback.dart';
 
 final playerProvider = Provider<Player>((ref) => throw UnimplementedError('overridden in main()'));
 
 /// Plays tracks with just_audio. audio_service owns the foreground service, the media
 /// notification and the lock-screen and headset controls, and routes them back here.
+/// What a track plays from comes from [SourceResolver]; the player only sees PlayableSource.
 class Player extends BaseAudioHandler with SeekHandler {
-  Player(this._api, this._cache) {
+  /// [resolver] and [audio] are replaced in tests; production passes neither.
+  Player(this._api, this._cache, {SourceResolver? resolver, AudioPlayer? audio})
+    : _resolver = resolver ?? SourceResolver(_api),
+      _audio = audio ?? AudioPlayer() {
     _audio.playbackEventStream.listen((_) => _broadcast(), onError: (Object e, StackTrace _) => _fail(e));
     _audio.playingStream.listen((_) => _broadcast());
     _audio.processingStateStream.listen((s) {
@@ -32,7 +37,8 @@ class Player extends BaseAudioHandler with SeekHandler {
 
   final Api _api;
   final Cache _cache;
-  final _audio = AudioPlayer();
+  final SourceResolver _resolver;
+  final AudioPlayer _audio;
   final _errors = StreamController<String>.broadcast();
   List<Track> _tracks = [];
   int _index = 0;
@@ -62,24 +68,22 @@ class Player extends BaseAudioHandler with SeekHandler {
     mediaItem.add(_item(t));
     _broadcast();
     try {
-      // The URL we already have usually works: Jamendo's never expire and Archive's are
-      // stable. Only ask the server for a fresh one when it fails (Audius URLs are signed
-      // and do expire). This also keeps playback off Jamendo's flaky lookup behind /stream.
-      final known = t.streamUrl;
       try {
-        final url = known ?? await _api.streamUrl(t);
-        if (load != _loads) return;
-        await _audio.setUrl(url, initialPosition: position);
+        await _setSource(t, position, load);
       } on PlayerException {
-        if (known == null) rethrow;
-        final url = await _api.streamUrl(t);
         if (load != _loads) return;
-        await _audio.setUrl(url, initialPosition: position);
+        // Its stream may have gone stale (an expired URL): resolve once more and retry, once.
+        _resolver.invalidate(t);
+        await _setSource(t, position, load);
       }
     } on PlayerInterruptedException {
       return; // a newer load replaced this one
     } catch (e) {
-      if (load == _loads) _fail(e);
+      if (load != _loads) return;
+      _fail(e);
+      // A source that resolved but still won't play is broken: move on. A track that can't be
+      // resolved at all (offline, say) stays put instead of skipping through the whole queue.
+      if (e is PlayerException) await skipToNext();
       return;
     }
     if (load != _loads) return;
@@ -89,6 +93,14 @@ class Player extends BaseAudioHandler with SeekHandler {
       unawaited(_audio.play());
       _api.played(t).ignore(); // history is best-effort
     }
+    if (_index + 1 < _tracks.length) _resolver.prefetch(_tracks[_index + 1]);
+  }
+
+  /// Resolves [t] and hands the result to just_audio, unless a newer load has taken over.
+  Future<void> _setSource(Track t, Duration position, int load) async {
+    final source = await _resolver.resolve(t);
+    if (load != _loads) return;
+    await _audio.setAudioSource(AudioSource.uri(source.uri, headers: source.headers), initialPosition: position);
   }
 
   @override
@@ -169,7 +181,7 @@ class Player extends BaseAudioHandler with SeekHandler {
         .ignore();
   }
 
-  void _fail(Object e) => _errors.add(e is ApiException ? e.message : "Couldn't play this track");
+  void _fail(Object e) => _errors.add(e is PlaybackException ? e.message : "Couldn't play this track");
 
   void _broadcast() {
     final playing = _audio.playing;

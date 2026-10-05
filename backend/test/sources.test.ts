@@ -41,7 +41,10 @@ describe("audius", () => {
 
 	it("resolves a fresh stream URL", async () => {
 		mockFetch(fixtures);
-		expect(await audius.streamUrl("YmJWK", env, signal())).toMatch(/^https:\/\/.+\/tracks\/cidstream\/.+signature=/);
+		const [candidate, ...rest] = await audius.resolveStreams("YmJWK", env, signal());
+		expect(candidate.uri).toMatch(/^https:\/\/.+\/tracks\/cidstream\/.+signature=/);
+		expect(candidate).toMatchObject({ mimeType: null, bitrateKbps: null, expiresAt: null, headers: null }); // Audius gives only the URL
+		expect(rest).toEqual([]);
 	});
 
 	it("retries another host when the first one fails", async () => {
@@ -65,7 +68,7 @@ describe("audius", () => {
 	it("treats a 404 as a real answer: no retry, null stream", async () => {
 		// Recorded live: {"code":404,"error":"track not found"}
 		const spy = mockFetch(() => json({ code: 404, error: "track not found" }, 404));
-		expect(await audius.streamUrl("95wro", env, signal())).toBeNull();
+		expect(await audius.resolveStreams("95wro", env, signal())).toEqual([]);
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
@@ -116,8 +119,10 @@ describe("archive", () => {
 
 	it("builds stable download URLs without a request", async () => {
 		const spy = mockFetch();
-		expect(await archive.streamUrl("item/dir/My Song #1.mp3", env, signal())).toBe("https://archive.org/download/item/dir/My%20Song%20%231.mp3");
-		expect(await archive.streamUrl("no-file", env, signal())).toBeNull();
+		expect((await archive.resolveStreams("item/dir/My Song #1.mp3", env, signal())).map((c) => c.uri)).toEqual([
+			"https://archive.org/download/item/dir/My%20Song%20%231.mp3",
+		]);
+		expect(await archive.resolveStreams("no-file", env, signal())).toEqual([]);
 		expect(spy).not.toHaveBeenCalled();
 	});
 });
@@ -166,13 +171,15 @@ describe("jamendo", () => {
 
 	it("resolves a stream URL by track id", async () => {
 		const spy = mockFetch(jamendoApi);
-		expect(await jamendo.streamUrl("1545361", env, signal())).toContain("storage.jamendo.com/?trackid=1545361");
+		const candidates = await jamendo.resolveStreams("1545361", env, signal());
+		expect(candidates).toHaveLength(1);
+		expect(candidates[0].uri).toContain("storage.jamendo.com/?trackid=1545361");
 		expect(calledUrls(spy)[0].searchParams.get("id")).toBe("1545361");
 	});
 
 	it("rejects a non-numeric id without a request", async () => {
 		const spy = mockFetch();
-		expect(await jamendo.streamUrl("not-a-number", env, signal())).toBeNull();
+		expect(await jamendo.resolveStreams("not-a-number", env, signal())).toEqual([]);
 		expect(spy).not.toHaveBeenCalled();
 	});
 });
@@ -236,7 +243,7 @@ describe("jiosaavn", () => {
 
 		vi.restoreAllMocks();
 		const spy = mockFetch();
-		expect(await jiosaavn.streamUrl("fW-Mxsnu", env, signal())).toBeNull();
+		expect(await jiosaavn.resolveStreams("fW-Mxsnu", env, signal())).toEqual([]);
 		expect(spy).not.toHaveBeenCalled();
 	});
 

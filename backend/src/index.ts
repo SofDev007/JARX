@@ -2,9 +2,9 @@ import { Hono, type Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { z } from "zod";
 import { parseImport, rowQuery } from "./importer";
-import { PROVIDERS, SOURCES } from "./providers";
+import { PROVIDERS, SOURCES, streamable } from "./providers";
 import { resolveOne, search, TIMEOUT_MS } from "./resolver";
-import { trackSchema, type Track } from "./track";
+import { trackSchema, type StreamCandidate, type Track } from "./track";
 
 type Env = { Bindings: CloudflareBindings };
 
@@ -78,13 +78,14 @@ app.get("/search", async (c) => {
 	return c.json({ query: q, ...r, results: [...r.music, ...r.videos] });
 });
 
-// :id{.+} because archive ids are "<identifier>/<file>". Disabled providers still resolve
-// here, so tracks already in the library keep playing.
-app.get("/tracks/:source/:id{.+}/stream", async (c) => {
-	const source = parse(z.enum(SOURCES), c.req.param("source"));
-	const id = c.req.param("id");
+/**
+ * A track's stream candidates from its provider. Disabled providers still resolve, so tracks
+ * already in the library keep playing.
+ */
+async function streamsFor(sourceParam: string, id: string, env: CloudflareBindings): Promise<StreamCandidate[]> {
+	const source = parse(z.enum(SOURCES), sourceParam);
 	const provider = PROVIDERS[source];
-	// Embed sources (YouTube) are metadata only: never extract or proxy their audio.
+	// Embed sources (YouTube, JioSaavn) are metadata only: never extract or proxy their audio.
 	if (provider.playback === "embed") {
 		// JioSaavn's song links can't be built from an id; its tracks carry their own deepLink.
 		throw new ApiError(
@@ -94,15 +95,26 @@ app.get("/tracks/:source/:id{.+}/stream", async (c) => {
 			provider.deepLink && { deepLink: provider.deepLink(id) },
 		);
 	}
-	let url: string | null;
 	try {
-		url = await provider.adapter.streamUrl(id, c.env, AbortSignal.timeout(2 * TIMEOUT_MS));
+		return await provider.adapter.resolveStreams(id, env, AbortSignal.timeout(2 * TIMEOUT_MS));
 	} catch (e) {
 		console.warn(`stream ${source} failed: ${String(e).replace(/(key|client_id)=[^&\s]+/g, "$1=***")}`);
 		throw new ApiError(502, "upstream_error", `Could not resolve a stream from ${source}`);
 	}
-	if (!url) throw notFound("Track");
-	return c.json({ url });
+}
+
+// :id{.+} because archive ids are "<identifier>/<file>".
+app.get("/tracks/:source/:id{.+}/streams", async (c) => {
+	const candidates = await streamsFor(c.req.param("source"), c.req.param("id"), c.env);
+	if (!candidates.length) throw new ApiError(404, "no_stream", "No stream for this track");
+	return c.json({ candidates });
+});
+
+// For app builds from before /streams: the provider's first candidate, as a bare URL.
+app.get("/tracks/:source/:id{.+}/stream", async (c) => {
+	const [first] = await streamsFor(c.req.param("source"), c.req.param("id"), c.env);
+	if (!first) throw notFound("Track");
+	return c.json({ url: first.uri });
 });
 
 // --- Playlists --------------------------------------------------------------
@@ -112,6 +124,12 @@ const moveBody = z.object({ from: z.number().int().min(0), to: z.number().int().
 
 type TrackRow = { position: number; addedAt: number; track_json: string };
 
+/** A stored track as served: its playability follows its provider now, not when it was saved. */
+const stored = (json: string): Track => {
+	const t = JSON.parse(json) as Track;
+	return { ...t, playable: streamable(t.source) };
+};
+
 async function playlistDetail(db: D1Database, id: string) {
 	const [meta, rows] = await db.batch([
 		db.prepare("SELECT id, name, created_at AS createdAt, updated_at AS updatedAt FROM playlist WHERE id = ?").bind(id),
@@ -119,7 +137,7 @@ async function playlistDetail(db: D1Database, id: string) {
 	]);
 	const playlist = meta.results[0];
 	if (!playlist) throw notFound("Playlist");
-	const tracks = (rows.results as TrackRow[]).map((r) => ({ position: r.position, addedAt: r.addedAt, track: JSON.parse(r.track_json) as Track }));
+	const tracks = (rows.results as TrackRow[]).map((r) => ({ position: r.position, addedAt: r.addedAt, track: stored(r.track_json) }));
 	return { ...playlist, tracks };
 }
 
@@ -223,7 +241,7 @@ app.get("/favorites", async (c) => {
 	const { results } = await c.env.jarx_db
 		.prepare("SELECT track_json, added_at AS addedAt FROM favorite ORDER BY added_at DESC")
 		.all<{ track_json: string; addedAt: number }>();
-	return c.json({ items: results.map((r) => ({ track: JSON.parse(r.track_json) as Track, addedAt: r.addedAt })) });
+	return c.json({ items: results.map((r) => ({ track: stored(r.track_json), addedAt: r.addedAt })) });
 });
 
 app.post("/favorites", async (c) => {
@@ -253,7 +271,7 @@ app.get("/recently-played", async (c) => {
 		.prepare("SELECT track_json, played_at AS playedAt FROM recently_played ORDER BY played_at DESC, rowid DESC LIMIT ?")
 		.bind(limit)
 		.all<{ track_json: string; playedAt: number }>();
-	return c.json({ items: results.map((r) => ({ track: JSON.parse(r.track_json) as Track, playedAt: r.playedAt })) });
+	return c.json({ items: results.map((r) => ({ track: stored(r.track_json), playedAt: r.playedAt })) });
 });
 
 app.post("/recently-played", async (c) => {
