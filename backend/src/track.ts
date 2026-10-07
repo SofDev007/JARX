@@ -20,6 +20,18 @@ export const trackSchema = z
 	.transform((t) => ({ id: `${t.source}:${t.sourceId}`, ...t }));
 export type Track = z.output<typeof trackSchema>;
 
+/**
+ * One way a provider can stream a track, from Adapter.resolveStreams. The app's
+ * QualitySelector picks among them. Never stored on a Track.
+ */
+export type StreamCandidate = {
+	uri: string;
+	mimeType: string | null;
+	bitrateKbps: number | null;
+	expiresAt: number | null; // epoch ms; null = no known expiry
+	headers: Record<string, string> | null; // only if a provider legitimately needs them; none do
+};
+
 /** One provider's copy of a song, and how JARX can play it. */
 export type TrackSource = {
 	provider: Source;

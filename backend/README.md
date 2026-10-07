@@ -49,7 +49,8 @@ Errors are always `{ "error": { "code", "message", "details"? } }`.
 | --- | --- | --- |
 | `GET` | `/health` | `{ status: "ok" }`. The only unauthenticated route. |
 | `GET` | `/search?q=&limit=` | `limit` 1–50, default 20, per section. Returns `{ query, music, videos, videoError, cached, results }`. Each result is a Track (its best copy) plus `score` and `sources`. Cached in D1 for 24h per normalized query. |
-| `GET` | `/tracks/:source/:id/stream` | `{ url }` — a fresh CDN URL. `:id` may contain slashes (archive ids are `item/file.mp3`). YouTube returns `422 not_playable` with the deep link in `details`; JioSaavn returns `422 not_playable` too (its tracks carry their own `deepLink`). |
+| `GET` | `/tracks/:source/:id/streams` | `{ candidates: StreamCandidate[] }` from the provider's `resolveStreams`; each is `{ uri, mimeType, bitrateKbps, expiresAt, headers }` (nulls when unknown). `:id` may contain slashes (archive ids are `item/file.mp3`). Embed providers (YouTube, JioSaavn) → `422 not_playable` (YouTube adds the deep link in `details`); none → `404 no_stream`; upstream failure → `502 upstream_error`. |
+| `GET` | `/tracks/:source/:id/stream` | `{ url }`: the first candidate's URI, for app builds from before `/streams`. Same errors, except none → `404 not_found`. |
 
 `/search` queries the enabled music (`audio`) providers and YouTube (`video`) in
 parallel, 2.5s budget each. Every candidate scores on fuzzy title+artist

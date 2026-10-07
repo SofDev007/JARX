@@ -1,4 +1,4 @@
-import type { Track } from "./track";
+import type { StreamCandidate, Track } from "./track";
 
 // The provider list and the track model live in providers.ts and track.ts; these
 // type re-exports keep older imports working.
@@ -9,9 +9,18 @@ type Env = CloudflareBindings;
 
 export interface Adapter {
 	search(q: string, limit: number, env: Env, signal: AbortSignal): Promise<Track[]>;
-	/** Fresh playable URL, or null when the source says the track doesn't exist. */
-	streamUrl(sourceId: string, env: Env, signal: AbortSignal): Promise<string | null>;
+	/**
+	 * Ways to stream a track right now; [] when the source says it doesn't exist or has
+	 * no stream. Throws on upstream failure. Only asked of providers whose playback isn't
+	 * "embed".
+	 */
+	resolveStreams(sourceId: string, env: Env, signal: AbortSignal): Promise<StreamCandidate[]>;
+	/** A track's metadata by id. Optional, and no adapter needs it yet. */
+	details?(sourceId: string, env: Env, signal: AbortSignal): Promise<Track | null>;
 }
+
+/** A candidate known only by its URL, which is all any provider gives today. */
+const stream = (uri: string): StreamCandidate => ({ uri, mimeType: null, bitrateKbps: null, expiresAt: null, headers: null });
 
 export class HttpError extends Error {
 	constructor(readonly status: number, host: string, readonly reason?: string) {
@@ -71,12 +80,12 @@ export const audius: Adapter = {
 				}),
 			);
 	},
-	async streamUrl(id, _env, signal) {
+	async resolveStreams(id, _env, signal) {
 		try {
 			const { data } = await audiusGet(`/tracks/${encodeURIComponent(id)}/stream?no_redirect=true`, signal);
-			return typeof data === "string" ? data : null;
+			return typeof data === "string" ? [stream(data)] : [];
 		} catch (e) {
-			if (e instanceof HttpError && (e.status === 400 || e.status === 404)) return null;
+			if (e instanceof HttpError && (e.status === 400 || e.status === 404)) return [];
 			throw e;
 		}
 	},
@@ -112,10 +121,10 @@ export const jamendo: Adapter = {
 				}),
 			);
 	},
-	async streamUrl(id, env, signal) {
-		if (!/^\d+$/.test(id)) return null;
+	async resolveStreams(id, env, signal) {
+		if (!/^\d+$/.test(id)) return [];
 		const [t] = await jamendoTracks(`id=${id}`, env, signal);
-		return t?.audio || null;
+		return t?.audio ? [stream(t.audio)] : [];
 	},
 };
 
@@ -174,8 +183,8 @@ export const archive: Adapter = {
 		);
 		return items.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
 	},
-	async streamUrl(id) {
-		return id.includes("/") ? archiveUrl(id) : null;
+	async resolveStreams(id) {
+		return id.includes("/") ? [stream(archiveUrl(id))] : [];
 	},
 };
 
@@ -212,8 +221,8 @@ export const youtube: Adapter = {
 				}),
 			);
 	},
-	async streamUrl() {
-		return null; // never playable; the route answers with the deep link instead
+	async resolveStreams() {
+		return []; // never asked: YouTube is embed, so the route answers 422 with the deep link
 	},
 };
 
@@ -255,7 +264,9 @@ export const jiosaavn: Adapter = {
 				});
 			});
 	},
-	async streamUrl() {
-		return null; // never playable in JARX; the stream route answers 422
+	// The plug-in point for a future *legitimate* JioSaavn stream source: implement this and
+	// set its registry playback to "native". Never decrypt or rebuild its protected media URLs.
+	async resolveStreams() {
+		return []; // never asked while JioSaavn is embed: the route answers 422
 	},
 };

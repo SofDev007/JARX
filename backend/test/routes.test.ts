@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import app from "../src/index";
 import youtubeSearch from "./fixtures/youtube_search.json";
 import { calledUrls, fixtures, json, mockFetch } from "./helpers";
@@ -133,6 +133,45 @@ describe("GET /tracks/:source/:id/stream", () => {
 	it("returns 502 when every Audius host is down", async () => {
 		mockFetch(() => json({}, 500));
 		expect(await api("GET", "/tracks/audius/YmJWK/stream")).toMatchObject({ status: 502, body: { error: { code: "upstream_error" } } });
+	});
+});
+
+describe("GET /tracks/:source/:id/streams", () => {
+	it("returns a native provider's stream candidates, the same URL /stream gives", async () => {
+		mockFetch(fixtures);
+		const res = await api("GET", "/tracks/audius/YmJWK/streams");
+		expect(res.status).toBe(200);
+		expect(res.body.candidates).toEqual([
+			{ uri: expect.stringMatching(/^https:\/\/.+\/tracks\/cidstream\//), mimeType: null, bitrateKbps: null, expiresAt: null, headers: null },
+		]);
+		expect((await api("GET", "/tracks/audius/YmJWK/stream")).body.url).toBe(res.body.candidates[0].uri);
+	});
+
+	it("accepts archive ids containing slashes", async () => {
+		const res = await api("GET", "/tracks/archive/item/dir/My%20Song.mp3/streams");
+		expect(res.body.candidates.map((c: any) => c.uri)).toEqual(["https://archive.org/download/item/dir/My%20Song.mp3"]);
+	});
+
+	it("refuses embed providers with 422 without asking them, keeping YouTube's deep link", async () => {
+		const spy = mockFetch(fixtures);
+		const yt = await api("GET", "/tracks/youtube/dQw4w9WgXcQ/streams");
+		expect(yt).toMatchObject({ status: 422, body: { error: { code: "not_playable", details: { deepLink: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" } } } });
+		expect(await api("GET", "/tracks/jiosaavn/fW-Mxsnu/streams")).toMatchObject({ status: 422, body: { error: { code: "not_playable" } } });
+		expect(spy).not.toHaveBeenCalled();
+	});
+
+	it("maps the rest: unknown provider 400, no stream 404 no_stream, upstream failure 502", async () => {
+		expect((await api("GET", "/tracks/spotify/x/streams")).status).toBe(400);
+		mockFetch(() => json({ code: 404, error: "track not found" }, 404));
+		expect(await api("GET", "/tracks/audius/95wro/streams")).toMatchObject({ status: 404, body: { error: { code: "no_stream" } } });
+		expect(await api("GET", "/tracks/jamendo/not-a-number/streams")).toMatchObject({ status: 404, body: { error: { code: "no_stream" } } });
+		vi.restoreAllMocks();
+		mockFetch(() => json({}, 500));
+		expect(await api("GET", "/tracks/audius/YmJWK/streams")).toMatchObject({ status: 502, body: { error: { code: "upstream_error" } } });
+	});
+
+	it("requires the bearer token like every other route", async () => {
+		expect((await api("GET", "/tracks/audius/YmJWK/streams", undefined, {})).status).toBe(401);
 	});
 });
 

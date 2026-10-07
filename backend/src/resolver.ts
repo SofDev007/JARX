@@ -1,4 +1,4 @@
-import { enabledSources, PROVIDERS, type Source } from "./providers";
+import { enabledSources, PROVIDERS, streamable, type Source } from "./providers";
 import { HttpError } from "./sources";
 import { toSource, type CanonicalTrack, type Track } from "./track";
 
@@ -97,7 +97,7 @@ async function settle(env: CloudflareBindings, q: string, limit: number, sources
 	const settled = await Promise.allSettled(sources.map((s) => PROVIDERS[s].adapter.search(q, limit, env, AbortSignal.timeout(TIMEOUT_MS))));
 	const errors: unknown[] = [];
 	const per = settled.map((r, i) => {
-		if (r.status === "fulfilled") return r.value;
+		if (r.status === "fulfilled") return r.value.map((t) => ({ ...t, playable: streamable(t.source) }));
 		errors.push(r.reason);
 		console.warn(`source ${sources[i]} failed: ${String(r.reason).replace(/(key|client_id)=[^&\s]+/g, "$1=***")}`);
 		return [] as Track[];
@@ -128,8 +128,10 @@ async function sha256(s: string): Promise<string> {
  */
 export async function search(env: CloudflareBindings, q: string, limit: number): Promise<SearchResults & { cached: boolean }> {
 	const db = env.jarx_db;
-	// Keyed on the enabled providers too, so toggling one never serves answers cached under the old set.
-	const hash = await sha256(`${normalize(q)}|${limit}|${enabledSources().join(",")}`);
+	// Keyed on the enabled providers and their playback types too, so changing either never
+	// serves answers cached under the old setup.
+	const providers = enabledSources().map((s) => `${s}:${PROVIDERS[s].playback}`);
+	const hash = await sha256(`${normalize(q)}|${limit}|${providers.join(",")}`);
 	const now = Date.now();
 	const hit = await db
 		.prepare("SELECT results_json FROM search_cache WHERE query_hash = ? AND fetched_at > ?")

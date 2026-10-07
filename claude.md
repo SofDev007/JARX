@@ -36,6 +36,12 @@ Private, single-user music streaming app (Android first, iOS later). One owner, 
 ## Normalized track model
 - Track { id, source: <registry provider id>, sourceId, title, artist, album?, artworkUrl?, durationMs?, streamUrl?, mbid?, playable, deepLink? }, stored as D1 `track_json`. `id` is always `<source>:<sourceId>`.
 - CanonicalTrack (`backend/src/track.ts`): the metadata plus `sources[]`, one TrackSource { provider, sourceId, playback, playable, streamUrl, deepLink } per provider copy. Search results carry both: the flat Track fields of the best copy, plus `sources`.
+- `Track.playable` is derived from the registry (`streamable()`: playback isn't `embed`) whenever tracks are searched or read back, never trusted from storage.
+
+## Playback contract
+- Track → TrackRef { source, sourceId } → Adapter.resolveStreams() → StreamCandidate[] → QualitySelector → PlayableSource { uri, headers? } → Player. The player consumes only PlayableSource and must never learn about providers, candidates, expiry or provider APIs.
+- Stream URLs are resolved on demand and cached in memory (`app/lib/playback.dart`), never stored as the new architecture. `Track.streamUrl` is a legacy compatibility hint only: don't add code that writes or depends on it.
+- A future legitimate provider stream source plugs in by implementing its adapter's `resolveStreams` and setting its registry playback to `native`; nothing else changes.
 
 ## Working method
 - Build → verify → fix loop. After every unit of work run the verification commands for that phase. Do not move on while anything is red.
