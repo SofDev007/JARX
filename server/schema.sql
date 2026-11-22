@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS sessions (
   user_id TEXT NOT NULL REFERENCES users(id),
   device TEXT,
   created_at INTEGER NOT NULL,
-  expires_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL,
+  last_used INTEGER                       -- GET /me; live DB: migrations/0001
 );
 CREATE INDEX IF NOT EXISTS sessions_user ON sessions(user_id);
 
@@ -29,4 +30,32 @@ CREATE TABLE IF NOT EXISTS user_data (
   json TEXT NOT NULL,
   updated_at INTEGER NOT NULL,
   PRIMARY KEY (user_id, kind)
+);
+
+-- JARX AI (src/ai.js). Use per user per day (India time), for the daily limits.
+CREATE TABLE IF NOT EXISTS ai_usage (
+  user_id TEXT NOT NULL,
+  day TEXT NOT NULL,                      -- YYYY-MM-DD
+  chats INTEGER NOT NULL DEFAULT 0,
+  tags INTEGER NOT NULL DEFAULT 0,        -- mood-tag requests that asked the AI
+  PRIMARY KEY (user_id, day)
+);
+
+-- Mood tags, shared by everyone: each song is asked once. key = the phone's
+-- song key (simplified title|artist); moods = comma list, '' = AI didn't know it.
+-- ponytail: any signed-in phone can write tags for any key; fine with
+-- approved users only. Check keys server-side if that ever changes.
+CREATE TABLE IF NOT EXISTS song_moods (
+  key TEXT PRIMARY KEY,
+  moods TEXT NOT NULL,
+  at INTEGER NOT NULL
+);
+
+-- "Report this reply" from the chat, for the owner to read on /admin.
+CREATE TABLE IF NOT EXISTS ai_reports (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  at INTEGER NOT NULL,
+  said TEXT,
+  reply TEXT NOT NULL
 );

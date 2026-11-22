@@ -145,10 +145,12 @@ class _PlayerOverlayWrapperState extends State<PlayerOverlayWrapper>
     return BlocListener<PlayerOverlayCubit, bool>(
       listener: (context, isVisible) {
         _onPlayerVisibilityChanged(isVisible);
+        Tips.playerOpen = isVisible;
         if (isVisible) {
           TipStore.bump('player').then((_) {
-            Tips.offer('A4');
-            Tips.offer('T2');
+            for (final id in playerTips) {
+              Tips.offer(id);
+            }
           });
         }
       },

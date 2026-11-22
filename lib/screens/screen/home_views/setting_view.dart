@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:Bloomee/services/account/account.dart';
 import 'package:Bloomee/screens/screen/account/account_view.dart';
 import 'package:Bloomee/screens/screen/home_views/home_layout_picker.dart';
+import 'package:Bloomee/screens/screen/home_views/setting_views/jarvix_setting.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/appui_setting.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/local_music_setting.dart';
@@ -59,6 +60,19 @@ class SettingsView extends StatelessWidget {
                     iconColor: Default_Theme.accentColor2,
                     photoUrl: Account.instance.user?.photo,
                     onTap: () => _navigate(context, const AccountView()),
+                  ),
+                ],
+              ),
+
+              // ── Jarvix ──
+              _SettingsSection(
+                children: [
+                  _SettingsTile(
+                    title: 'Jarvix',
+                    subtitle: 'Your music buddy: on or off, memory, privacy',
+                    icon: Icons.auto_awesome_rounded,
+                    iconColor: Default_Theme.accentColor1light,
+                    onTap: () => _navigate(context, const JarvixSettingView()),
                   ),
                 ],
               ),

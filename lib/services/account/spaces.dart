@@ -45,9 +45,9 @@ class Spaces {
     }
   }
 
-  static void _save() => _file.writeAsStringSync(
-      jsonEncode({'active': active, 'spaces': _spaces}),
-      flush: true);
+  static void _save() =>
+      _file.writeAsStringSync(jsonEncode({'active': active, 'spaces': _spaces}),
+          flush: true);
 
   static JarxUser? ownerOf(String space) {
     final u = (_spaces[space] as Map?)?['user'];
@@ -121,6 +121,9 @@ class Spaces {
     'syncLog1', 'syncSeen1', 'syncSent1', 'syncLast1', 'lastQueueState',
     'downloadedPlaylists', 'downloadedPlaylistsFailed', 'blockedSuggestions',
     'streamSwaps2', 'lastBackupTimestamp',
+    // Jarvix's chat and memory, first-run picks, tips seen: a new account
+    // must not start with the last person's (they were copied before 2.1.3).
+    'saathi1', 'firstRunPicks1', 'tips1',
   ];
 
   /// Empties a new space of the music copied from the space it was made in.

@@ -6,6 +6,9 @@ class SnackbarService {
   static final GlobalKey<ScaffoldMessengerState> messengerKey =
       GlobalKey<ScaffoldMessengerState>();
 
+  /// Closes the message on screen (e.g. a "loading" one once it's done).
+  static void hide() => messengerKey.currentState?.hideCurrentSnackBar();
+
   static void showMessage(
     String message, {
     SnackBarAction? action,

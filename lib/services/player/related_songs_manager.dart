@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:Bloomee/services/ai/saathi.dart' show MoodTags;
 import 'package:Bloomee/services/first_run.dart';
 import 'package:Bloomee/services/recommendations/taste_model.dart';
 import 'package:Bloomee/core/constants/setting_keys.dart';
@@ -81,7 +82,7 @@ class RelatedSongsManager {
           .then((p) => p.tracks),
       HistoryDAO(DBProvider.db, trackDao).getHistory(limit: 200),
       SuggestionBlocklist.load(),
-      _userPlaylists(trackDao),
+      userPlaylists(trackDao),
       FirstRunPicks.load(),
     ]);
     final picks = results[5] as FirstRunPicks;
@@ -94,6 +95,7 @@ class RelatedSongsManager {
       startLanguages: picks.languages,
       startArtists: picks.artists,
       model: await TasteModel.load(),
+      aiMoods: MoodTags.of,
     );
   }
 
@@ -101,7 +103,7 @@ class RelatedSongsManager {
 
   /// The user's own playlists by name (not Liked, Downloads or Local music),
   /// re-read at most every 10 minutes: refills ask for this every time.
-  static Future<Map<String, List<Track>>> _userPlaylists(
+  static Future<Map<String, List<Track>>> userPlaylists(
       TrackDAO trackDao) async {
     final cached = _playlistsCache;
     if (cached != null &&
@@ -166,6 +168,12 @@ class RelatedSongsManager {
         _gathered = true;
         final started = DateTime.now();
         _addToPool(await _gatherer.gather(seed));
+        // AI mood tags for the seed and the best candidates (asked once per
+        // song for everyone, then kept on the phone); ranking reads them.
+        try {
+          await MoodTags.fetch([seed, for (final c in _pool) c.track])
+              .timeout(const Duration(seconds: 6));
+        } catch (_) {}
         _health(RecHealth.gathers);
         _health(RecHealth.gatherMs,
             DateTime.now().difference(started).inMilliseconds);

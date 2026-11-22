@@ -24,6 +24,8 @@ enum Mood {
   uplifting,
   energetic,
   devotional,
+  // Only from the AI tags (JARX AI): no title words.
+  calm,
 }
 
 class SongCard {
@@ -49,11 +51,16 @@ class SongCardReader {
   final Map<String, Set<Mood>> playlistMoods;
   final String Function(Track) songKey;
 
+  /// AI mood tags by song key (JARX AI); when a song has them they replace
+  /// the title-word guess.
+  final Set<Mood>? Function(String songKey)? aiMoods;
+
   const SongCardReader({
     this.artistLanguages = const {},
     this.strongArtists = const {},
     this.playlistMoods = const {},
     required this.songKey,
+    this.aiMoods,
   });
 
   SongCard read(Track t) {
@@ -64,7 +71,10 @@ class SongCardReader {
         : null;
     return SongCard(
       strong ?? languageOfText(text) ?? _artistLanguage(t),
-      {...moodsOfText(text), ...?playlistMoods[songKey(t)]},
+      {
+        ...(aiMoods?.call(songKey(t)) ?? moodsOfText(text)),
+        ...?playlistMoods[songKey(t)],
+      },
     );
   }
 

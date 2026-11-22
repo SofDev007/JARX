@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:ui';
 import 'package:Bloomee/screens/widgets/tip_overlay.dart';
+import 'package:Bloomee/services/player/video_streams.dart' show ytVideoPlugin;
 import 'package:Bloomee/core/constants/quips.dart';
 import 'package:Bloomee/plugins/utils/plugin_display_name.dart';
 import 'package:flutter/material.dart';
@@ -1316,9 +1317,11 @@ class _SliverSearchResults extends StatelessWidget {
                     ),
                   );
                   // The first result: "swipe to queue" (A3), then "⋮" (T6).
+                  // On YouTube Video, first: they come with music videos (V1).
                   return index == 0
                       ? TipAnchor(
-                          id: 'A3', child: TipAnchor(id: 'T6', child: row))
+                          id: pluginId == ytVideoPlugin ? 'V1' : 'A3',
+                          child: TipAnchor(id: 'T6', child: row))
                       : row;
                 },
                 childCount: tracks.length,
