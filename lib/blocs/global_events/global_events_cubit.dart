@@ -22,20 +22,20 @@ class GlobalEventsCubit extends Cubit<GlobalEventsState> {
   void checkForUpdates() async {
     // Compulsory update: the last answer from GitHub is kept, so going
     // offline doesn't get around it; a fresh answer replaces it.
+    // Saved as the release tag (`2.1.5+43`): rounds can share a build number.
     const requiredKey = 'updateRequiredBuild';
-    final current =
-        (int.tryParse((await PackageInfo.fromPlatform()).buildNumber) ?? 0) %
-            1000;
-    void gate(int req) =>
-        UpdateGate.requiredBuild.value = req > current ? req : 0;
-    gate(int.tryParse(await _settingsDao.getSettingStr(requiredKey) ?? '') ?? 0);
+    final info = await PackageInfo.fromPlatform();
+    final current = (int.tryParse(info.buildNumber) ?? 0) % 1000;
+    void gate(String req) => UpdateGate.requiredBuild.value =
+        isNewerTag(req, info.version, current) ? buildOfTag(req) : 0;
+    gate(await _settingsDao.getSettingStr(requiredKey) ?? '');
 
     final Map<String, dynamic> updates = await getAppUpdates();
     log("Checking for updates...", name: 'GlobalEventsCubit');
 
     if (updates['source'] == 'github') {
-      final req = updates['requiredBuild'] as int? ?? 0;
-      await _settingsDao.putSettingStr(requiredKey, '$req');
+      final req = updates['requiredTag'] as String? ?? '';
+      await _settingsDao.putSettingStr(requiredKey, req);
       gate(req);
     }
     if (UpdateGate.blocked) {

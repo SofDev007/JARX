@@ -11,6 +11,7 @@ import 'package:Bloomee/blocs/player_overlay/player_overlay_cubit.dart';
 import 'package:Bloomee/core/models/exported.dart';
 import 'package:Bloomee/core/models/media_playlist_model.dart';
 import 'package:Bloomee/core/theme/app_theme.dart';
+import 'package:Bloomee/screens/widgets/edge_glow.dart';
 import 'package:Bloomee/screens/widgets/player_video.dart';
 import 'package:Bloomee/screens/widgets/saathi_blob.dart';
 import 'package:Bloomee/screens/widgets/tip_overlay.dart';
@@ -83,6 +84,11 @@ class _SaathiChatPageState extends State<SaathiChatPage> {
   @override
   void initState() {
     super.initState();
+    // The edge glow for 5 s as the chat opens. After the first frame, so
+    // it sits above this route (see showEdgeGlow).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) showEdgeGlow(context, duration: const Duration(seconds: 5));
+    });
     saathi.load().then((_) => _greetIfNeeded());
     saathi.videoStarted.addListener(_openVideo);
   }
