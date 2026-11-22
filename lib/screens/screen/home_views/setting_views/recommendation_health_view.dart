@@ -5,6 +5,7 @@ import 'package:Bloomee/services/player/listening_time.dart';
 import 'package:Bloomee/services/recommendations/taste_model.dart';
 import 'package:Bloomee/core/theme/app_theme.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/setting_shared_widgets.dart';
+import 'package:Bloomee/screens/screen/home_views/setting_views/plugin_defaults_setting.dart';
 import 'package:Bloomee/services/meta_resolver/cross_plugin_resolver.dart';
 import 'package:Bloomee/services/player/related_songs_manager.dart';
 import 'package:Bloomee/services/recommendations/rec_health.dart';
@@ -15,7 +16,8 @@ import 'package:flutter/material.dart';
 /// Developer page, not in Settings: open it by tapping the version on the
 /// About screen 7 times. Shows how recommendations are doing on this phone
 /// (RecHealth) and the languages JARX has learned; nothing here is a user
-/// control (recommendations manage themselves).
+/// control (recommendations manage themselves). Also holds the search
+/// suggestions plugin picker, moved out of Plugin Defaults.
 class RecommendationHealthView extends StatefulWidget {
   const RecommendationHealthView({super.key});
 
@@ -160,6 +162,9 @@ class _RecommendationHealthViewState extends State<RecommendationHealthView> {
                   style: TextStyle(color: Default_Theme.accentColor2)),
             ),
           ),
+          const SizedBox(height: 28),
+          const SearchSuggestionsSection(),
+          const SizedBox(height: 12),
           // First-time tips are for new users only; this replays them.
           Align(
             alignment: Alignment.centerRight,

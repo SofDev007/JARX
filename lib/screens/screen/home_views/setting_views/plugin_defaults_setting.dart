@@ -52,8 +52,6 @@ class PluginDefaultsSettings extends StatelessWidget {
             builder: (context, pluginState) {
               final resolvers = pluginState.loadedContentResolvers;
               final lyricsProviders = pluginState.loadedLyricsProviders;
-              final suggestionProviders =
-                  pluginState.loadedSearchSuggestionProviders;
               return ListView(
                 physics: const BouncingScrollPhysics(),
                 padding:
@@ -67,9 +65,6 @@ class PluginDefaultsSettings extends StatelessWidget {
                   const SizedBox(height: 28),
                   _buildLyricsPrioritySection(
                       context, l10n, settingsState, lyricsProviders),
-                  const SizedBox(height: 28),
-                  _buildSuggestionPluginSection(
-                      context, l10n, settingsState, suggestionProviders),
                   const SizedBox(height: 40),
                 ],
               );
@@ -315,14 +310,20 @@ class PluginDefaultsSettings extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildSuggestionPluginSection(
-    BuildContext context,
-    AppLocalizations l10n,
-    SettingsState state,
-    List<PluginInfo> suggestionProviders,
-  ) {
-    final selectedId = state.suggestionPluginId;
+/// Which plugin fills the search-bar dropdown while typing. Lives on the
+/// hidden developer page (the app picks one by itself on first start).
+class SearchSuggestionsSection extends StatelessWidget {
+  const SearchSuggestionsSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final selectedId =
+        context.select((SettingsCubit c) => c.state.suggestionPluginId);
+    final suggestionProviders = context
+        .select((PluginBloc b) => b.state.loadedSearchSuggestionProviders);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
