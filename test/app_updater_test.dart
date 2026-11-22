@@ -81,4 +81,24 @@ void main() {
           'Also new since your build\nJARX 2.0.0 (build 39)\nFix');
     });
   });
+
+  test('people see the short notes; GitHub keeps the full ones', () {
+    const full = '''Meet Jarvix, your music buddy.
+
+In short
+- Jarvix: tap the glowing blob
+- Settings › Jarvix
+
+What's new
+- A very long line about everything that changed.
+- Another long line.
+
+Check your download
+- SHA-256: abc''';
+    expect(shortNotes(full),
+        'Meet Jarvix, your music buddy.\n- Jarvix: tap the glowing blob\n- Settings › Jarvix');
+    // Older notes (no "In short"): everything but the download check.
+    expect(shortNotes('Clearer notices.\n\nWhat\'s new\n- one\n\nCheck your download\n- SHA-256: x'),
+        "Clearer notices.\n\nWhat's new\n- one");
+  });
 }

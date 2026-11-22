@@ -96,7 +96,32 @@ String _releaseDate(Map r) {
   return d == null ? '' : DateFormat('d MMM yyyy').format(d);
 }
 
-/// One release: its name and date, then its notes.
+/// What people see of a release's notes in the app (the full notes stay on
+/// GitHub): with an "In short" section, only the tagline above it and its
+/// points; never "Check your download" (that's for GitHub downloads).
+/// Releases written before "In short" existed show the rest as before.
+String shortNotes(String notes) {
+  bool heading(String l, String name) => l.trim().toLowerCase() == name;
+  var lines = notes.split('\n');
+  final check = lines.indexWhere((l) => heading(l, 'check your download'));
+  if (check >= 0) lines = lines.sublist(0, check);
+  final short = lines.indexWhere((l) => heading(l, 'in short'));
+  if (short < 0) return lines.join('\n').trim();
+  final points = <String>[];
+  for (final l in lines.skip(short + 1)) {
+    if (l.trim().isEmpty) {
+      if (points.isEmpty) continue; // blank line right after the heading
+      break;
+    }
+    if (!l.trimLeft().startsWith('-')) break; // the next heading
+    points.add(l.trim());
+  }
+  return [lines.sublist(0, short).join('\n').trim(), points.join('\n')]
+      .where((x) => x.isNotEmpty)
+      .join('\n');
+}
+
+/// One release: its name and date, then its notes (the short version).
 String _section(Map r) {
   var lines = '${r['body'] ?? ''}'
       .replaceAll(requiredMarker, '')
@@ -105,7 +130,7 @@ String _section(Map r) {
       .split('\n');
   if (_repeatedTitle.hasMatch(lines.first)) lines = lines.sublist(1);
   final date = _releaseDate(r);
-  final notes = lines.join('\n').trim();
+  final notes = shortNotes(lines.join('\n')).trim();
   return '${_releaseName(r)}${date.isEmpty ? '' : ' · $date'}'
       '${notes.isEmpty ? '' : '\n$notes'}';
 }
