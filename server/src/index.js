@@ -101,7 +101,8 @@ async function signIn(req, env) {
   if (user.status === 'banned') return json({ error: 'banned', reason: user.ban_reason || '' }, 403);
 
   const token = hex(crypto.getRandomValues(new Uint8Array(32)));
-  const device = clip(body.device, 100);
+  let device = clip(body.device, 100);
+  if (device === ADMIN_DEVICE && g.email !== env.ADMIN_EMAIL) device = 'Unknown phone';
   await env.DB.batch([
     env.DB.prepare('DELETE FROM sessions WHERE expires_at < ?').bind(t),
     // The same phone signing in again replaces its old sign-ins (one whose

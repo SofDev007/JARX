@@ -200,6 +200,15 @@ assert.equal((await call('GET', '/me', { token: fresh1 })).status, 401, 'all pho
 await call('POST', '/admin/signout-phones', { token: o.body.token, body: { id: 'o1' } });
 assert.equal((await call('GET', '/admin/users', { token: o.body.token })).status, 200, "the admin page keeps its own sign-in");
 
+// Only the owner's sign-in may be named "admin page" (it's hidden from the
+// phone list); anyone else's is renamed, so no phone can hide.
+const sneaky = { sub: 'sn1', email: 'sneaky@x.com', name: 'Sneaky' };
+await signIn(sneaky, 'admin page');
+await call('POST', '/admin/approve', { token: o.body.token, body: { id: 'sn1' } });
+const sn = (await call('GET', '/admin/users', { token: o.body.token })).body.users.find((u) => u.id === 'sn1');
+assert.equal(sn.phones, 1, 'a non-owner "admin page" counts as a phone');
+assert.deepEqual(sn.sessions.map((x) => [x.device, x.admin]), [['Unknown phone', false]]);
+
 // The favicon is served for every page.
 const fav = await worker.fetch(new Request('https://jarx.test/favicon.png'), env);
 assert.equal(fav.headers.get('content-type'), 'image/png');
@@ -271,6 +280,12 @@ const pl = await say('play kesariya');
 assert.deepEqual(pl.body.play, { title: 'Kesariya', artist: 'Arijit Singh', video: false });
 assert.equal(pl.body.reply, 'Playing it now. ▶');
 assert.ok(!JSON.stringify((await say('hi')).body).includes('🎶'));
+// Reports: 20 a day per person, then refused (others' reports stay).
+for (let i = 0; i < 25; i++) {
+  await call('POST', '/ai/report', { token: p1, body: { said: 'x', reply: 'r' + i } });
+}
+assert.equal(db.prepare("SELECT count(*) AS n FROM ai_reports WHERE user_id = 'p1'").get().n, 20, 'reports capped per person');
+assert.equal((await call('POST', '/ai/report', { token: p1, body: { reply: 'one more' } })).status, 429);
 aiAnswer = () => JSON.stringify({ reply: 'Here it is', play: { title: 'Aadat', artist: 'Jal', video: true } });
 assert.equal((await say('show me the video of aadat')).body.play.video, true, 'video flag passes through');
 

@@ -248,6 +248,10 @@ Answer ONLY with JSON: {"tags": {"0": ["sad", "calm"], "1": []}}` },
 export async function report(req, env, user) {
   const body = await req.json().catch(() => null);
   if (!body?.reply) return json({ error: 'bad_body' }, 400);
+  const mine = await env.DB.prepare(
+    'SELECT count(*) AS n FROM ai_reports WHERE user_id = ? AND at > ?')
+    .bind(user.id, Date.now() - 86400_000).first();
+  if ((mine?.n ?? 0) >= REPORTS_PER_DAY) return json({ error: 'too_many_reports' }, 429);
   await env.DB.batch([
     env.DB.prepare('INSERT INTO ai_reports (user_id, at, said, reply) VALUES (?, ?, ?, ?)')
       .bind(user.id, Date.now(), clip(body.said, 1000), clip(body.reply, 1500)),
@@ -256,6 +260,9 @@ export async function report(req, env, user) {
   ]);
   return json({ ok: true });
 }
+
+/** Reports one person can send in 24 h (they can't flood out others'). */
+export const REPORTS_PER_DAY = 20;
 
 export async function listReports(env) {
   const { results } = await env.DB.prepare(
