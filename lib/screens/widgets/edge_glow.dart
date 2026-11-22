@@ -1,23 +1,33 @@
 // The edge glow: soft colours of light running around the screen's edges,
-// like Siri's on iPhone. Shown when someone turns Jarvix on by hand.
+// like Siri's on iPhone. Shown when someone turns Jarvix on by hand, and for
+// 5 s whenever the Jarvix chat opens (blob tap or Settings).
 
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Lights up the screen's edges for about 2.6 s, above everything; taps go
-/// through it.
-void showEdgeGlow(BuildContext context) {
+/// Lights up the screen's edges for [duration], above everything; taps go
+/// through it. Call it after a route is pushed, not before: the Navigator
+/// puts a new route above overlay entries added earlier.
+void showEdgeGlow(BuildContext context,
+    {Duration duration = const Duration(milliseconds: 2600)}) {
   final overlay = Overlay.maybeOf(context, rootOverlay: true);
   if (overlay == null) return;
   late final OverlayEntry entry;
-  entry = OverlayEntry(builder: (_) => EdgeGlow(onDone: () => entry.remove()));
+  entry = OverlayEntry(
+      builder: (_) =>
+          EdgeGlow(duration: duration, onDone: () => entry.remove()));
   overlay.insert(entry);
 }
 
 class EdgeGlow extends StatefulWidget {
-  const EdgeGlow({super.key, required this.onDone, this.radius = 44});
+  const EdgeGlow(
+      {super.key,
+      required this.onDone,
+      this.radius = 44,
+      this.duration = const Duration(milliseconds: 2600)});
   final VoidCallback onDone;
+  final Duration duration;
 
   /// The screen's corner radius (phones are rounded; most are ~40-50).
   final double radius;
@@ -28,8 +38,7 @@ class EdgeGlow extends StatefulWidget {
 
 class _EdgeGlowState extends State<EdgeGlow>
     with SingleTickerProviderStateMixin {
-  late final _c = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 2600));
+  late final _c = AnimationController(vsync: this, duration: widget.duration);
 
   @override
   void initState() {

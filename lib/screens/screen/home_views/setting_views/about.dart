@@ -221,7 +221,7 @@ class About extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               onTap: () {
                 launchUrl(
-                    Uri.parse("https://github.com/SofDev007/Jaiswal-audio"),
+                    Uri.parse("https://github.com/SofDev007/JARX"),
                     mode: LaunchMode.externalApplication);
               },
               child: Row(

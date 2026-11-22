@@ -10,6 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
+import 'package:Bloomee/services/bloomee_updater_tools.dart'
+    show isUpdateAvailable;
+
 class AppUpdater {
   static const _channel = MethodChannel('jarx/app');
 
@@ -47,21 +50,38 @@ class AppUpdater {
 /// release stops playing songs until it updates.
 const requiredMarker = '<!-- jarx:required -->';
 
-/// The newest full release newer than [currentBuild] whose notes carry
-/// [requiredMarker], or 0 when no update is compulsory.
-int requiredBuildIn(List releases, int currentBuild) {
-  var req = 0;
+/// Whether release [tag] (`v2.1.5+43`) is newer than the installed
+/// [version] + [build]: the version decides first, then the build. Rounds
+/// can share a build number (2.1.2+43 → 2.1.5+43), so the build alone isn't
+/// enough. A tag without `+` (older saved answers held only the build) is
+/// never newer.
+bool isNewerTag(String tag, String version, int build) {
+  final t = tag.trim().replaceFirst(RegExp('^[vV]'), '').split('+');
+  if (t.length < 2) return false;
+  return isUpdateAvailable(version, '$build', t[0], t[1]);
+}
+
+/// The newest full release newer than [version] + [build] whose notes carry
+/// [requiredMarker], as `2.1.5+43`; '' when no update is compulsory.
+String requiredTagIn(List releases, String version, int build) {
+  var req = '';
   for (final r in releases.cast<Map>()) {
-    final b = buildOfTag('${r['tag_name']}');
+    final tag = '${r['tag_name']}'.replaceFirst(RegExp('^[vV]'), '');
     if (r['draft'] != true &&
         r['prerelease'] != true &&
-        b > currentBuild &&
-        b > req &&
+        isNewerTag(tag, version, build) &&
+        (req.isEmpty || _newerThan(tag, req)) &&
         '${r['body'] ?? ''}'.contains(requiredMarker)) {
-      req = b;
+      req = tag;
     }
   }
   return req;
+}
+
+/// [a] and [b] are tags like `2.1.5+43`.
+bool _newerThan(String a, String b) {
+  final p = b.split('+');
+  return isNewerTag(a, p[0], int.tryParse(p[1]) ?? 0);
 }
 
 /// A compulsory update is waiting: songs don't play, and the guided tour
@@ -96,7 +116,32 @@ String _releaseDate(Map r) {
   return d == null ? '' : DateFormat('d MMM yyyy').format(d);
 }
 
-/// One release: its name and date, then its notes.
+/// What people see of a release's notes in the app (the full notes stay on
+/// GitHub): with an "In short" section, only the tagline above it and its
+/// points; never "Check your download" (that's for GitHub downloads).
+/// Releases written before "In short" existed show the rest as before.
+String shortNotes(String notes) {
+  bool heading(String l, String name) => l.trim().toLowerCase() == name;
+  var lines = notes.split('\n');
+  final check = lines.indexWhere((l) => heading(l, 'check your download'));
+  if (check >= 0) lines = lines.sublist(0, check);
+  final short = lines.indexWhere((l) => heading(l, 'in short'));
+  if (short < 0) return lines.join('\n').trim();
+  final points = <String>[];
+  for (final l in lines.skip(short + 1)) {
+    if (l.trim().isEmpty) {
+      if (points.isEmpty) continue; // blank line right after the heading
+      break;
+    }
+    if (!l.trimLeft().startsWith('-')) break; // the next heading
+    points.add(l.trim());
+  }
+  return [lines.sublist(0, short).join('\n').trim(), points.join('\n')]
+      .where((x) => x.isNotEmpty)
+      .join('\n');
+}
+
+/// One release: its name and date, then its notes (the short version).
 String _section(Map r) {
   var lines = '${r['body'] ?? ''}'
       .replaceAll(requiredMarker, '')
@@ -105,7 +150,7 @@ String _section(Map r) {
       .split('\n');
   if (_repeatedTitle.hasMatch(lines.first)) lines = lines.sublist(1);
   final date = _releaseDate(r);
-  final notes = lines.join('\n').trim();
+  final notes = shortNotes(lines.join('\n')).trim();
   return '${_releaseName(r)}${date.isEmpty ? '' : ' · $date'}'
       '${notes.isEmpty ? '' : '\n$notes'}';
 }
@@ -114,14 +159,18 @@ String _section(Map r) {
 /// then any other builds you skipped. Empty when up to date.
 /// [releases] is GitHub's release list; drafts and pre-releases don't count.
 String notesSince(List releases, String currentVersion, int currentBuild) {
+  String tag(Map r) => '${r['tag_name']}'.replaceFirst(RegExp('^[vV]'), '');
   final newer = [
     for (final r in releases.cast<Map>())
       if (r['draft'] != true &&
           r['prerelease'] != true &&
-          buildOfTag('${r['tag_name']}') > currentBuild)
+          isNewerTag(tag(r), currentVersion, currentBuild))
         r
-  ]..sort((a, b) =>
-      buildOfTag('${b['tag_name']}') - buildOfTag('${a['tag_name']}'));
+  ]..sort((a, b) => _newerThan(tag(a), tag(b))
+      ? -1
+      : _newerThan(tag(b), tag(a))
+          ? 1
+          : 0);
   if (newer.isEmpty) return '';
   return [
     'Current build\nJARX $currentVersion (build $currentBuild)',

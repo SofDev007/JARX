@@ -62,15 +62,45 @@ void main() {
     ];
 
     test('someone on 37 must install (the newest required is 39)', () {
-      expect(requiredBuildIn(rel, 37), 39);
+      expect(requiredTagIn(rel, '2.0.0', 37), '2.0.0+39');
     });
 
     test('past the required build: free', () {
-      expect(requiredBuildIn(rel, 39), 0);
+      expect(requiredTagIn(rel, '2.0.0', 39), '');
     });
 
     test('pre-releases and unmarked releases never force', () {
-      expect(requiredBuildIn([rel[0], rel[1]], 37), 0);
+      expect(requiredTagIn([rel[0], rel[1]], '2.0.0', 37), '');
+    });
+
+    test('same build, older round: must install (2.1.2+43 -> 2.1.5+43)', () {
+      final ai = [
+        {'tag_name': 'v2.1.5+43', 'body': '$requiredMarker\nJarvix'},
+        ...rel,
+      ];
+      expect(requiredTagIn(ai, '2.1.2', 43), '2.1.5+43');
+      expect(requiredTagIn(ai, '2.1.5', 43), '');
+      expect(requiredTagIn(ai, '2.1.6', 43), '');
+      expect(requiredTagIn(ai, '2.0.0', 42), '2.1.5+43');
+    });
+
+    test('newer is decided by version, then build', () {
+      expect(isNewerTag('2.1.5+43', '2.1.2', 43), isTrue);
+      expect(isNewerTag('v2.1.6+43', '2.1.5', 43), isTrue);
+      expect(isNewerTag('2.1.5+43', '2.1.5', 43), isFalse);
+      expect(isNewerTag('2.1.5+43', '2.0.0', 42), isTrue);
+      expect(isNewerTag('2.0.0+44', '2.1.5', 43), isFalse);
+      // Older saved answers held only the build: never block on them.
+      expect(isNewerTag('43', '2.1.2', 43), isFalse);
+      expect(isNewerTag('', '2.1.2', 43), isFalse);
+    });
+
+    test('a same-build round shows in the notes', () {
+      final ai = [
+        {'tag_name': 'v2.1.5+43', 'body': 'Jarvix'},
+      ];
+      expect(notesSince(ai, '2.1.2', 43),
+          'Current build\nJARX 2.1.2 (build 43)\n\nLatest build\nJARX 2.1.5 (build 43)\nJarvix');
     });
 
     test('the marker never shows in the notes', () {
@@ -80,5 +110,25 @@ void main() {
           'Latest build\nJARX 2.0.0 (build 41)\nPolish\n\n'
           'Also new since your build\nJARX 2.0.0 (build 39)\nFix');
     });
+  });
+
+  test('people see the short notes; GitHub keeps the full ones', () {
+    const full = '''Meet Jarvix, your music buddy.
+
+In short
+- Jarvix: tap the glowing blob
+- Settings › Jarvix
+
+What's new
+- A very long line about everything that changed.
+- Another long line.
+
+Check your download
+- SHA-256: abc''';
+    expect(shortNotes(full),
+        'Meet Jarvix, your music buddy.\n- Jarvix: tap the glowing blob\n- Settings › Jarvix');
+    // Older notes (no "In short"): everything but the download check.
+    expect(shortNotes('Clearer notices.\n\nWhat\'s new\n- one\n\nCheck your download\n- SHA-256: x'),
+        "Clearer notices.\n\nWhat's new\n- one");
   });
 }

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:Bloomee/services/app_updater.dart' show notesSince, requiredBuildIn;
+import 'package:Bloomee/services/app_updater.dart' show notesSince, requiredTagIn;
 import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -168,7 +168,7 @@ Future<Map<String, dynamic>> githubUpdate(
   // The release list, not /latest: the update notice shows the notes of
   // every release the user skipped. Drafts and pre-releases are ignored.
   final url =
-      'https://api.github.com/repos/SofDev007/Jaiswal-audio/releases?per_page=30';
+      'https://api.github.com/repos/SofDev007/JARX/releases?per_page=30';
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   try {
     final response = await http.get(Uri.parse(url)).timeout(timeout);
@@ -195,8 +195,9 @@ Future<Map<String, dynamic>> githubUpdate(
         // The release notes: shown in full in the update notice.
         'notes': notesSince(releases, packageInfo.version,
             (int.tryParse(packageInfo.buildNumber) ?? 0) % 1000),
-        'requiredBuild': requiredBuildIn(
-            releases, (int.tryParse(packageInfo.buildNumber) ?? 0) % 1000),
+        // The compulsory release as `2.1.5+43`, '' for none.
+        'requiredTag': requiredTagIn(releases, packageInfo.version,
+            (int.tryParse(packageInfo.buildNumber) ?? 0) % 1000),
         'newVer': versionPart,
         'newBuild': buildPart,
         'download_url': download,

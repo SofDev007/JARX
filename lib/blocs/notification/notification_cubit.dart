@@ -30,6 +30,15 @@ class NotificationCubit extends Cubit<NotificationState> {
           '') ??
       0;
 
+  /// Whether the update a notice is for is installed. New notices carry the
+  /// tag (`2.1.6+43`, rounds can share a build); older ones only the build.
+  static bool _installed(NotificationsDB n, String version, int build) {
+    final p = n.payload ?? '';
+    return p.contains('+')
+        ? !isNewerTag(p, version, build)
+        : _buildOf(n) <= build;
+  }
+
   /// At most one update notice, for the latest build; none once the user
   /// has it (so the bell's count goes away after updating).
   Future<void> _refreshUpdateNotice() async {
@@ -37,14 +46,16 @@ class NotificationCubit extends Cubit<NotificationState> {
     final info = await PackageInfo.fromPlatform();
     final current = (int.tryParse(info.buildNumber) ?? 0) % 1000;
     // Already installed (works offline too).
-    await _notificationDao.removeType(type, (n) => _buildOf(n) <= current);
+    await _notificationDao.removeType(
+        type, (n) => _installed(n, info.version, current));
     getNotification();
 
     final value = await getLatestVersion();
     if (value['source'] != 'github') return; // offline: nothing new to say
     final latest = int.tryParse('${value['newBuild']}') ?? 0;
-    if (value['results'] == true && latest > current) {
-      final required = (value['requiredBuild'] as int? ?? 0) > 0;
+    final tag = '${value['newVer']}+$latest';
+    if (value['results'] == true && isNewerTag(tag, info.version, current)) {
+      final required = '${value['requiredTag'] ?? ''}'.isNotEmpty;
       await _notificationDao.putNotification(
         title: 'JARX ${value['newVer']} (build $latest) is '
             '${required ? 'required' : 'available'}',
@@ -53,7 +64,7 @@ class NotificationCubit extends Cubit<NotificationState> {
             : 'A new version of JARX is ready to download.',
         type: type,
         url: value['download_url'],
-        payload: '$latest',
+        payload: tag,
         unique: true,
       );
     } else {

@@ -48,7 +48,7 @@ class CheckUpdateView extends StatelessWidget {
                         onPressed: () {
                           // JARX's own releases (this was Bloomee's page).
                           launch_Url(Uri.parse(
-                              "https://github.com/SofDev007/Jaiswal-audio/releases"));
+                              "https://github.com/SofDev007/JARX/releases"));
                         },
                         child: SizedBox(
                           // width: 150,
