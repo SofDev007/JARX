@@ -248,16 +248,20 @@ Answer ONLY with JSON: {"tags": {"0": ["sad", "calm"], "1": []}}` },
 export async function report(req, env, user) {
   const body = await req.json().catch(() => null);
   if (!body?.reply) return json({ error: 'bad_body' }, 400);
-  const mine = await env.DB.prepare(
-    'SELECT count(*) AS n FROM ai_reports WHERE user_id = ? AND at > ?')
-    .bind(user.id, Date.now() - 86400_000).first();
-  if ((mine?.n ?? 0) >= REPORTS_PER_DAY) return json({ error: 'too_many_reports' }, 429);
-  await env.DB.batch([
-    env.DB.prepare('INSERT INTO ai_reports (user_id, at, said, reply) VALUES (?, ?, ?, ?)')
-      .bind(user.id, Date.now(), clip(body.said, 1000), clip(body.reply, 1500)),
-    // Keep the newest 500.
-    env.DB.prepare('DELETE FROM ai_reports WHERE id NOT IN (SELECT id FROM ai_reports ORDER BY id DESC LIMIT 500)'),
-  ]);
+  // The cap is checked inside the insert itself, so reports sent at the same
+  // moment can't all slip past it.
+  const now = Date.now();
+  const put = await env.DB.prepare(
+    `INSERT INTO ai_reports (user_id, at, said, reply)
+     SELECT ?, ?, ?, ?
+     WHERE (SELECT count(*) FROM ai_reports WHERE user_id = ? AND at > ?) < ?`)
+    .bind(user.id, now, clip(body.said, 1000), clip(body.reply, 1500),
+      user.id, now - 86400_000, REPORTS_PER_DAY)
+    .run();
+  if (!put?.meta?.changes) return json({ error: 'too_many_reports' }, 429);
+  // Keep the newest 500 (one person sends at most 20 a day).
+  await env.DB.prepare(
+    'DELETE FROM ai_reports WHERE id NOT IN (SELECT id FROM ai_reports ORDER BY id DESC LIMIT 500)').run();
   return json({ ok: true });
 }
 

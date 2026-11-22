@@ -12,7 +12,7 @@ const stmt = (sql, args = []) => ({
   bind: (...a) => stmt(sql, a),
   first: async () => db.prepare(sql).get(...args) ?? null,
   all: async () => ({ results: db.prepare(sql).all(...args) }),
-  run: async () => (db.prepare(sql).run(...args), { success: true }),
+  run: async () => ({ success: true, meta: { changes: Number(db.prepare(sql).run(...args).changes) } }),
 });
 const env = {
   DB: { prepare: (sql) => stmt(sql), batch: async (list) => { for (const s of list) await s.run(); } },
@@ -281,9 +281,9 @@ assert.deepEqual(pl.body.play, { title: 'Kesariya', artist: 'Arijit Singh', vide
 assert.equal(pl.body.reply, 'Playing it now. ▶');
 assert.ok(!JSON.stringify((await say('hi')).body).includes('🎶'));
 // Reports: 20 a day per person, then refused (others' reports stay).
-for (let i = 0; i < 25; i++) {
-  await call('POST', '/ai/report', { token: p1, body: { said: 'x', reply: 'r' + i } });
-}
+// Sent all at once: the cap still holds.
+await Promise.all(Array.from({ length: 25 }, (_, i) =>
+  call('POST', '/ai/report', { token: p1, body: { said: 'x', reply: 'r' + i } })));
 assert.equal(db.prepare("SELECT count(*) AS n FROM ai_reports WHERE user_id = 'p1'").get().n, 20, 'reports capped per person');
 assert.equal((await call('POST', '/ai/report', { token: p1, body: { reply: 'one more' } })).status, 429);
 aiAnswer = () => JSON.stringify({ reply: 'Here it is', play: { title: 'Aadat', artist: 'Jal', video: true } });
