@@ -119,7 +119,7 @@ assert.equal(f.body.user.status, 'pending');
 assert.deepEqual((await call('GET', '/me', { token: f.body.token })).body, { error: 'pending' });
 assert.equal((await call('GET', '/sync', { token: f.body.token })).status, 403);
 assert.equal((await signIn(owner)).body.user.status, 'active', 'the owner never waits');
-assert.equal((await signIn(sis)).body.user.status, 'active', 'known users keep their status');
+assert.equal((await signIn(sis, 'Pixel 8')).body.user.status, 'active', 'known users keep their status');
 assert.equal((await call('POST', '/admin/approve', { token: again.body.token, body: { id: 'f1' } })).status, 403, 'only the owner approves');
 await call('POST', '/admin/approve', { token: o.body.token, body: { id: 'f1' } });
 assert.equal((await call('GET', '/me', { token: f.body.token })).status, 200, 'approved');
@@ -172,6 +172,39 @@ env.LIMITER = { limit: async () => ({ success: false }) };
 assert.equal((await call('GET', '/me', { token: ft })).status, 429);
 delete env.LIMITER;
 
+// Phones: signing in again on the same phone replaces its old sign-in; the
+// owner sees each phone and can sign out one or all of them.
+const ph = { sub: 'ph1', email: 'phones@x.com', name: 'Phones' };
+await signIn(ph, 'realme RMX1971');
+await call('POST', '/admin/approve', { token: o.body.token, body: { id: 'ph1' } });
+const old1 = (await signIn(ph, 'realme RMX1971')).body.token;
+const fresh1 = (await signIn(ph, 'realme RMX1971')).body.token;
+assert.equal((await call('GET', '/me', { token: old1 })).status, 401, 'old sign-in of the same phone replaced');
+assert.equal((await call('GET', '/me', { token: fresh1 })).status, 200);
+await signIn(ph, 'OPPO CPH2641');
+let list = (await call('GET', '/admin/users', { token: o.body.token })).body;
+let pu = list.users.find((u) => u.id === 'ph1');
+assert.equal(pu.phones, 2);
+assert.deepEqual(pu.sessions.map((x) => x.device).sort(), ['OPPO CPH2641', 'realme RMX1971']);
+assert.ok(pu.sessions.every((x) => x.last_used > 0 && x.created_at > 0 && x.expires_at > x.created_at));
+assert.equal(typeof list.stats.users, 'number');
+assert.equal(typeof list.stats.aiChatsToday, 'number');
+assert.equal((await call('POST', '/admin/signout-phones', { token: fresh1, body: { id: 'ph1' } })).status, 403, 'owner only');
+const oppo = pu.sessions.find((x) => x.device === 'OPPO CPH2641');
+await call('POST', '/admin/signout-phones', { token: o.body.token, body: { sid: oppo.sid } });
+pu = (await call('GET', '/admin/users', { token: o.body.token })).body.users.find((u) => u.id === 'ph1');
+assert.equal(pu.phones, 1, 'one phone signed out');
+assert.equal((await call('GET', '/me', { token: fresh1 })).status, 200, 'the other phone stays');
+await call('POST', '/admin/signout-phones', { token: o.body.token, body: { id: 'ph1' } });
+assert.equal((await call('GET', '/me', { token: fresh1 })).status, 401, 'all phones signed out');
+await call('POST', '/admin/signout-phones', { token: o.body.token, body: { id: 'o1' } });
+assert.equal((await call('GET', '/admin/users', { token: o.body.token })).status, 200, "the admin page keeps its own sign-in");
+
+// The favicon is served for every page.
+const fav = await worker.fetch(new Request('https://jarx.test/favicon.png'), env);
+assert.equal(fav.headers.get('content-type'), 'image/png');
+assert.deepEqual([...new Uint8Array(await fav.arrayBuffer()).slice(1, 4)], [0x50, 0x4e, 0x47]);
+
 // The admin page is served.
 const page = await call('GET', '/admin');
 assert.match(page.body, /data-client_id="cid"/);
@@ -180,4 +213,86 @@ assert.equal(raw.headers.get('x-frame-options'), 'DENY');
 assert.match(raw.headers.get('content-security-policy'), /frame-ancestors 'none'/);
 assert.equal(raw.headers.get('x-content-type-options'), 'nosniff');
 assert.equal((await call('GET', '/nope', { token: o.body.token })).status, 404);
+
+// ---- JARX AI ----
+// A fake Workers AI (no Groq/OpenRouter keys: it is the only provider).
+let aiCalls = [];
+let aiAnswer = () => '';
+env.AI = { run: async (model, input) => { aiCalls.push(input); return { response: aiAnswer(input) }; } };
+const say = (text, context) => call('POST', '/ai/chat', { token: ft, body: { messages: [{ role: 'user', content: text }], context } });
+
+aiAnswer = () => 'Sure! ' + JSON.stringify({ reply: 'Hey {name}, try these', helpline: false, remember: ['gym in the evening'],
+  mix: { title: 'Beast mode', moods: ['dance', 'nonsense'], fromPlaylists: ['Gym'], songs: [{ title: 'Brown Munde', artist: 'AP Dhillon' }, { title: '' }] } });
+const c1 = await say('hype me up', { playing: 'Kesariya — Arijit Singh', playlists: { Gym: ['Excuses — AP Dhillon'] }, memory: ['likes Punjabi'] });
+assert.equal(c1.status, 200);
+assert.equal(c1.body.reply, 'Hey {name}, try these', 'the name placeholder is left for the phone');
+assert.deepEqual(c1.body.mix.moods, ['dance'], 'unknown moods dropped');
+assert.deepEqual(c1.body.mix.songs, [{ title: 'Brown Munde', artist: 'AP Dhillon' }], 'empty songs dropped');
+const sys = aiCalls[0].messages[0].content;
+assert.match(sys, /Excuses — AP Dhillon/, 'playlists reach the AI');
+assert.match(sys, /Download one song: tap ⋮ next to the song, then Download/, 'the JARX guide reaches the AI');
+assert.match(sys, /You are Jarvix,/, 'named Jarvix');
+assert.match(sys, /likes Punjabi/, 'memory reaches the AI');
+assert.doesNotMatch(sys, /friend@x\.com|Friend/, 'name and email never sent');
+
+aiAnswer = () => JSON.stringify({ reply: "I'm here for you.", helpline: true, mix: null });
+const c2 = await say('i feel really low');
+assert.deepEqual([c2.body.helpline, c2.body.mix], [true, null]);
+assert.equal((await call('POST', '/ai/chat', { token: ft, body: { messages: [] } })).status, 400, 'no message');
+
+// Every provider down: 503, and it doesn't count.
+aiAnswer = () => 'not json';
+assert.equal((await say('hello')).status, 503);
+assert.equal(db.prepare("SELECT chats FROM ai_usage WHERE user_id = 'f1'").get().chats, 2, 'failed call refunded');
+
+// Daily limit.
+env.AI_DAILY_LIMIT = '3';
+aiAnswer = () => JSON.stringify({ reply: 'ok' });
+assert.equal((await say('one more')).status, 200);
+const lim = await say('and another');
+assert.deepEqual([lim.status, lim.body.error], [429, 'ai_limit'], 'limit reached');
+delete env.AI_DAILY_LIMIT;
+
+// Build 43 fix: an answer without a reply is a failure (never a bare "🎶"),
+// the reply is found under other keys, old "🎶" replies never reach the
+// model again, and "play" passes through.
+aiAnswer = () => JSON.stringify({ reply: '', mix: null });
+const empty = await call('POST', '/ai/chat', { token: ft, body: { messages: [{ role: 'user', content: 'roast my taste' }] } });
+assert.deepEqual([empty.status, empty.body.error], [503, 'ai_down'], 'empty reply = AI down, not 🎶');
+aiAnswer = () => JSON.stringify({ message: 'Your taste? Pure Pritam at 2am.' });
+aiCalls = [];
+const alt = await call('POST', '/ai/chat', { token: ft, body: { messages: [
+  { role: 'user', content: 'roast my taste' }, { role: 'assistant', content: '🎶' },
+  { role: 'user', content: 'roast my taste' }] } });
+assert.equal(alt.body.reply, 'Your taste? Pure Pritam at 2am.');
+assert.ok(!aiCalls.at(-1).messages.some((m) => m.content === '🎶'), 'old 🎶 replies dropped');
+aiAnswer = () => JSON.stringify({ reply: '', play: { title: 'Kesariya', artist: 'Arijit Singh' } });
+const pl = await say('play kesariya');
+assert.deepEqual(pl.body.play, { title: 'Kesariya', artist: 'Arijit Singh', video: false });
+assert.equal(pl.body.reply, 'Playing it now. ▶');
+assert.ok(!JSON.stringify((await say('hi')).body).includes('🎶'));
+aiAnswer = () => JSON.stringify({ reply: 'Here it is', play: { title: 'Aadat', artist: 'Jal', video: true } });
+assert.equal((await say('show me the video of aadat')).body.play.video, true, 'video flag passes through');
+
+
+// Mood tags: asked once, then shared from the cache; unknown songs stored empty.
+aiCalls = [];
+aiAnswer = () => JSON.stringify({ tags: { 0: ['sad', 'calm', 'weird'], 1: [] } });
+const songs = [{ key: 'channa mereya|arijit singh', title: 'Channa Mereya', artist: 'Arijit Singh' },
+  { key: 'unknown|nobody', title: 'Unknown', artist: 'Nobody' }];
+const tg1 = await call('POST', '/ai/tags', { token: ft, body: { songs } });
+assert.deepEqual(tg1.body.tags, { 'channa mereya|arijit singh': ['sad', 'calm'] });
+const tg2 = await call('POST', '/ai/tags', { token: p1, body: { songs } });
+assert.deepEqual(tg2.body.tags, tg1.body.tags, 'another user gets the cached tags');
+assert.equal(aiCalls.length, 1, 'the AI was asked once');
+
+// Reports reach the owner only; deleting the account removes its AI rows.
+assert.equal((await call('POST', '/ai/report', { token: ft, body: { said: 'hi', reply: 'bad reply' } })).status, 200);
+assert.equal((await call('GET', '/admin/reports', { token: ft })).status, 403, 'not the owner');
+const reps = (await call('GET', '/admin/reports', { token: o.body.token })).body.reports;
+assert.deepEqual([reps[0].reply, reps[0].email], ['bad reply', 'friend@x.com']);
+await call('DELETE', '/me', { token: ft });
+assert.equal(db.prepare("SELECT count(*) AS n FROM ai_usage WHERE user_id = 'f1'").get().n, 0);
+assert.equal(db.prepare("SELECT count(*) AS n FROM ai_reports WHERE user_id = 'f1'").get().n, 0);
+assert.match((await call('GET', '/privacy')).body, /JARX AI \(Jarvix\)/);
 console.log('all server checks passed');

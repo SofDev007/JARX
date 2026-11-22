@@ -9,6 +9,19 @@ GOOGLE_CLIENT_ID = "269249413715-d5fb6ac76r9jngrmfadrk4oausldiv22.apps.googleuse
 ADMIN_EMAIL = "arnavjaiswal.aj@gmail.com"
 # "on": new accounts wait until the owner approves them on /admin.
 APPROVAL = "on"
+# JARX AI (src/ai.js): chat messages per person per day, mood-tag AI calls
+# per person per day, and the models (change them here when a provider
+# renames one). Keys are secrets, never here:
+#   npx wrangler secret put GROQ_KEY   /   npx wrangler secret put OPENROUTER_KEY
+AI_DAILY_LIMIT = "100"
+AI_TAG_LIMIT = "300"
+GROQ_MODEL = "llama-3.3-70b-versatile"
+OPENROUTER_MODEL = "openrouter/free"
+CF_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+# Cloudflare's own AI: the last fallback, free, needs no key.
+[ai]
+binding = "AI"
 
 [[d1_databases]]
 binding = "DB"

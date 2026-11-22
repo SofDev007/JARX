@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+import 'package:Bloomee/screens/screen/account/account_view.dart';
 import 'package:Bloomee/screens/widgets/tip_overlay.dart';
 import 'package:Bloomee/core/constants/quips.dart';
 import 'package:Bloomee/blocs/internet_connectivity/cubit/connectivity_cubit.dart';
@@ -440,8 +442,9 @@ class NotificationIcon extends StatelessWidget {
   }
 }
 
-/// The user's Google photo (or initial): opens Your corner. It took the
-/// sleep timer's place; the timer lives in the player.
+/// The user's Google photo (or initial): tap opens Your corner, long-press
+/// switches account. It took the sleep timer's place; the timer lives in
+/// the player.
 class ProfileButton extends StatelessWidget {
   const ProfileButton({super.key});
 
@@ -454,6 +457,11 @@ class ProfileButton extends StatelessWidget {
         child: GestureDetector(
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const YourCornerView())),
+          // Long-press: switch account (or add one) right here.
+          onLongPress: () {
+            HapticFeedback.mediumImpact();
+            showAccountSwitcher(context);
+          },
           child: const UserAvatar(size: 30),
         ),
       ),

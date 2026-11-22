@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:Bloomee/screens/widgets/saathi_blob.dart';
 
 /// The last bottom-bar tap: (tab index, tap number). The number only makes
 /// each tap a new value, so tapping the same tab twice is heard twice.
@@ -107,7 +108,11 @@ class GlobalFooter extends StatelessWidget {
             backgroundColor: Default_Theme.themeColor,
             drawerScrimColor: Default_Theme.themeColor,
             body: isMobile
-                ? _AnimatedPageView(navigationShell: navigationShell)
+                ? Stack(children: [
+                    _AnimatedPageView(navigationShell: navigationShell),
+                    // JARX AI's blob, on Home and Library.
+                    const SaathiBlobHost(),
+                  ])
                 : Row(
                     children: [
                       Padding(

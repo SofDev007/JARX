@@ -50,7 +50,7 @@ class AccountView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: fg.withValues(alpha: 0.7))),
           const SizedBox(height: 32),
-          const _Accounts(),
+          const AccountSwitcher(),
           ValueListenableBuilder<bool>(
             valueListenable: Sync.instance.busy,
             builder: (context, busy, _) => ValueListenableBuilder<DateTime?>(
@@ -146,16 +146,33 @@ class AccountView extends StatelessWidget {
   }
 }
 
+/// Long-press on the Home photo: the accounts on this phone in a sheet, to
+/// switch (or add one) without going through Settings.
+Future<void> showAccountSwitcher(BuildContext context) => showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF121216),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
+      builder: (_) => const SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
+          child: AccountSwitcher(),
+        ),
+      ),
+    );
+
 /// Every account on this phone has its own music; tapping one restarts JARX
 /// into it.
-class _Accounts extends StatefulWidget {
-  const _Accounts();
+class AccountSwitcher extends StatefulWidget {
+  const AccountSwitcher({super.key});
 
   @override
-  State<_Accounts> createState() => _AccountsState();
+  State<AccountSwitcher> createState() => _AccountSwitcherState();
 }
 
-class _AccountsState extends State<_Accounts> {
+class _AccountSwitcherState extends State<AccountSwitcher> {
   @override
   Widget build(BuildContext context) {
     const fg = Default_Theme.primaryColor1;

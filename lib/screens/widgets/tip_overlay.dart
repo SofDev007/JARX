@@ -18,6 +18,9 @@ class Tips {
   static Timer? _wait;
   static OverlayEntry? _showing;
 
+  /// The full player is open (set by the player overlay).
+  static bool playerOpen = false;
+
   /// [id] could show now: after a short pause the most important tip
   /// offered meanwhile shows (if the rules allow one).
   static void offer(String id) {
@@ -53,12 +56,13 @@ class Tips {
     _offered.clear();
     if (_showing != null) return;
     final book = await TipStore.load();
-    final now = DateTime.now();
     final ok = [
       for (final id in offered)
-        if (_anchors.containsKey(id) ? _find(id) != null : true) id
+        if (playerTips.contains(id) == playerOpen &&
+            (_anchors.containsKey(id) ? _find(id) != null : true))
+          id
     ];
-    final id = book.pick(ok, now);
+    final id = book.pick(ok);
     if (id == null) return;
     final found = _anchors.containsKey(id) ? _find(id) : null;
     final rect = found?.$1;
@@ -66,22 +70,68 @@ class Tips {
     if (ctx == null || !ctx.mounted) return;
     final overlay = Overlay.maybeOf(ctx, rootOverlay: true);
     if (overlay == null) return;
-    book.markShown(id, now);
+    book.markShown(id);
     unawaited(TipStore.save());
     late final OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => _TipBubble(
         text: tipTexts[id]!,
         target: rect,
-        onClosed: () {
+        anchor: found?.$2,
+        inPlayer: playerTips.contains(id),
+        tourOver: book.tourEnded,
+        onClosed: (next) {
           entry.remove();
           if (_showing == entry) _showing = null;
+          if (next) _nextOnScreen();
         },
       ),
     );
     _showing = entry;
     overlay.insert(entry);
   }
+}
+
+/// The tour goes on: the next tip whose button is on screen now.
+void _nextOnScreen() {
+  for (final id in Tips._anchors.keys) {
+    Tips._offered.add(id);
+  }
+  Tips._wait?.cancel();
+  Tips._wait = Timer(const Duration(milliseconds: 450), Tips._decide);
+}
+
+/// (Unused since 2.1.3: the question is asked inside the bubble.)
+// ignore: unused_element
+Future<bool> _confirmEndTour() async {
+  final ctx = GlobalRoutes.globalRouterKey.currentContext;
+  if (ctx == null || !ctx.mounted) return true;
+  final end = await showDialog<bool>(
+    context: ctx,
+    builder: (c) => AlertDialog(
+      backgroundColor: const Color(0xFF1B1022),
+      title: const Text('End the tour?',
+          style: TextStyle(color: Colors.white, fontSize: 18)),
+      content: Text(
+          "Looks like you're already a JARX pro. 😎 We'll still point out "
+          'a few must-knows along the way.',
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.75))),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(c, false),
+            child: const Text('Keep the tour',
+                style: TextStyle(color: Default_Theme.primaryColor1))),
+        TextButton(
+            onPressed: () => Navigator.pop(c, true),
+            child: const Text("I'm a pro",
+                style: TextStyle(
+                    color: Default_Theme.accentColor1light,
+                    fontWeight: FontWeight.bold))),
+      ],
+    ),
+  );
+  if (end == true) await TipStore.endTour();
+  return end == true;
 }
 
 /// Marks [child] as the button tip [id] points at, and offers the tip once
@@ -120,13 +170,29 @@ class _TipAnchorState extends State<TipAnchor> {
 
 class _TipBubble extends StatefulWidget {
   const _TipBubble(
-      {required this.text, required this.target, required this.onClosed});
+      {required this.text,
+      required this.target,
+      required this.onClosed,
+      this.anchor,
+      this.inPlayer = false,
+      this.tourOver = false});
   final String text;
+
+  /// The tour was ended (a must-know tip): just "Got it".
+  final bool tourOver;
+
+  /// The button the tip points at, and whether it lives in the player:
+  /// the tip closes when that button is gone or covered (a page, a sheet,
+  /// the player opening or closing), so it never sits on the wrong screen.
+  final BuildContext? anchor;
+  final bool inPlayer;
 
   /// The button, in screen coordinates; null: no button (bubble at the
   /// bottom, above the mini player).
   final Rect? target;
-  final VoidCallback onClosed;
+
+  /// Closed; [next]: go on to the next tip on this screen.
+  final void Function(bool next) onClosed;
 
   @override
   State<_TipBubble> createState() => _TipBubbleState();
@@ -139,27 +205,53 @@ class _TipBubbleState extends State<_TipBubble> with TickerProviderStateMixin {
   late final _pulse = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 1600))
     ..repeat();
-  Timer? _auto;
+  Timer? _auto, _watch;
   bool _closing = false;
+
+  /// "End tour" tapped: the bubble asks "are you sure?" itself.
+  bool _asking = false;
 
   @override
   void initState() {
     super.initState();
     // Never stuck on screen: closes by itself after a while.
-    _auto = Timer(const Duration(seconds: 12), _close);
+    _auto = Timer(const Duration(seconds: 15), _close);
+    _watch = Timer.periodic(const Duration(milliseconds: 250), (_) {
+      final a = widget.anchor;
+      final gone =
+          a != null && (!a.mounted || !(ModalRoute.of(a)?.isCurrent ?? true));
+      if (gone || widget.inPlayer != Tips.playerOpen) _close(next: false);
+    });
   }
 
-  Future<void> _close() async {
+  Future<void> _close({bool next = true}) async {
     if (_closing) return;
     _closing = true;
     _auto?.cancel();
+    _watch?.cancel();
     await _in.reverse();
-    widget.onClosed();
+    widget.onClosed(next && !widget.tourOver);
+  }
+
+  void _endTour() {
+    _auto?.cancel();
+    setState(() => _asking = true);
+  }
+
+  void _keepTour() {
+    setState(() => _asking = false);
+    _auto = Timer(const Duration(seconds: 15), _close);
+  }
+
+  Future<void> _imAPro() async {
+    await TipStore.endTour();
+    await _close(next: false);
   }
 
   @override
   void dispose() {
     _auto?.cancel();
+    _watch?.cancel();
     _in.dispose();
     _pulse.dispose();
     super.dispose();
@@ -196,19 +288,68 @@ class _TipBubbleState extends State<_TipBubble> with TickerProviderStateMixin {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(widget.text,
-                style: const TextStyle(
-                    color: Colors.white, fontSize: 14.5, height: 1.4)),
-            const SizedBox(height: 6),
-            const Text('Got it',
-                style: TextStyle(
-                    color: Default_Theme.accentColor1light,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12.5)),
-          ],
+          children: _asking
+              ? [
+                  const Text('End the tour?',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 4),
+                  Text(
+                      "Looks like you're already a JARX pro. 😎 We'll still "
+                      'point out a few must-knows along the way.',
+                      style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 13.5,
+                          height: 1.4)),
+                  const SizedBox(height: 10),
+                  Row(children: [
+                    GestureDetector(
+                      onTap: _keepTour,
+                      child: Text('Keep the tour',
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 12.5)),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: _imAPro,
+                      child: const Text("I'm a pro",
+                          style: TextStyle(
+                              color: Default_Theme.accentColor1light,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12.5)),
+                    ),
+                  ]),
+                ]
+              : [
+                  Text(widget.text,
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 14.5, height: 1.4)),
+                  const SizedBox(height: 8),
+                  Row(children: [
+                    if (!widget.tourOver)
+                      GestureDetector(
+                        onTap: _endTour,
+                        child: Text('End tour',
+                            style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.55),
+                                fontSize: 12.5)),
+                      ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: _close,
+                      child: Text(widget.tourOver ? 'Got it' : 'Next',
+                          style: const TextStyle(
+                              color: Default_Theme.accentColor1light,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12.5)),
+                    ),
+                  ]),
+                ],
         ),
       ),
     );
@@ -219,7 +360,7 @@ class _TipBubbleState extends State<_TipBubble> with TickerProviderStateMixin {
         Positioned.fill(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: _close,
+            onTap: () => _asking ? _keepTour() : _close(),
             child: CustomPaint(painter: _DimPainter(t)),
           ),
         ),

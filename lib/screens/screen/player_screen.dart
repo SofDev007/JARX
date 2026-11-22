@@ -89,14 +89,16 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
         elevation: 0,
         foregroundColor: Default_Theme.primaryColor1,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32),
-          onPressed: () {
-            if (!_upNextPanelController.collapse()) {
-              context.read<PlayerOverlayCubit>().hidePlayer();
-            }
-          },
-        ),
+        leading: TipAnchor(
+            id: 'P2',
+            child: IconButton(
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32),
+              onPressed: () {
+                if (!_upNextPanelController.collapse()) {
+                  context.read<PlayerOverlayCubit>().hidePlayer();
+                }
+              },
+            )),
         actions: [
           IconButton(
             onPressed: () {
@@ -253,7 +255,9 @@ class _PlayerUI extends StatelessWidget {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   // YouTube songs in video mode: the music video instead.
-                  child: CoverOrVideo(cover: CoverImageVolSlider()),
+                  child: TipAnchor(
+                      id: 'P1',
+                      child: CoverOrVideo(cover: CoverImageVolSlider())),
                 ),
               ),
               // The line being sung (none without synced lyrics).

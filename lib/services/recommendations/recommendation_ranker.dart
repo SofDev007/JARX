@@ -218,6 +218,7 @@ class RecommendationRanker {
     Set<SongLanguage> startLanguages = const {},
     List<String> startArtists = const [],
     TasteModel? model,
+    Set<Mood>? Function(String songKey)? aiMoods,
     DateTime? now,
   }) {
     final at = now ?? DateTime.now();
@@ -328,6 +329,7 @@ class RecommendationRanker {
         strongArtists: strong,
         playlistMoods: playlistMoods,
         songKey: songKey,
+        aiMoods: aiMoods,
       ),
       devotionalOk: devotional >= 3,
       library: [...liked, for (final p in playlists.values) ...p],
