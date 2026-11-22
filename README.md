@@ -6,10 +6,10 @@ sandboxed WebAssembly plugin system, learns what you like on your device, and
 keeps your library in sync across your phones through your Google account.
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="24%" alt="Home" />
-  <img src="docs/screenshots/player.png" width="24%" alt="Player" />
-  <img src="docs/screenshots/video.png" width="24%" alt="Music video" />
-  <img src="docs/screenshots/lyrics.png" width="24%" alt="Synced lyrics" />
+  <img src="docs/screenshots/home.jpg" width="24%" alt="Home" />
+  <img src="docs/screenshots/player.jpg" width="24%" alt="Player" />
+  <img src="docs/screenshots/video.jpg" width="24%" alt="Music video" />
+  <img src="docs/screenshots/lyrics.jpg" width="24%" alt="Synced lyrics" />
 </p>
 
 **[Download the latest APK](https://github.com/SofDev007/Jaiswal-audio/releases/latest)**
@@ -41,8 +41,13 @@ allow your browser to install apps. After that, JARX updates itself.
   (optional, desktop).
 
 <p align="center">
-  <img src="docs/screenshots/smart-shuffle.png" width="24%" alt="Smart shuffle" />
-  <img src="docs/screenshots/video-fullscreen.png" width="72%" alt="Full-screen video with captions" />
+  <img src="docs/screenshots/search.jpg" width="24%" alt="Search with plugin sources" />
+  <img src="docs/screenshots/playlist.jpg" width="24%" alt="Shuffle or Smart shuffle" />
+  <img src="docs/screenshots/smart-shuffle.jpg" width="24%" alt="Smart shuffle suggestions in Up Next" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/video-fullscreen.jpg" width="75%" alt="Full-screen music video with controls" />
 </p>
 
 ### Your library
@@ -59,9 +64,9 @@ allow your browser to install apps. After that, JARX updates itself.
 - **Backup and restore** of your library and settings (JSON, M3U).
 
 <p align="center">
-  <img src="docs/screenshots/library.png" width="24%" alt="Library" />
-  <img src="docs/screenshots/offline.png" width="24%" alt="Offline downloads" />
-  <img src="docs/screenshots/account.png" width="24%" alt="Account and sync" />
+  <img src="docs/screenshots/library.jpg" width="24%" alt="Library" />
+  <img src="docs/screenshots/offline.jpg" width="24%" alt="Offline downloads" />
+  <img src="docs/screenshots/account.jpg" width="24%" alt="Account and sync" />
 </p>
 
 ### Made for you
@@ -76,8 +81,7 @@ allow your browser to install apps. After that, JARX updates itself.
   from those picks.
 
 <p align="center">
-  <img src="docs/screenshots/your-corner.png" width="24%" alt="Your corner" />
-  <img src="docs/screenshots/first-run.png" width="24%" alt="Quick start" />
+  <img src="docs/screenshots/your-corner.jpg" width="24%" alt="Your corner" />
 </p>
 
 ### Always up to date
