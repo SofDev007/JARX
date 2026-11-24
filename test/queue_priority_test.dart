@@ -72,14 +72,23 @@ void main() {
     test('one pick after every 3 songs', () {
       final m = QueueManager()..loadTracks(list);
       m.insertEvery(3, picks);
-      expect(_order(m),
-          ['s0', 's1', 's2', 'x0', 's3', 's4', 's5', 'x1', 's6']);
+      expect(_order(m), ['s0', 's1', 's2', 'x0', 's3', 's4', 's5', 'x1', 's6']);
     });
 
     test('never behind the song playing now', () {
       final m = QueueManager()..loadTracks(list, idx: 4);
       m.insertEvery(3, picks);
       expect(_order(m), ['s4', 's5', 'x0', 's6']);
+    });
+
+    // Smart shuffle turns shuffle mode off first: a playlist loaded while it
+    // was on would keep it on and get no picks.
+    test('shuffle mode on from before: turned off, picks go in', () {
+      final m = QueueManager()..shuffle(true);
+      m.shuffle(false);
+      m.loadTracks(list);
+      m.insertEvery(3, picks);
+      expect(_order(m), contains('x0'));
     });
 
     test('skipped while shuffle is on', () {

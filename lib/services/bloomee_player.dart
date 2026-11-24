@@ -422,8 +422,7 @@ class BloomeeMusicPlayer extends BaseAudioHandler
       // change what plays next: preload that one instead.
       final aim = _preloadAimId;
       if (aim != null &&
-          (_queueManager.peekNext(loopMode: loopMode.value)?.id ?? '') !=
-              aim) {
+          (_queueManager.peekNext(loopMode: loopMode.value)?.id ?? '') != aim) {
         _preResolveNextTrack();
       }
       // Don't persist during restore — we'd just write back what we read.
@@ -1189,6 +1188,7 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   /// Smart shuffle's suggestions in the queue (Up Next offers + for them)
   /// and the playlist + adds them to.
   final smartPicks = ValueNotifier<Set<String>>({});
+
   /// The playlist smart shuffle is playing ('' for none): its shuffle
   /// button shows the smart shuffle icon.
   final smartShuffleFrom = ValueNotifier<String>('');
@@ -1198,6 +1198,10 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   /// doesn't change.
   Future<void> smartShuffle(Playlist playlist) async {
     final shuffled = List.of(playlist.tracks)..shuffle();
+    // The list is shuffled already; shuffle mode left on from before (it's
+    // remembered, even after a restart) would make insertEvery skip the
+    // picks.
+    _queueManager.shuffle(false);
     await loadPlaylist(Playlist(tracks: shuffled, title: playlist.title),
         doPlay: true);
     final first = _queueManager.tracks.firstOrNull?.id;

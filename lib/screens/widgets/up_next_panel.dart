@@ -1,3 +1,4 @@
+import 'package:Bloomee/screens/widgets/shuffle_bubbles.dart';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:Bloomee/screens/widgets/tip_overlay.dart';
@@ -708,24 +709,32 @@ class _QueueItem extends StatelessWidget {
                                   return const SizedBox.shrink();
                                 }
                                 final player = playerCubit.bloomeePlayer;
-                                return IconButton(
-                                  tooltip: 'Add to ${player.smartShuffleFrom.value}',
-                                  iconSize: 22,
-                                  padding: const EdgeInsets.all(6),
-                                  constraints: const BoxConstraints(
-                                      minWidth: 36, minHeight: 36),
-                                  color: Default_Theme.accentColor2,
-                                  icon: const Icon(
-                                      Icons.add_circle_outline_rounded),
-                                  onPressed: () {
-                                    context
-                                        .read<LibraryItemsCubit>()
-                                        .addToPlaylist(
-                                            songModel, player.smartShuffleFrom.value);
-                                    player.smartPicks.value = {...picks}
-                                      ..remove(mediaItem.id);
-                                  },
-                                );
+                                return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SmartShuffleIcon(),
+                                      IconButton(
+                                        tooltip:
+                                            'Add to ${player.smartShuffleFrom.value}',
+                                        iconSize: 22,
+                                        padding: const EdgeInsets.all(6),
+                                        constraints: const BoxConstraints(
+                                            minWidth: 36, minHeight: 36),
+                                        color: Default_Theme.accentColor2,
+                                        icon: const Icon(
+                                            Icons.add_circle_outline_rounded),
+                                        onPressed: () {
+                                          context
+                                              .read<LibraryItemsCubit>()
+                                              .addToPlaylist(
+                                                  songModel,
+                                                  player
+                                                      .smartShuffleFrom.value);
+                                          player.smartPicks.value = {...picks}
+                                            ..remove(mediaItem.id);
+                                        },
+                                      ),
+                                    ]);
                               },
                             ),
                           // Suggested: the minus button blocks it for good.
