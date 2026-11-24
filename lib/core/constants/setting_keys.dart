@@ -99,6 +99,10 @@ class SettingKeys {
   static const String pluginsSkippedByCountry = "pluginsSkippedByCountry";
   static const String appSetupCompleted = "appSetupCompleted";
 
+  /// The version JARX was first installed with ("2.1.7+45"); phones that
+  /// had JARX before this was kept say "before 2.1.7+45".
+  static const String firstVersion = "firstVersion";
+
   // ── Plugins ────────────────────────────────────────────────────────────────
   /// JSON-encoded list of plugin IDs that should auto-load on app startup.
   static const String autoLoadPluginIds = "autoLoadPluginIds";

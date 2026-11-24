@@ -2,7 +2,7 @@
 // bubble with an arrow next to it. A tap anywhere closes it. Screens wrap
 // the button in [TipAnchor]; tips without a button (e.g. "queued songs
 // play next") use [Tips.offer] and show above the mini player.
-// The rules (once, one at a time, 3 a day) are in services/tips.dart.
+// The rules (once, one at a time, who gets which) are in services/tips.dart.
 
 import 'dart:async';
 
@@ -334,7 +334,7 @@ class _TipBubbleState extends State<_TipBubble> with TickerProviderStateMixin {
                     if (!widget.tourOver)
                       GestureDetector(
                         onTap: _endTour,
-                        child: Text('End tour',
+                        child: Text("Don't show tips",
                             style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.55),
                                 fontSize: 12.5)),

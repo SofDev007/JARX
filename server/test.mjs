@@ -34,15 +34,16 @@ async function googleToken(claims) {
   return head + '.' + body + '.' + b64(sig);
 }
 
-async function call(method, path, { token, body } = {}) {
+async function call(method, path, { token, body, version } = {}) {
   const headers = { 'content-type': 'application/json' };
   if (token) headers.authorization = 'Bearer ' + token;
+  if (version) headers['x-jarx-version'] = version;
   const res = await worker.fetch(new Request('https://jarx.test' + path,
     { method, headers, body: body && JSON.stringify(body) }), env);
   return { status: res.status, body: res.headers.get('content-type').includes('json') ? await res.json() : await res.text() };
 }
 const signIn = async (claims, device = 'realme 5 Pro') =>
-  call('POST', '/auth/google', { body: { idToken: await googleToken(claims), device, appVersion: '2.0.0+34' } });
+  call('POST', '/auth/google', { body: { idToken: await googleToken(claims), device, appVersion: '2.1.6+44' } });
 
 const sis = { sub: 's1', email: 'sis@x.com', name: 'Sis', picture: 'https://p/s.jpg' };
 const owner = { sub: 'o1', email: 'owner@x.com', name: 'Owner' };
@@ -310,4 +311,22 @@ await call('DELETE', '/me', { token: ft });
 assert.equal(db.prepare("SELECT count(*) AS n FROM ai_usage WHERE user_id = 'f1'").get().n, 0);
 assert.equal(db.prepare("SELECT count(*) AS n FROM ai_reports WHERE user_id = 'f1'").get().n, 0);
 assert.match((await call('GET', '/privacy')).body, /JARX AI \(Jarvix\)/);
+// Builds before 37 are locked out with an "update" reason; 37+ and apps
+// that don't say their version are let in.
+for (const v of ['2.0.0+36', '2.0.0+2036', '2.0.0+34']) {
+  const r = await call('GET', '/me', { token: p1, version: v });
+  assert.equal(r.status, 403, v);
+  assert.equal(r.body.error, 'banned');
+  assert.match(r.body.reason, /too old.*\/update/);
+}
+for (const v of ['2.0.0+37', '2.1.6+44', '2.0.0+2042', undefined]) {
+  assert.equal((await call('GET', '/me', { token: p1, version: v })).status, 200, String(v));
+}
+assert.equal((await call('POST', '/signout', { token: p1, version: '2.0.0+36' })).status, 200, 'an old app can still sign out');
+const oldSignIn = await call('POST', '/auth/google', {
+  body: { idToken: await googleToken({ sub: 'z1', email: 'z@x.com' }), appVersion: '2.0.0+36' } });
+assert.deepEqual([oldSignIn.status, oldSignIn.body.error], [403, 'banned'], 'an old app cannot sign in');
+const upd = await worker.fetch(new Request('https://x/update'), env);
+assert.equal(upd.status, 302);
+assert.match(upd.headers.get('location'), /SofDev007\/JARX\/releases\/latest/);
 console.log('all server checks passed');

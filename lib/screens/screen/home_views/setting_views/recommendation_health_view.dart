@@ -11,6 +11,9 @@ import 'package:Bloomee/services/player/related_songs_manager.dart';
 import 'package:Bloomee/services/recommendations/rec_health.dart';
 import 'package:Bloomee/services/recommendations/recommendation_ranker.dart';
 import 'package:Bloomee/services/recommendations/song_card.dart';
+import 'package:Bloomee/core/constants/setting_keys.dart';
+import 'package:Bloomee/services/db/dao/settings_dao.dart';
+import 'package:Bloomee/services/db/db_provider.dart';
 import 'package:flutter/material.dart';
 
 /// Developer page, not in Settings: open it by tapping the version on the
@@ -32,6 +35,7 @@ class _RecommendationHealthViewState extends State<RecommendationHealthView> {
   Map<SongLanguage, double> _shares = const {};
   TasteModel? _model;
   ListeningStats? _listening;
+  String _firstVersion = '…';
 
   @override
   void initState() {
@@ -43,6 +47,8 @@ class _RecommendationHealthViewState extends State<RecommendationHealthView> {
     final health = await RecHealth.load();
     final model = await TasteModel.load();
     final listening = await ListeningTime.loadAllPhones(); // all your phones
+    final first = await SettingsDAO(DBProvider.db)
+        .getSettingStr(SettingKeys.firstVersion);
     Set<SongLanguage>? languages;
     var shares = const <SongLanguage, double>{};
     try {
@@ -59,6 +65,7 @@ class _RecommendationHealthViewState extends State<RecommendationHealthView> {
       _shares = shares;
       _model = model;
       _listening = listening;
+      _firstVersion = first ?? 'unknown';
     });
   }
 
@@ -93,6 +100,9 @@ class _RecommendationHealthViewState extends State<RecommendationHealthView> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         children: [
+          const SettingSectionHeader(label: 'This phone'),
+          SettingCard(children: [_Row('First installed', _firstVersion)]),
+          const SizedBox(height: 28),
           const SettingSectionHeader(label: 'Learned from listening'),
           SettingCard(children: [
             _Row(

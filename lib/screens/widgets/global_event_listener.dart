@@ -58,10 +58,14 @@ class _GlobalEventListenerState extends State<GlobalEventListener> {
     super.initState();
     _pluginSub = PluginEventBus.instance.events.listen(_onPluginEvent);
     _appErrorSub = GlobalEventBus.instance.errors.listen(_onAppError);
-    UpdateGate.openBell = _openBell;
+    UpdateGate.onPlayBlocked = () => SnackbarService.showMessage(
+          'Unable to play music. Update JARX from the bell icon.',
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(label: 'Click here', onPressed: _openBell),
+        );
   }
 
-  /// Compulsory update + a play attempt: the bell page (once, not stacked).
+  /// The bell page, where the update waits (once, not stacked).
   bool _bellOpen = false;
   void _openBell() {
     if (_bellOpen) return;

@@ -1,7 +1,8 @@
 // First-time tips, as a tour: a bubble points at a button, and closing it
 // ("Next") brings the next tip on the same screen at once. Each tip shows
-// once. "End tour" stops them, except the must-knows ([essentialTips]).
-// Everyone gets them, new users and people updating (build 43+).
+// once. "Don't show tips" (I'm a pro) stops them, except [essentialTips].
+// New users (the first-run flow calls [TipStore.startOver]) get every tip;
+// people updating get only [featureTips], the tips of features added since.
 // Which tip, where: [tipTexts]; the widgets are in tip_overlay.dart.
 
 import 'dart:convert';
@@ -46,9 +47,13 @@ const tipTexts = <String, String>{
   'T17': 'Bored of Home? Switch to another layout here.',
 };
 
-/// Still shown after "End tour": the gestures nobody finds alone, never
+/// Still shown after "Don't show tips": the gestures nobody finds alone, never
 /// suggest (⊖), and YouTube Video's music videos.
 const essentialTips = {'P1', 'P2', 'A1', 'T8', 'V1'};
+
+/// Tips for a feature added in an update, id -> the build that added it:
+/// existing users get only these. Add a new feature's tip here.
+const featureTips = <String, int>{};
 
 /// Tips that point at the player: shown only while it's open (the others
 /// only while it's closed, so a tip never points behind it).
@@ -61,20 +66,28 @@ const tipNeeds = <String, (String, int)>{'T2': ('player', 2)};
 /// What the user has seen; saved as one small setting.
 class TipBook {
   TipBook(
-      {Set<String>? shown, this.tourEnded = false, Map<String, int>? counts})
+      {Set<String>? shown,
+      this.tourEnded = false,
+      this.everything = false,
+      Map<String, int>? counts})
       : shown = shown ?? {},
         counts = counts ?? {};
 
   final Set<String> shown;
 
-  /// "End tour" pressed: only [essentialTips] from now on.
+  /// "Don't show tips" pressed: only [essentialTips] from now on.
   bool tourEnded;
+
+  /// A new user (or "Show tips again"): every tip. Otherwise only
+  /// [featureTips], so an update doesn't explain the app to old users.
+  bool everything;
   final Map<String, int> counts;
 
   /// The tip to show now out of [offered], or null.
   String? pick(Iterable<String> offered) {
     for (final id in tipTexts.keys) {
       if (!offered.contains(id) || shown.contains(id)) continue;
+      if (!everything && !featureTips.containsKey(id)) continue;
       if (tourEnded && !essentialTips.contains(id)) continue;
       final need = tipNeeds[id];
       if (need != null && (counts[need.$1] ?? 0) < need.$2) continue;
@@ -88,12 +101,14 @@ class TipBook {
   Map<String, dynamic> toJson() => {
         'shown': shown.toList(),
         if (tourEnded) 'ended': true,
+        if (everything) 'all': true,
         'counts': counts,
       };
 
   static TipBook fromJson(Map j) => TipBook(
         shown: {for (final s in j['shown'] as List? ?? const []) '$s'},
         tourEnded: j['ended'] == true,
+        everything: j['all'] == true,
         counts: {
           for (final e in (j['counts'] as Map? ?? const {}).entries)
             '${e.key}': (e.value as num).toInt()
@@ -128,7 +143,7 @@ class TipStore {
     await save();
   }
 
-  /// "End tour": only the must-knows from now on.
+  /// "Don't show tips": only the must-knows from now on.
   static Future<void> endTour() async {
     (await load()).tourEnded = true;
     await save();
@@ -136,7 +151,7 @@ class TipStore {
 
   /// Every tip can show again (first-run done, or "Show tips again").
   static Future<void> startOver() async {
-    _book = TipBook();
+    _book = TipBook(everything: true);
     await save();
   }
 }

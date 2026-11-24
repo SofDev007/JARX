@@ -71,6 +71,20 @@ export async function verifyGoogleToken(token, clientId) {
   return claims;
 }
 
+// ---- Too-old apps ----
+
+// Builds before 37 can't be made to update from inside the app (compulsory
+// updates came in 37): the server locks them out instead, and their locked
+// screen shows this reason. GET /update leads to the newest release.
+const MIN_BUILD = 37;
+const UPDATE_REASON = 'Your JARX is too old. Get the new one from jarx.jarx-backend.workers.dev/update';
+
+/** "2.0.0+36" (or a split-APK build like "2.0.0+2036") older than MIN_BUILD. */
+function tooOld(version) {
+  const m = /\+(\d+)\s*$/.exec(version || '');
+  return !!m && Number(m[1]) % 1000 < MIN_BUILD;
+}
+
 // ---- Sessions ----
 
 async function sessionUser(req, env) {
@@ -86,6 +100,7 @@ async function signIn(req, env) {
   const body = await req.json().catch(() => ({}));
   const g = await verifyGoogleToken(body.idToken, env.GOOGLE_CLIENT_ID);
   if (!g) return json({ error: 'bad_token' }, 401);
+  if (tooOld(body.appVersion)) return json({ error: 'banned', reason: UPDATE_REASON }, 403);
   const t = now();
   await env.DB.prepare(
     `INSERT INTO users (id, email, name, photo, first_seen, last_seen, app_version, status)
@@ -248,11 +263,15 @@ async function route(req, env) {
   const page = { 'GET /': HOME_PAGE, 'GET /privacy': PRIVACY_PAGE, 'GET /admin': path === 'GET /admin' && adminPage(env) }[path];
   if (page) return new Response(page, { headers: { 'content-type': 'text/html; charset=utf-8', ...PAGE_HEADERS } });
   if (path === 'POST /auth/google') return signIn(req, env);
+  if (path === 'GET /update') return new Response(null, { status: 302, headers: { location: 'https://github.com/SofDev007/JARX/releases/latest' } });
 
   const user = await sessionUser(req, env);
   if (!user) return json({ error: 'signed_out' }, 401);
   // Banned or waiting for approval: may only leave (sign out, delete the account).
   const leaving = path === 'POST /signout' || path === 'DELETE /me';
+  if (tooOld(req.headers.get('x-jarx-version')) && !leaving) {
+    return json({ error: 'banned', reason: UPDATE_REASON }, 403);
+  }
   if (user.status === 'banned' && !leaving) return json({ error: 'banned', reason: user.ban_reason || '' }, 403);
   if (user.status === 'pending' && !leaving) return json({ error: 'pending' }, 403);
   const isAdmin = user.email === env.ADMIN_EMAIL;

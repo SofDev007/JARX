@@ -99,12 +99,12 @@ class UpdateGate {
   /// The guided tour (at app start while [blocked]).
   static void showTour() => showingTour.value = true;
 
-  /// Opens the bell page; set by GlobalEventListener.
-  static VoidCallback? openBell;
+  /// Says why nothing plays, with "Click here" to the bell page; set by
+  /// GlobalEventListener.
+  static VoidCallback? onPlayBlocked;
 
-  /// Something tried to play while [blocked]: straight to the bell page,
-  /// where the update waits (whoever closed the tour, "Later", lands there).
-  static void playBlocked() => (openBell ?? showTour)();
+  /// Something tried to play while [blocked] (also after closing the tour).
+  static void playBlocked() => (onPlayBlocked ?? showTour)();
 }
 
 /// Build number from a release tag like `v2.0.0+38` (0 when missing).

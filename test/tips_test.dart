@@ -4,17 +4,24 @@ import 'package:Bloomee/services/tips.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('everyone gets tips, also a record saved by build 42', () {
-    expect(TipBook().pick(['A1']), 'A1');
+  test('existing users (records from before 2.1.7) get no old tips', () {
+    expect(TipBook().pick(['A1', 'P1', 'T7']), isNull);
     final old = TipBook.fromJson(
         {'on': false, 'shown': ['T14'], 'day': '2026-11-21', 'today': 3,
          'counts': {'player': 2}});
-    expect(old.pick(['A1']), 'A1', reason: 'no daily cap any more');
+    expect(old.pick(['A1', 'P1']), isNull, reason: 'the queue tip for a 44 user');
     expect(old.counts['player'], 2);
   });
 
+  test('new users (first run / Show tips again) get every tip, kept saved',
+      () {
+    final b = TipBook(everything: true);
+    expect(b.pick(['A1']), 'A1');
+    expect(TipBook.fromJson(b.toJson()).everything, isTrue);
+  });
+
   test('the tour: each tip once, the more important one first', () {
-    final b = TipBook();
+    final b = TipBook(everything: true);
     expect(b.pick(['A1', 'T14']), 'T14', reason: 'photo tip comes first');
     b.markShown('T14');
     expect(b.pick(['A1', 'T14']), 'A1');
@@ -22,12 +29,13 @@ void main() {
   });
 
   test('build 42 users who saw every old tip still get the new ones', () {
-    final b = TipBook(shown: {'T14', 'A1', 'A2', 'T10', 'T9', 'A3'});
+    final b = TipBook(
+        everything: true, shown: {'T14', 'A1', 'A2', 'T10', 'T9', 'A3'});
     expect(b.pick(['J1', 'T14']), 'J1', reason: 'Jarvix is new in 43');
   });
 
-  test('after "End tour" only the must-knows show', () {
-    final b = TipBook(tourEnded: true);
+  test('after "Don\'t show tips" only the must-knows show', () {
+    final b = TipBook(everything: true, tourEnded: true);
     expect(b.pick(['T14', 'A2', 'J1']), isNull);
     for (final id in ['P1', 'P2', 'A1', 'T8', 'V1']) {
       expect(b.pick([id]), id);
@@ -37,7 +45,7 @@ void main() {
   });
 
   test('sleep timer tip waits for the second time the player opens', () {
-    final b = TipBook();
+    final b = TipBook(everything: true);
     b.counts['player'] = 1;
     expect(b.pick(['T2']), isNull);
     b.counts['player'] = 2;
