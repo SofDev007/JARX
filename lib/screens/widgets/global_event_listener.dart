@@ -9,6 +9,7 @@ import 'package:Bloomee/screens/screen/common_views/changelog_reader.dart';
 import 'package:Bloomee/screens/widgets/bloomee_ui_kit/bloomee_dialog.dart';
 import 'package:Bloomee/screens/widgets/snackbar.dart';
 import 'package:Bloomee/screens/widgets/update_tour.dart';
+import 'package:Bloomee/screens/screen/home_views/notification_view.dart';
 import 'package:Bloomee/services/app_updater.dart';
 import 'package:Bloomee/services/plugin/plugin_event_bus.dart';
 import 'package:Bloomee/src/rust/api/plugin/events.dart';
@@ -57,6 +58,20 @@ class _GlobalEventListenerState extends State<GlobalEventListener> {
     super.initState();
     _pluginSub = PluginEventBus.instance.events.listen(_onPluginEvent);
     _appErrorSub = GlobalEventBus.instance.errors.listen(_onAppError);
+    UpdateGate.openBell = _openBell;
+  }
+
+  /// Compulsory update + a play attempt: the bell page (once, not stacked).
+  bool _bellOpen = false;
+  void _openBell() {
+    if (_bellOpen) return;
+    final nav = widget.navigatorKey.currentState;
+    if (nav == null) return UpdateGate.showTour();
+    UpdateGate.showingTour.value = false;
+    _bellOpen = true;
+    nav
+        .push(MaterialPageRoute(builder: (_) => const NotificationView()))
+        .whenComplete(() => _bellOpen = false);
   }
 
   @override

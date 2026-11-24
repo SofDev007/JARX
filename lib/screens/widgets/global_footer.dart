@@ -119,9 +119,13 @@ class GlobalFooter extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 4),
                         child: VerticalNavBar(navigationShell: navigationShell),
                       ),
+                      // Tablets too (it was missing here: only a phone-sized
+                      // pop-up window showed the blob).
                       Expanded(
-                        child:
-                            _AnimatedPageView(navigationShell: navigationShell),
+                        child: Stack(children: [
+                          _AnimatedPageView(navigationShell: navigationShell),
+                          const SaathiBlobHost(),
+                        ]),
                       ),
                     ],
                   ),

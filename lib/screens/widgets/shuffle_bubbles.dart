@@ -165,3 +165,37 @@ class _ShuffleBubblesState extends State<ShuffleBubbles>
     );
   }
 }
+
+/// The shuffle button while smart shuffle is on: the shuffle arrows with a
+/// sparkle at the top left, in the accent colour, and a dot under them.
+class SmartShuffleIcon extends StatelessWidget {
+  const SmartShuffleIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+        width: 26,
+        height: 26,
+        child: Stack(children: [
+          Center(
+              child: Icon(Icons.shuffle_rounded,
+                  color: Default_Theme.accentColor2, size: 19)),
+          Positioned(
+              left: 0,
+              top: 0,
+              child: Icon(Icons.auto_awesome_rounded,
+                  color: Default_Theme.accentColor2, size: 9)),
+          Positioned(
+            bottom: 0,
+            left: 11,
+            child: SizedBox(
+              width: 4,
+              height: 4,
+              child: DecoratedBox(
+                  decoration: BoxDecoration(
+                      color: Default_Theme.accentColor2,
+                      shape: BoxShape.circle)),
+            ),
+          ),
+        ]),
+      );
+}

@@ -96,8 +96,15 @@ class UpdateGate {
 
   static bool get blocked => requiredBuild.value > 0;
 
-  /// Called when something tries to play while [blocked].
+  /// The guided tour (at app start while [blocked]).
   static void showTour() => showingTour.value = true;
+
+  /// Opens the bell page; set by GlobalEventListener.
+  static VoidCallback? openBell;
+
+  /// Something tried to play while [blocked]: straight to the bell page,
+  /// where the update waits (whoever closed the tour, "Later", lands there).
+  static void playBlocked() => (openBell ?? showTour)();
 }
 
 /// Build number from a release tag like `v2.0.0+38` (0 when missing).

@@ -504,7 +504,7 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   @override
   Future<void> play() async {
     if (_isDisposed) return;
-    if (UpdateGate.blocked) return UpdateGate.showTour();
+    if (UpdateGate.blocked) return UpdateGate.playBlocked();
     _errorHandler.resetCircuitBreaker();
     _shouldResumeAfterInterruption = false;
     final granted = await _activateAudioSession();
@@ -608,7 +608,7 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   }) {
     if (_isDisposed) return Future.value();
     if (doPlay && UpdateGate.blocked) {
-      UpdateGate.showTour();
+      UpdateGate.playBlocked();
       return Future.value();
     }
 
@@ -1150,6 +1150,7 @@ class BloomeeMusicPlayer extends BaseAudioHandler
       fromPlaylist.add(true);
       _relatedSongsManager.clearRelatedSongs();
       smartPicks.value = {};
+      smartShuffleFrom.value = '';
       _clearPreloadedMarker();
 
       final trackToPlay = (idx >= 0 && idx < playlist.tracks.length)
@@ -1188,23 +1189,25 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   /// Smart shuffle's suggestions in the queue (Up Next offers + for them)
   /// and the playlist + adds them to.
   final smartPicks = ValueNotifier<Set<String>>({});
-  String smartShuffleFrom = '';
+  /// The playlist smart shuffle is playing ('' for none): its shuffle
+  /// button shows the smart shuffle icon.
+  final smartShuffleFrom = ValueNotifier<String>('');
 
   /// Smart shuffle: the playlist shuffled, playing at once; suggestions
-  /// arrive in the background, one after every 3 songs. The playlist itself
+  /// arrive in the background, one after every 2 songs. The playlist itself
   /// doesn't change.
   Future<void> smartShuffle(Playlist playlist) async {
     final shuffled = List.of(playlist.tracks)..shuffle();
     await loadPlaylist(Playlist(tracks: shuffled, title: playlist.title),
         doPlay: true);
     final first = _queueManager.tracks.firstOrNull?.id;
-    smartShuffleFrom = playlist.title;
+    smartShuffleFrom.value = playlist.title;
     smartPicks.value = {};
     final picks = await _relatedSongsManager.smartPicks(
-        playlist.tracks, (shuffled.length ~/ 3).clamp(0, 30));
+        playlist.tracks, (shuffled.length ~/ 2).clamp(0, 30));
     // Another playlist started meanwhile: these aren't for it.
     if (_isDisposed || _queueManager.tracks.firstOrNull?.id != first) return;
-    _queueManager.insertEvery(3, picks);
+    _queueManager.insertEvery(2, picks);
     smartPicks.value = {
       for (final t in picks)
         if (_queueManager.tracks.any((q) => q.id == t.id)) t.id

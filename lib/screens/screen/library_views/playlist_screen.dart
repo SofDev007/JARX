@@ -181,7 +181,7 @@ class _PlaylistViewState extends State<PlaylistView> {
         );
   }
 
-  /// The playlist shuffled with suggestions mixed in (one after every 3).
+  /// The playlist shuffled with suggestions mixed in (one after every 2).
   Future<void> _smartShuffle(BuildContext context) async {
     final fullPlaylist =
         await context.read<CurrentPlaylistCubit>().ensureAllTracksLoaded();
@@ -746,8 +746,23 @@ class _PlaylistViewState extends State<PlaylistView> {
           TipAnchor(
               id: 'A2',
               child: ShuffleBubbles(
-                button: (onTap) => _buildActionIcon(
-                    MingCute.shuffle_line, l10n.playlistShuffle, onTap),
+                // While smart shuffle plays this playlist, the button
+                // shows it: shuffle + sparkle in the accent colour, a dot.
+                button: (onTap) => ValueListenableBuilder<String>(
+                  valueListenable: context
+                      .read<BloomeePlayerCubit>()
+                      .bloomeePlayer
+                      .smartShuffleFrom,
+                  builder: (context, from, _) => _buildActionIcon(
+                      MingCute.shuffle_line,
+                      from == state.playlist.title
+                          ? 'Smart shuffle on'
+                          : l10n.playlistShuffle,
+                      onTap,
+                      child: from == state.playlist.title
+                          ? const SmartShuffleIcon()
+                          : null),
+                ),
                 onShuffle: isEmpty
                     ? null
                     : () => _playFromPlaylist(context, state, shuffle: true),
@@ -821,7 +836,8 @@ class _PlaylistViewState extends State<PlaylistView> {
     );
   }
 
-  Widget _buildActionIcon(IconData icon, String tooltip, VoidCallback? onTap) {
+  Widget _buildActionIcon(IconData icon, String tooltip, VoidCallback? onTap,
+      {Widget? child}) {
     return Tooltip(
       message: tooltip,
       child: Material(
@@ -839,8 +855,9 @@ class _PlaylistViewState extends State<PlaylistView> {
               color: Colors.white.withValues(alpha: 0.04),
               border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
-            child: Icon(icon,
-                color: Colors.white.withValues(alpha: 0.85), size: 20),
+            child: child ??
+                Icon(icon,
+                    color: Colors.white.withValues(alpha: 0.85), size: 20),
           ),
         ),
       ),

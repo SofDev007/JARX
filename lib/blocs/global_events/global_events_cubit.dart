@@ -6,6 +6,7 @@ import 'package:Bloomee/services/bloomee_updater_tools.dart';
 import 'package:Bloomee/services/db/dao/settings_dao.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:package_info_plus/package_info_plus.dart';
 
 part 'global_events_state.dart';
@@ -17,6 +18,21 @@ class GlobalEventsCubit extends Cubit<GlobalEventsState> {
       : _settingsDao = settingsDao,
         super(GlobalEventsInitial()) {
     checkForUpdates();
+    // GitHub not reached (offline, slow, rate-limited): try again whenever
+    // JARX comes back to the screen, so a failed check can't skip a
+    // compulsory update.
+    _life = AppLifecycleListener(onResume: () {
+      if (!_reachedGithub) checkForUpdates();
+    });
+  }
+
+  late final AppLifecycleListener _life;
+  bool _reachedGithub = false;
+
+  @override
+  Future<void> close() {
+    _life.dispose();
+    return super.close();
   }
 
   void checkForUpdates() async {
@@ -34,6 +50,7 @@ class GlobalEventsCubit extends Cubit<GlobalEventsState> {
     log("Checking for updates...", name: 'GlobalEventsCubit');
 
     if (updates['source'] == 'github') {
+      _reachedGithub = true;
       final req = updates['requiredTag'] as String? ?? '';
       await _settingsDao.putSettingStr(requiredKey, req);
       gate(req);

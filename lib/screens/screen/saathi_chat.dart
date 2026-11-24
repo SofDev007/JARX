@@ -23,6 +23,7 @@ import 'package:Bloomee/utils/load_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:url_launcher/url_launcher.dart';
 
 const _quickChips = [
@@ -63,6 +64,21 @@ class _Circle extends CustomClipper<Path> {
       Path()..addOval(Rect.fromCircle(center: c, radius: r));
   @override
   bool shouldReclip(_Circle old) => old.r != r || old.c != c;
+}
+
+/// When a message was sent: "10:42 pm" today, "Yesterday, 10:42 pm",
+/// else "21 Nov, 10:42 pm". Empty for chats saved before times were kept.
+String messageTime(DateTime at, DateTime now) {
+  if (at.millisecondsSinceEpoch == 0) return '';
+  final time = DateFormat('h:mm a').format(at).toLowerCase();
+  final days = DateTime(now.year, now.month, now.day)
+      .difference(DateTime(at.year, at.month, at.day))
+      .inDays;
+  if (days == 0) return time;
+  if (days == 1) return 'Yesterday, $time';
+  final day =
+      DateFormat(at.year == now.year ? 'd MMM' : 'd MMM yyyy').format(at);
+  return '$day, $time';
 }
 
 String _shown(String text) =>
@@ -436,7 +452,7 @@ class _Bubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Text(_shown(m.text),
         style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.4));
-    return Align(
+    final bubble = Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints:
@@ -465,6 +481,20 @@ class _Bubble extends StatelessWidget {
           ),
         ),
       ),
+    );
+    final time = messageTime(m.at, DateTime.now());
+    if (time.isEmpty) return bubble;
+    return Column(
+      crossAxisAlignment:
+          mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        bubble,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(6, 3, 6, 0),
+          child: Text(time,
+              style: const TextStyle(color: Colors.white38, fontSize: 11)),
+        ),
+      ],
     );
   }
 }

@@ -709,7 +709,7 @@ class _QueueItem extends StatelessWidget {
                                 }
                                 final player = playerCubit.bloomeePlayer;
                                 return IconButton(
-                                  tooltip: 'Add to ${player.smartShuffleFrom}',
+                                  tooltip: 'Add to ${player.smartShuffleFrom.value}',
                                   iconSize: 22,
                                   padding: const EdgeInsets.all(6),
                                   constraints: const BoxConstraints(
@@ -721,7 +721,7 @@ class _QueueItem extends StatelessWidget {
                                     context
                                         .read<LibraryItemsCubit>()
                                         .addToPlaylist(
-                                            songModel, player.smartShuffleFrom);
+                                            songModel, player.smartShuffleFrom.value);
                                     player.smartPicks.value = {...picks}
                                       ..remove(mediaItem.id);
                                   },
