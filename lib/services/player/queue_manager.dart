@@ -228,6 +228,16 @@ class QueueManager {
         _shuffleList.removeAt(pos);
         _shuffleList.insert(0, _currentIndex);
       }
+      // Songs added with "Add to queue" stay next, in the order added: only
+      // the rest is shuffled.
+      final q = _queue.value;
+      final queued = [
+        for (var i = 0; i < q.length; i++)
+          if (i != _currentIndex && _userQueued.contains(q[i].id)) i
+      ];
+      _shuffleList
+        ..removeWhere(queued.contains)
+        ..insertAll(_shuffleList.isEmpty ? 0 : 1, queued);
       _shuffleIndex = 0;
     }
   }
@@ -239,10 +249,17 @@ class QueueManager {
   final Set<String> _userQueued = {};
 
   /// "Add to queue": right after the current song and any queued songs
-  /// already waiting behind it (first in, first out). Skips duplicates.
+  /// already waiting behind it (first in, first out). A song that is
+  /// already somewhere in the queue (the playlist, a suggestion) moves here
+  /// and its old place is removed; the song playing now, or one already
+  /// queued, stays as it is.
   void addTrack(Track track) {
+    final old = _queue.value.indexWhere((t) => t.id == track.id);
+    if (old != -1) {
+      if (old == _currentIndex || _userQueued.contains(track.id)) return;
+      removeTrackAt(old);
+    }
     final q = _queue.value;
-    if (q.any((t) => t.id == track.id)) return;
     queueTitle.add('Queue');
     _userQueued.add(track.id);
 
@@ -340,22 +357,33 @@ class QueueManager {
     }
   }
 
-  /// Smart shuffle: puts [picks] one after every [every] songs, only ahead
-  /// of the song playing now. Skipped while shuffle is on (the order isn't
-  /// the queue order then) and for songs already in the queue.
-  void insertEvery(int every, List<Track> picks) {
+  /// Smart shuffle: puts [picks] one after every [every] playlist songs,
+  /// only ahead of the song playing now and never before or between songs
+  /// added with "Add to queue" (those don't count as playlist songs either).
+  /// Skipped while shuffle is on (the order isn't the queue order then) and
+  /// for songs already in the queue. Picks arrive in batches: [placed] are
+  /// the earlier ones (not playlist songs, and their slots are taken).
+  void insertEvery(int every, List<Track> picks,
+      {Set<String> placed = const {}}) {
     if (shuffleMode.value) return;
     final q = List<Track>.from(_queue.value);
     final ids = {for (final t in q) t.id};
     final todo = [for (final t in picks) if (ids.add(t.id)) t];
-    var at = every, k = 0;
-    while (k < todo.length && at <= q.length) {
-      if (at > _currentIndex) {
-        q.insert(at, todo[k++]);
-        at += every + 1;
-      } else {
-        at += every;
+    var count = 0, k = 0;
+    for (var i = 0; i < q.length && k < todo.length; i++) {
+      if (_userQueued.contains(q[i].id) || placed.contains(q[i].id)) continue;
+      count++;
+      if (count % every != 0 || i < _currentIndex) continue;
+      var at = i + 1;
+      while (at < q.length && _userQueued.contains(q[at].id)) {
+        at++;
       }
+      if (at < q.length && placed.contains(q[at].id)) {
+        i = at; // this slot has a pick from an earlier batch
+        continue;
+      }
+      q.insert(at, todo[k++]);
+      i = at;
     }
     _queue.add(q);
   }

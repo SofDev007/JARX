@@ -17,6 +17,7 @@ import 'package:Bloomee/screens/widgets/saathi_blob.dart';
 import 'package:Bloomee/screens/widgets/tip_overlay.dart';
 import 'package:Bloomee/screens/widgets/snackbar.dart';
 import 'package:Bloomee/services/account/account.dart';
+import 'package:Bloomee/services/ai/how_to.dart';
 import 'package:Bloomee/services/ai/saathi.dart';
 import 'package:Bloomee/services/recommendations/song_card.dart';
 import 'package:Bloomee/utils/load_image.dart';
@@ -25,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 
 const _quickChips = [
   "I'm sad",
@@ -328,6 +330,8 @@ class _SaathiChatPageState extends State<SaathiChatPage> {
                     _Bubble(m, mine: false),
                     if (m.helpline) const _Helpline(),
                     if (m.mix != null) _MixCard(m.mix!, colors: colors),
+                    if (howTos[m.howTo]?.clip case final clip?)
+                      _WatchHow(clip, colors: colors),
                   ],
                 ),
         );
@@ -497,6 +501,77 @@ class _Bubble extends StatelessWidget {
       ],
     );
   }
+}
+
+/// "Watch how": a short screen recording (assets/faq/) in a looping popup.
+class _WatchHow extends StatelessWidget {
+  const _WatchHow(this.clip, {required this.colors});
+  final String clip;
+  final (Color, Color) colors;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: FilledButton.icon(
+          style: FilledButton.styleFrom(backgroundColor: colors.$1),
+          onPressed: () => showDialog(
+              context: context,
+              barrierColor: Colors.black87,
+              builder: (_) => _ClipDialog(clip)),
+          icon: const Icon(Icons.play_circle_fill_rounded),
+          label: const Text('Watch how'),
+        ),
+      );
+}
+
+class _ClipDialog extends StatefulWidget {
+  const _ClipDialog(this.clip);
+  final String clip;
+
+  @override
+  State<_ClipDialog> createState() => _ClipDialogState();
+}
+
+class _ClipDialogState extends State<_ClipDialog> {
+  late final VideoPlayerController _c = VideoPlayerController.asset(
+      widget.clip,
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
+    ..setLooping(true)
+    ..initialize().then((_) {
+      if (mounted) setState(() {});
+      _c.play();
+    });
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Flexible(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: _c.value.isInitialized
+                  ? AspectRatio(
+                      aspectRatio: _c.value.aspectRatio,
+                      child: VideoPlayer(_c))
+                  : const SizedBox(
+                      height: 240,
+                      child: Center(child: CircularProgressIndicator())),
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close',
+                  style: TextStyle(color: Colors.white, fontSize: 16))),
+        ]),
+      );
 }
 
 class _Helpline extends StatelessWidget {

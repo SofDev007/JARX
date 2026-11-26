@@ -26,6 +26,7 @@ import 'package:Bloomee/services/meta_resolver/cross_plugin_resolver.dart';
 import 'package:Bloomee/services/player/listening_time.dart';
 import 'package:Bloomee/services/player/related_songs_manager.dart';
 import 'package:Bloomee/services/player/video_streams.dart' show ytVideoPlugin;
+import 'package:Bloomee/services/ai/how_to.dart';
 import 'package:Bloomee/services/recommendations/recommendation_ranker.dart';
 import 'package:Bloomee/services/recommendations/song_card.dart';
 import 'package:Bloomee/src/rust/api/plugin/commands.dart'
@@ -171,6 +172,7 @@ class SaathiMsg {
       this.helpline = false,
       this.local = false,
       this.reported = false,
+      this.howTo,
       DateTime? at})
       : at = at ?? DateTime.now();
 
@@ -185,6 +187,9 @@ class SaathiMsg {
   bool reported;
   final DateTime at;
 
+  /// A "how do I…" answer: the [howTos] id (steps + "Watch how" clip).
+  final String? howTo;
+
   Map<String, dynamic> toJson() => {
         if (mine) 'me': true,
         'text': text,
@@ -192,6 +197,7 @@ class SaathiMsg {
         if (helpline) 'help': true,
         if (local) 'local': true,
         if (reported) 'rep': true,
+        if (howTo != null) 'how': howTo,
         'at': at.millisecondsSinceEpoch,
       };
 
@@ -202,6 +208,7 @@ class SaathiMsg {
         helpline: j['help'] == true,
         local: j['local'] == true,
         reported: j['rep'] == true,
+        howTo: j['how'] is String ? j['how'] as String : null,
         at: DateTime.fromMillisecondsSinceEpoch(
             (j['at'] as num?)?.toInt() ?? 0),
       );
@@ -405,6 +412,12 @@ class Saathi {
     await load();
     state.chat.add(SaathiMsg(true, text));
     await save();
+    final how = howToFor(text);
+    if (how != null) {
+      state.chat.add(SaathiMsg(false, how.steps, local: true, howTo: how.id));
+      await save();
+      return;
+    }
     final video = videoRequest(text);
     final asked = video ?? playRequest(text);
     if (asked != null) {

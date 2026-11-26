@@ -40,6 +40,13 @@ class MainActivity : AudioServiceActivity() {
                     else window.clearFlags(flag)
                     return@setMethodCallHandler result.success(null)
                 }
+                // Player's device bar: where the sound goes now.
+                if (call.method == "audioOutput") return@setMethodCallHandler result.success(audioOutput())
+                // Android's own speaker/headphones picker.
+                if (call.method == "outputPicker") {
+                    openOutputPicker()
+                    return@setMethodCallHandler result.success(null)
+                }
                 if (call.method != "restart") return@setMethodCallHandler result.notImplemented()
                 result.success(null)
                 packageManager.getLaunchIntentForPackage(packageName)?.let {
@@ -146,6 +153,47 @@ class MainActivity : AudioServiceActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    /** The phone's name and the output music plays on: Bluetooth or USB
+     *  (its name), wired headphones, or the phone itself. */
+    private fun audioOutput(): Map<String, String> {
+        val phone = android.provider.Settings.Global.getString(contentResolver, "device_name")
+            ?.takeIf { it.isNotBlank() }
+            ?: "${android.os.Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${android.os.Build.MODEL}"
+        val am = getSystemService(AUDIO_SERVICE) as android.media.AudioManager
+        val outs = am.getDevices(android.media.AudioManager.GET_DEVICES_OUTPUTS)
+        fun find(vararg types: Int) = outs.firstOrNull { it.type in types }
+        val bt = find(android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, 26 /* BLE headset */, 27 /* BLE speaker */)
+        if (bt != null) return mapOf("kind" to "bluetooth", "name" to bt.productName.toString(), "phone" to phone)
+        val wired = find(android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES, android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET)
+        if (wired != null) return mapOf("kind" to "wired", "name" to "Wired headphones", "phone" to phone)
+        val usb = find(android.media.AudioDeviceInfo.TYPE_USB_HEADSET, android.media.AudioDeviceInfo.TYPE_USB_DEVICE)
+        if (usb != null) return mapOf("kind" to "usb", "name" to usb.productName.toString(), "phone" to phone)
+        return mapOf("kind" to "phone", "name" to phone, "phone" to phone)
+    }
+
+    /** Android 12+: the system's output dialog; 10-11: the media output
+     *  panel; else (or if those are missing) Bluetooth settings. */
+    private fun openOutputPicker() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 31) {
+                sendBroadcast(Intent("com.android.systemui.action.LAUNCH_MEDIA_OUTPUT_DIALOG")
+                    .setPackage("com.android.systemui")
+                    .putExtra("package_name", packageName))
+                return
+            }
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                startActivity(Intent("com.android.settings.panel.action.MEDIA_OUTPUT")
+                    .putExtra("com.android.settings.panel.extra.PACKAGE_NAME", packageName))
+                return
+            }
+        } catch (e: Exception) {
+        }
+        try {
+            startActivity(Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS))
+        } catch (e: Exception) {
+        }
     }
 
     private fun releaseVisualizer() {

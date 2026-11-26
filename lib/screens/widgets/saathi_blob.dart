@@ -233,6 +233,9 @@ class SaathiBlobHost extends StatefulWidget {
 class _SaathiBlobHostState extends State<SaathiBlobHost> {
   static const _size = 58.0, _margin = 14.0;
   Offset? _drag;
+
+  /// Where the blob was when a hold began (hold, then drag).
+  Offset _holdFrom = Offset.zero;
   final _blobKey = GlobalKey();
 
   @override
@@ -333,30 +336,46 @@ class _SaathiBlobHostState extends State<SaathiBlobHost> {
                       buildWhen: (a, b) => a.isPlaying != b.isPlaying,
                       builder: (context, player) {
                         final offline = net == ConnectivityState.disconnected;
+                        void moveTo(Offset p) => setState(() => _drag = Offset(
+                              p.dx.clamp(0, box.maxWidth - _size),
+                              p.dy.clamp(0, box.maxHeight - _size),
+                            ));
+                        // Let go: snap to the nearer side (remembered).
+                        void drop() {
+                          final toLeft =
+                              (_drag?.dx ?? x) + _size / 2 < box.maxWidth / 2;
+                          setState(() => _drag = null);
+                          if (toLeft != saathi.state.left) {
+                            saathi.state.left = toLeft;
+                            saathi.save();
+                          }
+                        }
+
                         return Semantics(
                           button: true,
                           label: 'Talk to $saathiName',
                           child: GestureDetector(
                               key: _blobKey,
                               onTap: () => _open(offline),
-                              onLongPress: _menu,
-                              onPanUpdate: (d) => setState(() {
-                                    _drag = Offset(
-                                      ((_drag?.dx ?? x) + d.delta.dx)
-                                          .clamp(0, box.maxWidth - _size),
-                                      ((_drag?.dy ?? y) + d.delta.dy)
-                                          .clamp(0, box.maxHeight - _size),
-                                    );
-                                  }),
-                              onPanEnd: (_) {
-                                final toLeft = (_drag?.dx ?? x) + _size / 2 <
-                                    box.maxWidth / 2;
-                                setState(() => _drag = null);
-                                if (toLeft != saathi.state.left) {
-                                  saathi.state.left = toLeft;
-                                  saathi.save();
+                              // Drag at once, or hold and then drag; hold
+                              // and let go without moving: the nap menu.
+                              onPanUpdate: (d) => moveTo(
+                                  Offset(_drag?.dx ?? x, _drag?.dy ?? y) +
+                                      d.delta),
+                              onPanEnd: (_) => drop(),
+                              onLongPressStart: (_) {
+                                HapticFeedback.selectionClick();
+                                _holdFrom = Offset(x, y);
+                              },
+                              onLongPressMoveUpdate: (d) {
+                                // A wobble while holding isn't a drag.
+                                if (_drag != null ||
+                                    d.offsetFromOrigin.distance > 8) {
+                                  moveTo(_holdFrom + d.offsetFromOrigin);
                                 }
                               },
+                              onLongPressEnd: (_) =>
+                                  _drag == null ? _menu() : drop(),
                               child: TipAnchor(
                                 id: 'J1',
                                 child: ValueListenableBuilder<Mood?>(

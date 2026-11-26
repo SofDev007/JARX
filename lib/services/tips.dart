@@ -24,6 +24,7 @@ const tipTexts = <String, String>{
       'right away.',
   // Home.
   'T14': 'Tap your photo for Your corner. Hold it to switch account.',
+  'T18': 'Tap the JARX logo to meet the developer behind JARX.',
   'A1': 'Tap ⊖ on a song to never see it again.',
   'T16': 'Updates and news land here. JARX installs updates for you.',
   // Playlists and downloads.
@@ -53,7 +54,7 @@ const essentialTips = {'P1', 'P2', 'A1', 'T8', 'V1'};
 
 /// Tips for a feature added in an update, id -> the build that added it:
 /// existing users get only these. Add a new feature's tip here.
-const featureTips = <String, int>{};
+const featureTips = <String, int>{'T18': 46};
 
 /// Tips that point at the player: shown only while it's open (the others
 /// only while it's closed, so a tip never points behind it).

@@ -6,6 +6,7 @@ import 'package:Bloomee/screens/screen/account/account_view.dart';
 import 'package:Bloomee/screens/screen/home_views/home_layout_picker.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/jarvix_setting.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
+import 'package:Bloomee/screens/screen/home_views/setting_views/report_problem_view.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/appui_setting.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/local_music_setting.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/plugin_defaults_setting.dart';
@@ -178,6 +179,13 @@ class SettingsView extends StatelessWidget {
               // ── Group 4: Info ──
               _SettingsSection(
                 children: [
+                  _SettingsTile(
+                    title: 'Report a problem',
+                    subtitle: 'Something not working? Tell the developer',
+                    icon: Icons.bug_report_rounded,
+                    iconColor: Default_Theme.accentColor2,
+                    onTap: () => _navigate(context, const ReportProblemView()),
+                  ),
                   _SettingsTile(
                     title: AppLocalizations.of(context)!.settingsAbout,
                     subtitle:

@@ -124,13 +124,18 @@ class _Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const About())),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.asset('assets/icons/jarx/icon_android.png',
-            width: 34, height: 34),
+    // T18 (new in 46, also for existing users): the logo opens About,
+    // with the developer's photos.
+    return TipAnchor(
+      id: 'T18',
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const About())),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset('assets/icons/jarx/icon_android.png',
+              width: 34, height: 34),
+        ),
       ),
     );
   }

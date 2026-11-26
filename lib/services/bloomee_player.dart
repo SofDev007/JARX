@@ -1202,20 +1202,29 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     // remembered, even after a restart) would make insertEvery skip the
     // picks.
     _queueManager.shuffle(false);
-    await loadPlaylist(Playlist(tracks: shuffled, title: playlist.title),
+    // loadPlaylist sets the queue before its first await; the first song
+    // loads while suggestions are found (not one after the other).
+    final loading = loadPlaylist(
+        Playlist(tracks: shuffled, title: playlist.title),
         doPlay: true);
     final first = _queueManager.tracks.firstOrNull?.id;
     smartShuffleFrom.value = playlist.title;
     smartPicks.value = {};
-    final picks = await _relatedSongsManager.smartPicks(
-        playlist.tracks, (shuffled.length ~/ 2).clamp(0, 30));
-    // Another playlist started meanwhile: these aren't for it.
-    if (_isDisposed || _queueManager.tracks.firstOrNull?.id != first) return;
-    _queueManager.insertEvery(2, picks);
-    smartPicks.value = {
-      for (final t in picks)
-        if (_queueManager.tracks.any((q) => q.id == t.id)) t.id
-    };
+    final placed = <String>{};
+    await _relatedSongsManager.smartPicks(
+        playlist.tracks, (shuffled.length ~/ 2).clamp(0, 30),
+        onPicks: (batch) {
+      // Another playlist started meanwhile: these aren't for it.
+      if (_isDisposed || _queueManager.tracks.firstOrNull?.id != first) return;
+      _queueManager.insertEvery(2, batch, placed: placed);
+      placed.addAll(batch.map((t) => t.id));
+      smartPicks.value = {
+        ...smartPicks.value,
+        for (final t in batch)
+          if (_queueManager.tracks.any((q) => q.id == t.id)) t.id
+      };
+    });
+    await loading;
   }
 
   @override

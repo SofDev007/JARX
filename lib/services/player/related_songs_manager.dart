@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as math;
 import 'package:Bloomee/services/ai/saathi.dart' show MoodTags;
 import 'package:Bloomee/services/first_run.dart';
 import 'package:Bloomee/services/recommendations/taste_model.dart';
@@ -231,7 +232,10 @@ class RelatedSongsManager {
   /// Smart shuffle: up to [count] suggestions for [playlist], found from a
   /// few of its songs (never songs already in it) and ranked by the user's
   /// taste. Marked like autoplay picks (reason, never-suggest).
-  Future<List<Track>> smartPicks(List<Track> playlist, int count) async {
+  /// Each batch goes to [onPicks] as soon as one song's suggestions are
+  /// ranked, so the first ones show up in seconds.
+  Future<List<Track>> smartPicks(List<Track> playlist, int count,
+      {void Function(List<Track> batch)? onPicks}) async {
     if (count <= 0 || playlist.isEmpty) return [];
     UserTaste taste;
     try {
@@ -239,32 +243,44 @@ class RelatedSongsManager {
     } catch (e) {
       taste = UserTaste.empty;
     }
-    final seeds = (List.of(playlist)..shuffle()).take(3).toList();
-    final found = await Future.wait(seeds.map((s) => _gatherer
-        .gather(s)
-        .catchError((Object e) => GatherResult.empty)));
+    // Some songs get no related songs back from their plugin (seen on a
+    // phone: 2 of 3 seeds found 0), so with 3 seeds smart shuffle sometimes
+    // added nothing. Try more songs, 3 at a time, until there are enough.
+    const perRound = 3, maxSeeds = 12;
+    final pool = (List.of(playlist)..shuffle()).take(maxSeeds).toList();
     final keys = {for (final t in playlist) _ranker.songKey(t)};
     final picks = <Recommendation>[];
-    for (var i = 0; i < seeds.length; i++) {
-      final got = _ranker.rank(
-        seed: seeds[i],
-        candidates: found[i].candidates,
-        taste: taste,
-        excludeSongKeys: keys,
-        take: (count / seeds.length).ceil(),
-      );
-      keys.addAll(got.map((r) => _ranker.songKey(r.track)));
-      picks.addAll(got);
+    for (var start = 0;
+        start < pool.length && picks.length < count;
+        start += perRound) {
+      final seeds = pool.skip(start).take(perRound);
+      await Future.wait(seeds.map((seed) async {
+        final found = await _gatherer
+            .gather(seed)
+            .catchError((Object e) => GatherResult.empty);
+        final room = count - picks.length;
+        if (room <= 0) return;
+        final got = _ranker.rank(
+          seed: seed,
+          candidates: found.candidates,
+          taste: taste,
+          excludeSongKeys: keys,
+          take: math.min((count / perRound).ceil(), room),
+        );
+        if (got.isEmpty) return;
+        keys.addAll(got.map((r) => _ranker.songKey(r.track)));
+        picks.addAll(got);
+        _autoAdded.addAll(got.map((r) => r.track.id));
+        reasons.add(
+            {...reasons.value, for (final r in got) r.track.id: r.reason});
+        for (final r in got) {
+          TasteModel.remember(r.track.id, r.features);
+        }
+        onPicks?.call([for (final r in got) r.track]);
+      }));
     }
-    picks.shuffle();
-    final out = picks.take(count).toList();
-    _autoAdded.addAll(out.map((r) => r.track.id));
-    reasons.add({...reasons.value, for (final r in out) r.track.id: r.reason});
-    for (final r in out) {
-      TasteModel.remember(r.track.id, r.features);
-    }
-    log('Smart shuffle: ${out.length} suggestions', name: 'RelatedSongs');
-    return [for (final r in out) r.track];
+    log('Smart shuffle: ${picks.length} suggestions', name: 'RelatedSongs');
+    return [for (final r in picks) r.track];
   }
 
   /// The last track at or before [index] the user chose (not auto-queued),

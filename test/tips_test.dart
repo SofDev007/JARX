@@ -4,13 +4,19 @@ import 'package:Bloomee/services/tips.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('existing users (records from before 2.1.7) get no old tips', () {
+  test('existing users (records from before 2.2.1) get no old tips', () {
     expect(TipBook().pick(['A1', 'P1', 'T7']), isNull);
     final old = TipBook.fromJson(
         {'on': false, 'shown': ['T14'], 'day': '2026-11-21', 'today': 3,
          'counts': {'player': 2}});
     expect(old.pick(['A1', 'P1']), isNull, reason: 'the queue tip for a 44 user');
     expect(old.counts['player'], 2);
+  });
+
+  test('the developer tip (new in 46) reaches existing users, not pros', () {
+    expect(TipBook().pick(['T18', 'P1']), 'T18');
+    expect(TipBook(everything: true).pick(['T18']), 'T18');
+    expect(TipBook(tourEnded: true).pick(['T18']), isNull);
   });
 
   test('new users (first run / Show tips again) get every tip, kept saved',

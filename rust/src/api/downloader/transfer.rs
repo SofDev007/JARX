@@ -129,7 +129,12 @@ pub fn download_task_blocking(
 
     let total_bytes = extract_total_bytes(response.headers(), resume_from);
 
-    // Open or create the .part file.
+    // Open or create the .part file. Its folder lives in the app's cache,
+    // which Android (or a phone cleaner) may have emptied since startup:
+    // make it again, else every download fails with "os error 2".
+    if let Some(dir) = Path::new(&temp_path).parent() {
+        let _ = fs::create_dir_all(dir);
+    }
     let append = resume_from > 0 && status.as_u16() == 206;
     let file = if append {
         OpenOptions::new().create(true).append(true).open(&temp_path)

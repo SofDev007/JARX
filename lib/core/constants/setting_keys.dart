@@ -99,8 +99,8 @@ class SettingKeys {
   static const String pluginsSkippedByCountry = "pluginsSkippedByCountry";
   static const String appSetupCompleted = "appSetupCompleted";
 
-  /// The version JARX was first installed with ("2.1.7+45"); phones that
-  /// had JARX before this was kept say "before 2.1.7+45".
+  /// The version JARX was first installed with ("2.2.5+50"); phones that
+  /// had JARX before this was kept say "before 2.2.5+50".
   static const String firstVersion = "firstVersion";
 
   // ── Plugins ────────────────────────────────────────────────────────────────

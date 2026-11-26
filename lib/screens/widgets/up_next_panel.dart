@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:Bloomee/screens/widgets/tip_overlay.dart';
 import 'package:Bloomee/blocs/library/cubit/library_items_cubit.dart';
+import 'package:Bloomee/screens/screen/library_views/cubit/current_playlist_cubit.dart';
 import 'package:Bloomee/blocs/media_player/bloomee_player_cubit.dart';
 import 'package:Bloomee/core/adapters/track_adapter.dart';
 import 'package:Bloomee/l10n/app_localizations.dart';
@@ -723,15 +724,18 @@ class _QueueItem extends StatelessWidget {
                                         color: Default_Theme.accentColor2,
                                         icon: const Icon(
                                             Icons.add_circle_outline_rounded),
-                                        onPressed: () {
-                                          context
-                                              .read<LibraryItemsCubit>()
-                                              .addToPlaylist(
-                                                  songModel,
-                                                  player
-                                                      .smartShuffleFrom.value);
+                                        onPressed: () async {
+                                          final name =
+                                              player.smartShuffleFrom.value;
+                                          final open = context
+                                              .read<CurrentPlaylistCubit>();
                                           player.smartPicks.value = {...picks}
                                             ..remove(mediaItem.id);
+                                          await context
+                                              .read<LibraryItemsCubit>()
+                                              .addToPlaylist(songModel, name);
+                                          // The playlist page shows it now.
+                                          open.trackAdded(name, songModel);
                                         },
                                       ),
                                     ]);

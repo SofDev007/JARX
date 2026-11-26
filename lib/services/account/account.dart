@@ -394,6 +394,9 @@ class Account {
     return _versionCache = '${p.version}+${p.buildNumber}';
   }
 
+  /// "realme RMX1971": sent with sign-ins and problem reports.
+  static Future<String> deviceName() => _device();
+
   static Future<String> _device() async {
     try {
       if (Platform.isAndroid) {

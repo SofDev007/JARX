@@ -65,6 +65,92 @@ void main() {
     expect(_order(m), ['q1', 'q2', 'p1', 'p2']);
   });
 
+  // Build 45: what the user asked for, "no mistake this time".
+  group('the user\'s queue always comes next', () {
+    final a = tr('qa', 'A', 'Q'), b = tr('qb', 'B', 'Q'), c = tr('qc', 'C', 'Q');
+
+    test('A, B, C play next in that order, before picks and suggestions', () {
+      final list = [for (var i = 0; i < 6; i++) tr('s$i', 'Song $i', 'S$i')];
+      final m = QueueManager()..loadTracks(list);
+      m.addTrack(a);
+      m.addTrack(b);
+      m.insertEvery(2, [tr('x0', 'Pick', 'X'), tr('x1', 'Pick 1', 'X')]);
+      m.addTracks(_r, atLast: true);
+      m.addTrack(c);
+      final order = _order(m);
+      expect(order.take(4), ['s0', 'qa', 'qb', 'qc']);
+      expect(order, ['s0', 'qa', 'qb', 'qc', 's1', 'x0', 's2', 's3', 'x1',
+          's4', 's5', 'r0', 'r1']);
+    });
+
+    test('a song already later in the playlist moves up, its old place goes',
+        () {
+      final m = QueueManager()..loadTracks(_p);
+      m.addTrack(_q1);
+      m.addTrack(_p[3]);
+      expect(_order(m), ['p0', 'q1', 'p3', 'p1', 'p2']);
+    });
+
+    test('a suggestion queued by hand moves up from the end', () {
+      final m = QueueManager()..loadTracks([_p[0], _p[1]]);
+      m.addTracks(_r, atLast: true);
+      m.addTrack(_r[1]);
+      expect(_order(m), ['p0', 'r1', 'p1', 'r0']);
+    });
+
+    test('a song that already played moves up too (no double)', () {
+      final m = QueueManager()..loadTracks(_p, idx: 2);
+      m.addTrack(_p[0]);
+      final order = _order(m);
+      expect(order, ['p2', 'p0', 'p3']);
+    });
+
+    test('queuing the song playing now, or one already queued, changes nothing',
+        () {
+      final m = QueueManager()..loadTracks(_p);
+      m.addTrack(_q1);
+      m.addTrack(_q2);
+      m.addTrack(_p[0]);
+      m.addTrack(_q1);
+      expect(_order(m), ['p0', 'q1', 'q2', 'p1', 'p2', 'p3']);
+    });
+
+    test('smart shuffle picks arriving late go after the queue', () {
+      final list = [for (var i = 0; i < 5; i++) tr('s$i', 'Song $i', 'S$i')];
+      final m = QueueManager()..loadTracks(list);
+      m.addTrack(a);
+      m.addTrack(b);
+      m.insertEvery(2, [tr('x0', 'Pick', 'X')]);
+      expect(_order(m), ['s0', 'qa', 'qb', 's1', 'x0', 's2', 's3', 's4']);
+    });
+
+    test('shuffled playlist: a song from it queued by hand plays next', () {
+      for (var run = 0; run < 20; run++) {
+        final m = QueueManager()..loadTracks(_p, shuffling: true);
+        final now = m.currentTrack!.id;
+        final pick = _p.firstWhere((t) => t.id != now);
+        m.addTrack(_q1);
+        m.addTrack(pick);
+        final order = _order(m);
+        expect(order.skip(1).take(2), ['q1', pick.id.split('::').last]);
+        expect(order, hasLength(5), reason: 'no song twice, none lost');
+      }
+    });
+
+    test('turning shuffle on keeps the queue next, in order', () {
+      for (var run = 0; run < 20; run++) {
+        final m = QueueManager()..loadTracks(_p);
+        m.addTrack(a);
+        m.addTrack(b);
+        m.addTrack(c);
+        m.shuffle(true);
+        final order = _order(m);
+        expect(order.take(4), ['p0', 'qa', 'qb', 'qc']);
+        expect(order.toSet(), hasLength(7));
+      }
+    });
+  });
+
   group('smart shuffle', () {
     final list = [for (var i = 0; i < 7; i++) tr('s$i', 'Song $i', 'S$i')];
     final picks = [for (var i = 0; i < 3; i++) tr('x$i', 'Pick $i', 'X$i')];
@@ -73,6 +159,15 @@ void main() {
       final m = QueueManager()..loadTracks(list);
       m.insertEvery(3, picks);
       expect(_order(m), ['s0', 's1', 's2', 'x0', 's3', 's4', 's5', 'x1', 's6']);
+    });
+
+    test('picks arriving in batches fill the next free slots', () {
+      final m = QueueManager()..loadTracks(list);
+      final x = [for (var i = 0; i < 3; i++) tr('x$i', 'Pick $i', 'X$i')];
+      m.insertEvery(2, [x[0]]);
+      m.insertEvery(2, [x[1], x[2]], placed: {x[0].id});
+      expect(_order(m),
+          ['s0', 's1', 'x0', 's2', 's3', 'x1', 's4', 's5', 'x2', 's6']);
     });
 
     test('never behind the song playing now', () {

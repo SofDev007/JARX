@@ -12,7 +12,7 @@ import 'package:Bloomee/screens/widgets/more_bottom_sheet.dart';
 import 'package:Bloomee/screens/widgets/up_next_panel.dart';
 import 'package:Bloomee/screens/widgets/media_metadata_links.dart';
 import 'package:Bloomee/screens/widgets/marquee_overflow.dart';
-import 'package:Bloomee/screens/screen/player_views/segments_sheet.dart';
+import 'package:Bloomee/screens/widgets/device_bar.dart';
 import 'package:Bloomee/services/bloomee_player.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,6 @@ import 'package:Bloomee/utils/pallete_generator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../../blocs/media_player/bloomee_player_cubit.dart';
 import '../../blocs/mini_player/mini_player_cubit.dart';
-import 'player_views/fullscreen_lyrics_view.dart';
 import 'package:Bloomee/screens/widgets/jarx_loading_indicator.dart';
 
 class AudioPlayerView extends StatefulWidget {
@@ -88,32 +87,34 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Default_Theme.primaryColor1,
+        // Two buttons each side (˅ timer | queue ⋮): "Enjoying from" sits
+        // in the middle of the screen, over the cover.
         centerTitle: true,
-        leading: TipAnchor(
-            id: 'P2',
-            child: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32),
-              onPressed: () {
-                if (!_upNextPanelController.collapse()) {
-                  context.read<PlayerOverlayCubit>().hidePlayer();
-                }
-              },
-            )),
+        leadingWidth: 112,
+        leading: Row(children: [
+          TipAnchor(
+              id: 'P2',
+              child: IconButton(
+                icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32),
+                onPressed: () {
+                  if (!_upNextPanelController.collapse()) {
+                    context.read<PlayerOverlayCubit>().hidePlayer();
+                  }
+                },
+              )),
+          const TipAnchor(id: 'T2', child: SleepTimerButton()),
+        ]),
         actions: [
+          // The queue (Up Next); swiping up opens it too.
           IconButton(
+            tooltip: 'Queue',
             onPressed: () {
-              final mi = musicPlayer.mediaItem.valueOrNull;
-              if (mi != null) {
-                showSegmentsSheet(
-                  context,
-                  trackId: mi.id,
-                  trackDuration: mi.duration ?? Duration.zero,
-                  onSeek: (pos) => musicPlayer.seek(pos),
-                );
+              if (!_upNextPanelController.isExpanded) {
+                _upNextPanelController.toggle();
               }
             },
-            icon: const Icon(MingCute.list_check_3_line,
-                size: 22, color: Default_Theme.primaryColor1),
+            icon: const Icon(Icons.playlist_play_rounded,
+                size: 28, color: Default_Theme.primaryColor1),
           ),
           IconButton(
             onPressed: () => showMoreBottomSheet(
@@ -141,6 +142,8 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
                 return Text(
                   snapshot.data ?? l10n.playerUnknownQueue,
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Default_Theme.primaryColor2,
                     fontSize: 12,
@@ -465,6 +468,9 @@ class PlayerCtrlWidgets extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 450),
           child: _PlayerControlsRow(musicPlayer: musicPlayer),
         ),
+        const SizedBox(height: 10),
+        // Where the music plays; tap for the devices sheet.
+        const DeviceBar(),
       ],
     );
   }
@@ -800,28 +806,17 @@ class _PlayerControlsRow extends StatelessWidget {
   final BloomeeMusicPlayer musicPlayer;
   const _PlayerControlsRow({required this.musicPlayer});
 
-  Widget _buildControlColumn({required Widget top, required Widget bottom}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(height: 70, alignment: Alignment.center, child: top),
-        SizedBox(height: 40, child: bottom),
-      ],
-    );
-  }
-
+  /// Repeat · previous · play · next · shuffle. The sleep timer lives next
+  /// to "Enjoying from"; lyrics open from the lyric line.
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildControlColumn(
-          top: const TipAnchor(id: 'T2', child: SleepTimerButton()),
-          bottom: const LoopButton(),
-        ),
-        _buildControlColumn(
-          top: IconButton(
+    return SizedBox(
+      height: 70,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          const LoopButton(),
+          IconButton(
             icon: const Icon(MingCute.skip_previous_fill,
                 color: Default_Theme.primaryColor1, size: 35),
             onPressed: () {
@@ -829,14 +824,8 @@ class _PlayerControlsRow extends StatelessWidget {
               musicPlayer.skipToPrevious();
             },
           ),
-          bottom: const SizedBox(height: 40),
-        ),
-        _buildControlColumn(
-          top: const _PlayPauseButton(),
-          bottom: const SizedBox(height: 40),
-        ),
-        _buildControlColumn(
-          top: IconButton(
+          const _PlayPauseButton(),
+          IconButton(
             icon: const Icon(MingCute.skip_forward_fill,
                 color: Default_Theme.primaryColor1, size: 35),
             onPressed: () {
@@ -844,24 +833,9 @@ class _PlayerControlsRow extends StatelessWidget {
               musicPlayer.skipToNext();
             },
           ),
-          bottom: const SizedBox(height: 40),
-        ),
-        _buildControlColumn(
-          top: const ShuffleButton(),
-          bottom: IconButton(
-            icon: const Icon(MingCute.align_center_line,
-                color: Default_Theme.primaryColor1, size: 24),
-            onPressed: () {
-              Navigator.of(context).push(PageRouteBuilder(
-                pageBuilder: (_, __, ___) => const FullscreenLyricsView(),
-                transitionsBuilder: (_, a, __, c) =>
-                    FadeTransition(opacity: a, child: c),
-                transitionDuration: const Duration(milliseconds: 300),
-              ));
-            },
-          ),
-        ),
-      ],
+          const ShuffleButton(),
+        ],
+      ),
     );
   }
 }

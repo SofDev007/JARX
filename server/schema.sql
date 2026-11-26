@@ -59,3 +59,13 @@ CREATE TABLE IF NOT EXISTS ai_reports (
   said TEXT,
   reply TEXT NOT NULL
 );
+
+-- Settings › Report a problem: what people write, for the owner (admin page).
+CREATE TABLE IF NOT EXISTS problem_reports (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  at INTEGER NOT NULL,
+  text TEXT NOT NULL,
+  app TEXT,
+  device TEXT
+);

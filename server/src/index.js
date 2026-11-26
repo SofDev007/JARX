@@ -71,20 +71,6 @@ export async function verifyGoogleToken(token, clientId) {
   return claims;
 }
 
-// ---- Too-old apps ----
-
-// Builds before 37 can't be made to update from inside the app (compulsory
-// updates came in 37): the server locks them out instead, and their locked
-// screen shows this reason. GET /update leads to the newest release.
-const MIN_BUILD = 37;
-const UPDATE_REASON = 'Your JARX is too old. Get the new one from jarx.jarx-backend.workers.dev/update';
-
-/** "2.0.0+36" (or a split-APK build like "2.0.0+2036") older than MIN_BUILD. */
-function tooOld(version) {
-  const m = /\+(\d+)\s*$/.exec(version || '');
-  return !!m && Number(m[1]) % 1000 < MIN_BUILD;
-}
-
 // ---- Sessions ----
 
 async function sessionUser(req, env) {
@@ -100,7 +86,6 @@ async function signIn(req, env) {
   const body = await req.json().catch(() => ({}));
   const g = await verifyGoogleToken(body.idToken, env.GOOGLE_CLIENT_ID);
   if (!g) return json({ error: 'bad_token' }, 401);
-  if (tooOld(body.appVersion)) return json({ error: 'banned', reason: UPDATE_REASON }, 403);
   const t = now();
   await env.DB.prepare(
     `INSERT INTO users (id, email, name, photo, first_seen, last_seen, app_version, status)
@@ -191,6 +176,37 @@ async function putSync(req, env, user) {
   return json({ updatedAt: Object.fromEntries(results.map((r) => [r.kind, r.updated_at])) });
 }
 
+// ---- Settings › Report a problem ----
+
+/** Problem reports one person can send in 24 h. */
+export const PROBLEMS_PER_DAY = 5;
+
+async function reportProblem(req, env, user) {
+  const body = await req.json().catch(() => null);
+  const text = clip(String(body?.text ?? '').trim(), 2000);
+  if (!text) return json({ error: 'bad_body' }, 400);
+  const at = now();
+  // The cap is checked inside the insert, like Jarvix reports.
+  const put = await env.DB.prepare(
+    `INSERT INTO problem_reports (user_id, at, text, app, device)
+     SELECT ?, ?, ?, ?, ?
+     WHERE (SELECT count(*) FROM problem_reports WHERE user_id = ? AND at > ?) < ?`)
+    .bind(user.id, at, text, clip(req.headers.get('x-jarx-version'), 40), clip(body.device, 120),
+      user.id, at - 86400_000, PROBLEMS_PER_DAY)
+    .run();
+  if (!put?.meta?.changes) return json({ error: 'too_many_reports' }, 429);
+  await env.DB.prepare(
+    'DELETE FROM problem_reports WHERE id NOT IN (SELECT id FROM problem_reports ORDER BY id DESC LIMIT 500)').run();
+  return json({ ok: true });
+}
+
+async function listProblems(env) {
+  const { results } = await env.DB.prepare(
+    `SELECT p.at, p.text, p.app, p.device, u.email FROM problem_reports p LEFT JOIN users u ON u.id = p.user_id
+     ORDER BY p.id DESC LIMIT 50`).all();
+  return json({ problems: results });
+}
+
 // ---- Admin ----
 
 async function listUsers(env, admin) {
@@ -263,15 +279,11 @@ async function route(req, env) {
   const page = { 'GET /': HOME_PAGE, 'GET /privacy': PRIVACY_PAGE, 'GET /admin': path === 'GET /admin' && adminPage(env) }[path];
   if (page) return new Response(page, { headers: { 'content-type': 'text/html; charset=utf-8', ...PAGE_HEADERS } });
   if (path === 'POST /auth/google') return signIn(req, env);
-  if (path === 'GET /update') return new Response(null, { status: 302, headers: { location: 'https://github.com/SofDev007/JARX/releases/latest' } });
 
   const user = await sessionUser(req, env);
   if (!user) return json({ error: 'signed_out' }, 401);
   // Banned or waiting for approval: may only leave (sign out, delete the account).
   const leaving = path === 'POST /signout' || path === 'DELETE /me';
-  if (tooOld(req.headers.get('x-jarx-version')) && !leaving) {
-    return json({ error: 'banned', reason: UPDATE_REASON }, 403);
-  }
   if (user.status === 'banned' && !leaving) return json({ error: 'banned', reason: user.ban_reason || '' }, 403);
   if (user.status === 'pending' && !leaving) return json({ error: 'pending' }, 403);
   const isAdmin = user.email === env.ADMIN_EMAIL;
@@ -288,7 +300,7 @@ async function route(req, env) {
       await env.DB.prepare('DELETE FROM sessions WHERE token_hash = ?').bind(user.token_hash).run();
       return json({ ok: true });
     case 'DELETE /me':
-      await env.DB.batch(['user_data', 'sessions', 'ai_usage', 'ai_reports'].map((t) =>
+      await env.DB.batch(['user_data', 'sessions', 'ai_usage', 'ai_reports', 'problem_reports'].map((t) =>
         env.DB.prepare(`DELETE FROM ${t} WHERE user_id = ?`).bind(user.id))
         .concat(user.status === 'banned'
           // A ban outlives the account: keep a bare record so signing in
@@ -306,6 +318,10 @@ async function route(req, env) {
       return ai.tags(req, env, user);
     case 'POST /ai/report':
       return ai.report(req, env, user);
+    case 'POST /report':
+      return reportProblem(req, env, user);
+    case 'GET /admin/problems':
+      return isAdmin ? listProblems(env) : json({ error: 'not_admin' }, 403);
     case 'GET /admin/reports':
       return isAdmin ? ai.listReports(env) : json({ error: 'not_admin' }, 403);
     case 'GET /admin/users':
@@ -451,6 +467,8 @@ background:#22152a;border:1px solid var(--blue);color:var(--text);padding:10px 1
       <button class="ghost" id="reload">Refresh</button>
     </div>
     <div id="users"></div>
+    <h2 class="sec">Problems reported</h2>
+    <div id="problems"></div>
     <h2 class="sec">Reported Jarvix replies</h2>
     <div id="reports"></div>
   </div>
@@ -516,6 +534,15 @@ async function load() {
   st.append(stat(s.users, 'Users'), stat(s.activeToday, 'Active today', 'blue'), stat(s.phones, 'Phones signed in'),
     stat(s.pending, 'Waiting for approval', 'amber'), stat(s.banned, 'Banned', 'pink'), stat(s.aiChatsToday, 'Jarvix chats today', 'blue'));
   render();
+  var pr = await api('GET', '/admin/problems').catch(function () { return { problems: [] }; });
+  var pbox = $('problems'); pbox.textContent = '';
+  if (!pr.problems.length) pbox.append(el('div', 'empty', 'No problems reported.'));
+  pr.problems.forEach(function (x) {
+    var c = el('div', 'report'), h = el('div', 'h');
+    h.append(el('span', '', x.email || ''), el('span', '', ago(x.at)));
+    c.append(h, el('div', 'a', x.text), el('div', 'q', [x.app && 'JARX ' + x.app, x.device].filter(Boolean).join(' · ')));
+    pbox.append(c);
+  });
   var r = await api('GET', '/admin/reports').catch(function () { return { reports: [] }; });
   var box = $('reports'); box.textContent = '';
   if (!r.reports.length) box.append(el('div', 'empty', 'Nothing reported. Jarvix is behaving.'));
@@ -684,6 +711,10 @@ the server does not store chats. It only counts messages per day (for the daily 
 and keeps replies you report, so the owner can check them. To tag songs with moods,
 JARX also sends song titles, artists and albums (nothing about you); those tags are
 shared by everyone.</p>
+
+<h2>Report a problem</h2>
+<p>When you send a problem from Settings › Report a problem, the server keeps what you
+wrote with your JARX version and phone model, so the owner can fix it.</p>
 
 <h2>Deleting your data</h2>
 <p>In JARX, open Settings › Account › Delete my account. That removes everything above

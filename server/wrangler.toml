@@ -15,7 +15,7 @@ APPROVAL = "on"
 #   npx wrangler secret put GROQ_KEY   /   npx wrangler secret put OPENROUTER_KEY
 AI_DAILY_LIMIT = "100"
 AI_TAG_LIMIT = "300"
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "openai/gpt-oss-120b"
 OPENROUTER_MODEL = "openrouter/free"
 CF_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 

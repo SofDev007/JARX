@@ -100,6 +100,25 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
     }
   }
 
+  /// [track] was just added to [playlistName] from elsewhere (Up Next's +
+  /// on a smart shuffle pick): show it now, not after reopening the page.
+  void trackAdded(String playlistName, Track track) {
+    if (state.playlist.title != playlistName ||
+        state.playlist.tracks.any((t) => t.id == track.id)) {
+      return;
+    }
+    final total = state.totalTracks + 1;
+    if (state.hasMore) {
+      // Not all pages are loaded yet: it comes with the last one.
+      emit(state.copyWith(totalTracks: total));
+      return;
+    }
+    _playlist =
+        state.playlist.copyWith(tracks: [...state.playlist.tracks, track]);
+    _loadedCount = _playlist!.tracks.length;
+    emit(state.copyWith(playlist: _playlist, totalTracks: total));
+  }
+
   /// Load the next track page if available.
   Future<void> loadMoreTracks() async {
     final playlistId = _playlistId;
