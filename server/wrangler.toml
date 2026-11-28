@@ -36,3 +36,12 @@ namespace_id = "1001"
   [ratelimits.simple]
   limit = 300
   period = 60
+
+# Remote control between one account's phones (src/remote.js).
+[[durable_objects.bindings]]
+name = "REMOTE"
+class_name = "Remote"
+
+[[migrations]]
+tag = "v1-remote"
+new_sqlite_classes = ["Remote"]

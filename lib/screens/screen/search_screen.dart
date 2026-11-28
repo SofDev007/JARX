@@ -16,6 +16,8 @@ import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
 import 'package:Bloomee/blocs/media_player/bloomee_player_cubit.dart';
 import 'package:Bloomee/blocs/search_suggestions/search_suggestion_bloc.dart';
 import 'package:Bloomee/blocs/internet_connectivity/cubit/connectivity_cubit.dart';
+import 'package:Bloomee/blocs/downloader/cubit/downloader_cubit.dart';
+import 'package:Bloomee/core/models/media_playlist_model.dart';
 import 'package:Bloomee/core/di/service_locator.dart';
 import 'package:Bloomee/core/models/exported.dart';
 import 'package:Bloomee/core/theme/app_theme.dart';
@@ -1175,10 +1177,7 @@ class _ContentSliver extends StatelessWidget {
     return BlocBuilder<ConnectivityCubit, ConnectivityState>(
       builder: (context, connState) {
         if (connState == ConnectivityState.disconnected) {
-          return SliverFillRemaining(
-              hasScrollBody: false,
-              child: SignBoardWidget(
-                  icon: MingCute.wifi_off_line, message: noInternetQuip));
+          return _OfflineResults(contentBloc: contentBloc);
         }
 
         return BlocBuilder<ContentBloc, ContentState>(
@@ -1226,6 +1225,81 @@ class _ContentSliver extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+/// No internet: search the downloaded songs (title or artist) instead.
+class _OfflineResults extends StatelessWidget {
+  final ContentBloc contentBloc;
+  const _OfflineResults({required this.contentBloc});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ContentBloc, ContentState>(
+      bloc: contentBloc,
+      buildWhen: (a, b) => a.searchQuery != b.searchQuery,
+      builder: (context, content) =>
+          BlocBuilder<DownloaderCubit, DownloaderState>(
+        builder: (context, downloads) {
+          final query = content.searchQuery.trim().toLowerCase();
+          final matches = query.isEmpty
+              ? const <Track>[]
+              : downloads.downloaded
+                  .where((t) =>
+                      '${t.title} ${t.artists.map((a) => a.name).join(' ')}'
+                          .toLowerCase()
+                          .contains(query))
+                  .toList();
+          if (matches.isEmpty) {
+            return SliverFillRemaining(
+                hasScrollBody: false,
+                child: SignBoardWidget(
+                    icon: MingCute.wifi_off_line,
+                    message: query.isEmpty
+                        ? noInternetQuip
+                        : "You're offline, and none of your downloaded songs match \"${content.searchQuery.trim()}\""));
+          }
+          return SliverMainAxisGroup(slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, top: 20, bottom: 12),
+                child: Text("You're offline · from your downloads",
+                    style: Default_Theme.secondoryTextStyleMedium.merge(
+                        TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Default_Theme.primaryColor1
+                                .withValues(alpha: 0.9)))),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: 30),
+              sliver: SliverList.builder(
+                itemCount: matches.length,
+                itemBuilder: (context, i) => Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  child: SongCardWidget(
+                    song: matches[i],
+                    // Queue the other matches too, so playback stays offline.
+                    onTap: () => context
+                        .read<BloomeePlayerCubit>()
+                        .bloomeePlayer
+                        .loadPlaylist(
+                            Playlist(tracks: matches, title: 'Offline'),
+                            idx: i,
+                            doPlay: true),
+                    onOptionsTap: () => showMoreBottomSheet(
+                        context, matches[i],
+                        showSinglePlay: true),
+                  ),
+                ),
+              ),
+            ),
+          ]);
+        },
+      ),
     );
   }
 }

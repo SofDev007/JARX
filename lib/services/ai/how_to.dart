@@ -49,6 +49,21 @@ const howTos = <String, HowTo>{
       'update',
       'Tap the bell on Home. If an update is there, open it and tap Update: '
           'JARX downloads and installs it. JARX also tells you when one is out.'),
+  'game': HowTo(
+      'game',
+      'Yes, there is: Jarvix Hop! Hold the Jarvix bubble (me, floating on '
+          'Home), then tap 🎮 Jarvix Hop. Tap the screen to hop through the '
+          'gaps between pillars made of your own songs. Every pillar is +1, '
+          'every ♪ note +1, and flying right through the middle is a Perfect '
+          '(+2). From 5 points you can grab a shield (saves one crash) and '
+          'slow-mo. Crash and you see which song you hit, with Play it. Your '
+          'best score is saved; the speaker button mutes the sounds.'),
+  'remote': HowTo(
+      'remote',
+      'Sign in with the same Google account on both phones and open JARX on '
+          'both. On this phone open the player and tap the bar at the bottom '
+          '(THIS PHONE …). Under Your other devices you see the other phone '
+          'and its song: tap ⏮, ⏯ or ⏭ to control it.'),
   'report': HowTo(
       'report',
       'Open Settings › Report a problem, write what went wrong and tap Send. '
@@ -63,6 +78,8 @@ final _asks = RegExp(
 
 // Checked in order: the first topic that matches wins.
 final _topics = <(String, RegExp)>[
+  ('game', RegExp(r'\b(game|games|khel|khelna|khelu|khelun|jarvix hop|floppy|flappy|arcade|high ?score|best score)\b')),
+  ('remote', RegExp(r"(other|another|dusre|doosre|dusra|second|sister'?s?|bhai ke|didi ke) phone|\bremote\b|control .*(phone|music|gaana|gana)")),
   ('report', RegExp(r'\b(report|bug|complain|complaint|shikayat|feedback)\b|not working|kaam nahi|problem')),
   ('wifi', RegExp(r'wi-?fi|mobile data|data (bach|save)')),
   ('update', RegExp(r'\b(update|upgrade|new version|naya version|latest version)\b')),

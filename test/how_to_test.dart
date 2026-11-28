@@ -19,6 +19,14 @@ void main() {
     'how do I update JARX?': 'update',
     'update kaise karu': 'update',
     'how do i report a problem': 'report',
+    'is there a game?': 'game',
+    'how do I play the game': 'game',
+    'game kaise khelte hain': 'game',
+    'where is the floppy game?': 'game',
+    'how do i beat my high score': 'game',
+    'how can I control music on my other phone': 'remote',
+    'dusre phone ka gaana kaise control karu': 'remote',
+    'can i pause my sister phone from here?': 'remote',
     'app kaam nahi kar raha, kya karu': 'report',
   };
   cases.forEach((ask, id) {

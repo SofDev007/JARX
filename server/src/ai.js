@@ -89,7 +89,7 @@ const list = (v, n, len) => (Array.isArray(v) ? v : []).slice(0, n).map((x) => c
 
 /** How JARX works, so Jarvix can walk people through it. Kept on the
  *  server: fixing a step never needs a new app. Only what the app really
- *  has (checked against build 43). */
+ *  has (checked against build 53). */
 export const APP_GUIDE = `- Bottom bar: Home, Library, Search, Local, Offline. Settings: the gear at the top of Home.
 - Play a song: Search, type the name, tap the song. The chips under the search box pick where to search (YouTube Music, YouTube Video, JioSaavn...).
 - Download one song: tap ⋮ next to the song, then Download. A whole playlist: open it (Library), tap the Download button at the top. Downloaded songs are in the Offline tab, which also has Pause all and Cancel all. Download only on Wi-Fi: Settings › Downloads › Download over › Wi-Fi.
@@ -98,8 +98,12 @@ export const APP_GUIDE = `- Bottom bar: Home, Library, Search, Local, Offline. S
 - Like a song: the heart in the player. Liked songs are a playlist in Library.
 - Shuffle: open a playlist, tap Shuffle, then Shuffle or Smart shuffle (Smart mixes in new songs you'll like; + keeps one in the playlist).
 - Never suggest a song again: ⊖ next to a suggested song (Home, Up Next), or ⋮ › Do not suggest this song.
-- Lyrics: the current line shows in the player; the lyrics button opens them all. Lyrics late or early: in the full lyrics, ⋮ › Sync lyrics, then tap the line the moment you hear it.
-- Sleep timer: the timer button in the player. Repeat: the repeat button (all, one, off).
+- Lyrics: the current line shows in the player; tap it to open them all. Lyrics late or early: in the full lyrics, ⋮ › Sync lyrics, then tap the line the moment you hear it.
+- Player: the Queue button (top right) opens Up Next. Sleep timer: the timer at the top left, next to the close arrow. Repeat: the repeat button next to Previous (all, one, off).
+- Where the music plays: the bar at the bottom of the player (THIS PHONE, or the Bluetooth name). Tap it to switch speakers or headphones.
+- Control another phone: sign in with the same Google account on both phones and open JARX on both. In the player, tap the bar at the bottom › Your other devices: the other phone, its song, and previous / play-pause / next. The other phone shows "Paused from …" when you pause it.
+- No internet: Search still finds downloaded songs (also from downloaded playlists) by name or artist.
+- Jarvix Hop, a game (people may call it the floppy or flappy game): hold the Jarvix blob, then tap 🎮 Jarvix Hop. Tap the screen to hop through the gaps between pillars made of their own songs (from what they played and Liked). Each pillar +1, each ♪ note +1, right through the middle of the gap = Perfect, +2 (Perfects in a row make a streak). From 5 points: a shield (saves one crash) and slow-mo. From 15 points the pillars move. Jarvix changes colour every 3 points. A crash shows the song they hit, with Play it, and a roast. Best score is kept on the phone; the speaker button mutes the game. No leaderboard or friends' scores yet. You can't open the game from the chat: tell them how. Tips: short taps, aim for the middle.
 - Music videos: search with YouTube Video, play the song, tap Play video above its name. Full screen has captions (CC) and video quality in its settings. Or ask Jarvix: "show me the video of …".
 - Equalizer: Settings › Player Settings › Equalizer.
 - Change how Home looks: Settings › Home layout.
@@ -108,7 +112,7 @@ export const APP_GUIDE = `- Bottom bar: Home, Library, Search, Local, Offline. S
 - Updates: the bell on Home shows a new version; tap Download update, then Install.
 - Music sources (plugins): Settings › Plugins. They update by themselves.
 - Songs stored on the phone: the Local tab.
-- Jarvix: tap the blob. Ask for a mood or vibe (a mix), "play …" (that song at once, from their playlist if it's there), "show me the video of …". The ⋮ in the chat shows what Jarvix remembers, and can clear the chat.`;
+- Jarvix: tap the blob. Hold it for the menu (Nap for today, Jarvix Hop); hold and move to drag it to the other side. Ask for a mood or vibe (a mix), "play …" (that song at once, from their playlist if it's there), "show me the video of …". The ⋮ in the chat shows what Jarvix remembers, and can clear the chat.`;
 
 /** Who Jarvix is and how it jokes. The user (JARX's owner) chose these
  *  example lines; the model gets them as style, not as a script. */

@@ -9,6 +9,7 @@ import 'package:Bloomee/screens/widgets/tip_overlay.dart';
 import 'package:Bloomee/blocs/internet_connectivity/cubit/connectivity_cubit.dart';
 import 'package:Bloomee/blocs/mini_player/mini_player_cubit.dart';
 import 'package:Bloomee/core/theme/app_theme.dart';
+import 'package:Bloomee/screens/screen/jarvix_hop.dart';
 import 'package:Bloomee/screens/screen/saathi_chat.dart';
 import 'package:Bloomee/screens/widgets/snackbar.dart';
 import 'package:Bloomee/services/account/account.dart';
@@ -222,7 +223,7 @@ class _BlobPainter extends CustomPainter {
 }
 
 /// The floating blob over Home and Library (bottom corner, above the mini
-/// player): tap to chat, drag to the other side, hold to nap for today.
+/// player): tap to chat, drag to the other side, hold for the menu.
 class SaathiBlobHost extends StatefulWidget {
   const SaathiBlobHost({super.key});
 
@@ -230,7 +231,8 @@ class SaathiBlobHost extends StatefulWidget {
   State<SaathiBlobHost> createState() => _SaathiBlobHostState();
 }
 
-class _SaathiBlobHostState extends State<SaathiBlobHost> {
+class _SaathiBlobHostState extends State<SaathiBlobHost>
+    with SingleTickerProviderStateMixin {
   static const _size = 58.0, _margin = 14.0;
   Offset? _drag;
 
@@ -267,20 +269,85 @@ class _SaathiBlobHostState extends State<SaathiBlobHost> {
     openSaathiChat(context, from: center);
   }
 
-  Future<void> _menu() async {
-    HapticFeedback.mediumImpact();
+  OverlayEntry? _menu;
+  late final _menuAnim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+      reverseDuration: const Duration(milliseconds: 140));
+
+  @override
+  void dispose() {
+    _menu?.remove();
+    _menuAnim.dispose();
+    super.dispose();
+  }
+
+  /// The hold menu: opens while the finger is still down and grows out of
+  /// the blob (above it, or below when the blob sits near the top). An
+  /// overlay, not a route: pushing a route would cancel the held finger,
+  /// and hold-then-drag must keep working (moving closes the menu).
+  void _showMenu() {
     final box = _blobKey.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final at = box.localToGlobal(Offset.zero);
-    final pick = await showMenu<String>(
-      context: context,
-      color: const Color(0xFF22182A),
-      position: RelativeRect.fromLTRB(at.dx, at.dy - 60, at.dx + _size, at.dy),
-      items: const [
-        PopupMenuItem(value: 'nap', child: Text('💤  Nap for today')),
-      ],
+    if (box == null || _menu != null) return;
+    HapticFeedback.mediumImpact();
+    final blob = box.localToGlobal(Offset.zero) & box.size;
+    final screen = MediaQuery.sizeOf(context);
+    final onLeft = blob.center.dx < screen.width / 2;
+    final above = blob.top > 170;
+    final grow = CurvedAnimation(
+        parent: _menuAnim,
+        curve: Curves.easeOutBack,
+        reverseCurve: Curves.easeIn);
+    _menu = OverlayEntry(
+      builder: (_) => BackButtonListener(
+        onBackButtonPressed: () async {
+          _hideMenu();
+          return true;
+        },
+        child: Stack(children: [
+          Positioned.fill(
+            child: GestureDetector(
+                behavior: HitTestBehavior.opaque, onTap: _hideMenu),
+          ),
+          Positioned(
+            left: onLeft ? blob.left : null,
+            right: onLeft ? null : screen.width - blob.right,
+            bottom: above ? screen.height - blob.top + 10 : null,
+            top: above ? null : blob.bottom + 10,
+            child: FadeTransition(
+              opacity: _menuAnim,
+              child: ScaleTransition(
+                scale: grow,
+                alignment: Alignment(onLeft ? -1 : 1, above ? 1 : -1),
+                child: _HoldMenu(onPick: _pick),
+              ),
+            ),
+          ),
+        ]),
+      ),
     );
-    if (pick != 'nap') return;
+    Overlay.of(context, rootOverlay: true).insert(_menu!);
+    _menuAnim.forward(from: 0);
+  }
+
+  Future<void> _hideMenu() async {
+    final entry = _menu;
+    if (entry == null) return;
+    _menu = null;
+    try {
+      await _menuAnim.reverse().orCancel;
+    } on TickerCanceled {
+      // Reopened mid-close: this entry still has to go.
+    }
+    entry.remove();
+  }
+
+  Future<void> _pick(String pick) async {
+    _hideMenu();
+    if (pick == 'hop') {
+      openJarvixHop(context);
+      return;
+    }
     await Saathi.instance.nap();
     SnackbarService.showMessage(
       '$saathiName is napping till tomorrow 💤',
@@ -364,18 +431,21 @@ class _SaathiBlobHostState extends State<SaathiBlobHost> {
                                       d.delta),
                               onPanEnd: (_) => drop(),
                               onLongPressStart: (_) {
-                                HapticFeedback.selectionClick();
                                 _holdFrom = Offset(x, y);
+                                _showMenu();
                               },
                               onLongPressMoveUpdate: (d) {
                                 // A wobble while holding isn't a drag.
                                 if (_drag != null ||
                                     d.offsetFromOrigin.distance > 8) {
+                                  _hideMenu();
                                   moveTo(_holdFrom + d.offsetFromOrigin);
                                 }
                               },
-                              onLongPressEnd: (_) =>
-                                  _drag == null ? _menu() : drop(),
+                              // Let go without moving: the menu stays open.
+                              onLongPressEnd: (_) {
+                                if (_drag != null) drop();
+                              },
                               child: TipAnchor(
                                 id: 'J1',
                                 child: ValueListenableBuilder<Mood?>(
@@ -402,6 +472,46 @@ class _SaathiBlobHostState extends State<SaathiBlobHost> {
             }),
           );
         },
+      ),
+    );
+  }
+}
+
+class _HoldMenu extends StatelessWidget {
+  const _HoldMenu({required this.onPick});
+  final ValueChanged<String> onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget item(String icon, String label, String value) => InkWell(
+          onTap: () => onPick(value),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Text(icon, style: const TextStyle(fontSize: 18)),
+              const SizedBox(width: 12),
+              Text(label,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600)),
+            ]),
+          ),
+        );
+    return Material(
+      color: const Color(0xFF22182A),
+      elevation: 10,
+      borderRadius: BorderRadius.circular(18),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            item('💤', 'Nap for today', 'nap'),
+            item('🎮', 'Jarvix Hop', 'hop'),
+          ],
+        ),
       ),
     );
   }

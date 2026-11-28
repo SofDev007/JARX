@@ -1,5 +1,6 @@
 import 'package:Bloomee/services/account/sync.dart';
 import 'package:Bloomee/services/account/account.dart';
+import 'package:Bloomee/services/remote_control.dart';
 import 'package:Bloomee/screens/screen/account/account_gate.dart';
 import 'dart:async';
 import 'dart:io' as io;
@@ -189,9 +190,11 @@ Future<void> _initApp() async {
   void onAccount() {
     if (Account.instance.signedIn) {
       unawaited(Sync.instance.start());
+      RemoteControl.instance.start(bloomeePlayerCubit.bloomeePlayer);
     } else {
       unawaited(bloomeePlayerCubit.bloomeePlayer.pause());
       unawaited(Sync.instance.stop());
+      RemoteControl.instance.stop();
     }
   }
 

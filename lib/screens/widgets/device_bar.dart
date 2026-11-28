@@ -1,11 +1,14 @@
 // The player's device bar ("THIS PHONE · realme 5 Pro", or the Bluetooth
 // headphones' name) and the "Playing on" sheet it opens. The sheet keeps a
-// place for the user's other devices (cross-device control comes later).
+// lists the user's other phones with JARX open, to control them from here
+// (services/remote_control.dart).
 
 import 'dart:async';
 import 'dart:io';
 
 import 'package:Bloomee/core/theme/app_theme.dart';
+import 'package:Bloomee/services/account/account.dart';
+import 'package:Bloomee/services/remote_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -153,8 +156,9 @@ class _DeviceBarState extends State<DeviceBar> with WidgetsBindingObserver {
 }
 
 /// "Playing on": the current output, the phone's speaker, Android's
-/// output picker, and (later) the user's other devices.
+/// output picker, and the user's other phones.
 Future<void> showDevicesSheet(BuildContext context) async {
+  RemoteControl.instance.wake();
   final out = await AudioOutput.now();
   if (!context.mounted) return;
   await showModalBottomSheet<void>(
@@ -196,34 +200,7 @@ Future<void> showDevicesSheet(BuildContext context) async {
               },
             ),
             const _Section('YOUR OTHER DEVICES'),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF4A3D52), width: 1.5),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Control JARX on your other phones',
-                      style: TextStyle(
-                          color: Default_Theme.primaryColor1,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text(
-                      'Phones signed in to your account will show here, so you '
-                      'can play and pause on them from this one. Coming in a '
-                      'later update.',
-                      style: TextStyle(
-                          color: Default_Theme.primaryColor2
-                              .withValues(alpha: 0.6),
-                          fontSize: 12.5,
-                          height: 1.45)),
-                ],
-              ),
-            ),
+            const _OtherPhones(),
           ],
         ),
       ),
@@ -350,5 +327,83 @@ class _Row extends StatelessWidget {
             ),
           ]),
         ),
+      );
+}
+
+/// The other phones signed in to this account that have JARX open: what
+/// each plays, with previous / play-pause / next.
+class _OtherPhones extends StatelessWidget {
+  const _OtherPhones();
+
+  @override
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<List<RemoteDevice>>(
+        valueListenable: RemoteControl.instance.devices,
+        builder: (context, phones, _) {
+          if (phones.isEmpty) {
+            return _Row(
+              icon: Icons.devices_other_rounded,
+              title: 'No other phone right now',
+              sub: Account.instance.signedIn
+                  ? 'Open JARX on another phone signed in to your account '
+                      'and it shows here, so you can control its music'
+                  : 'Sign in to control JARX on your other phones',
+            );
+          }
+          return Column(children: [
+            for (final d in phones)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(children: [
+                  Expanded(
+                    child: _Row(
+                      icon: Icons.smartphone_rounded,
+                      title: d.name,
+                      sub: d.title.isEmpty
+                          ? 'Nothing playing'
+                          : [
+                              if (!d.playing) 'Paused',
+                              d.title,
+                              if (d.artist.isNotEmpty) d.artist
+                            ].join(' · '),
+                    ),
+                  ),
+                  if (d.title.isNotEmpty) ...[
+                    _Btn(Icons.skip_previous_rounded, 'Previous on ${d.name}',
+                        () => RemoteControl.instance.send(d, 'prev')),
+                    _Btn(
+                        d.playing
+                            ? Icons.pause_circle_filled_rounded
+                            : Icons.play_circle_fill_rounded,
+                        '${d.playing ? 'Pause' : 'Play'} on ${d.name}',
+                        () => RemoteControl.instance
+                            .send(d, d.playing ? 'pause' : 'play'),
+                        size: 38),
+                    _Btn(Icons.skip_next_rounded, 'Next on ${d.name}',
+                        () => RemoteControl.instance.send(d, 'next')),
+                  ],
+                ]),
+              ),
+          ]);
+        },
+      );
+}
+
+class _Btn extends StatelessWidget {
+  const _Btn(this.icon, this.tooltip, this.onTap, {this.size = 26});
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+        tooltip: tooltip,
+        visualDensity: VisualDensity.compact,
+        icon: Icon(icon, size: size, color: Default_Theme.primaryColor1),
+        onPressed: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
       );
 }

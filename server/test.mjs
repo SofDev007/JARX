@@ -319,4 +319,46 @@ assert.equal(db.prepare("SELECT count(*) AS n FROM ai_usage WHERE user_id = 'f1'
 assert.equal(db.prepare("SELECT count(*) AS n FROM problem_reports WHERE user_id = 'f1'").get().n, 0);
 assert.equal(db.prepare("SELECT count(*) AS n FROM ai_reports WHERE user_id = 'f1'").get().n, 0);
 assert.match((await call('GET', '/privacy')).body, /JARX AI \(Jarvix\)/);
+// Remote control: GET /remote hands the socket to the account's object, with
+// one id per sign-in and the phone's name.
+const rem = { sub: 'r1', email: 'rem@x.com', name: 'Rem' };
+const ra = (await signIn(rem, 'Phone A')).body.token, rb = (await signIn(rem, 'Phone B')).body.token;
+await call('POST', '/admin/approve', { token: o.body.token, body: { id: 'r1' } });
+assert.equal((await call('GET', '/remote', { token: ra })).status, 426, 'websocket only');
+const toObject = [];
+env.REMOTE = { idFromName: (n) => 'do:' + n,
+  get: (id) => ({ fetch: async (r) => { toObject.push([id, new URL(r.url).searchParams]); return Response.json({ ok: true }); } }) };
+const upgrade = async (token) => worker.fetch(new Request('https://jarx.test/remote',
+  { headers: { authorization: 'Bearer ' + token, upgrade: 'websocket' } }), env);
+await upgrade(ra); await upgrade(rb);
+assert.deepEqual(toObject.map(([id, q]) => [id, q.get('name')]), [['do:r1', 'Phone A'], ['do:r1', 'Phone B']]);
+assert.notEqual(toObject[0][1].get('id'), toObject[1][1].get('id'), 'each phone has its own id');
+assert.equal((await call('GET', '/remote')).status, 401, 'signed out');
+
+// The object: phones see each other's songs; a command reaches only its phone.
+{
+  const { Remote } = await import('./src/remote.js');
+  const socks = [];
+  const ctx = { acceptWebSocket: (ws, tags) => { ws.tags = tags; socks.push(ws); },
+    getWebSockets: (tag) => socks.filter((w) => w.readyState === 1 && (!tag || w.tags.includes(tag))) };
+  const fakeWs = () => { let att; return { readyState: 1, got: [], send(m) { this.got.push(JSON.parse(m)); },
+    close() { this.readyState = 3; }, serializeAttachment: (a) => { att = structuredClone(a); },
+    deserializeAttachment: () => structuredClone(att) }; };
+  const obj = new Remote(ctx), a = fakeWs(), b = fakeWs();
+  obj.join(a, 'ida', 'Phone A'); obj.join(b, 'idb', 'Phone B');
+  assert.deepEqual(a.got[0], { t: 'hello', id: 'ida' });
+  obj.webSocketMessage(a, JSON.stringify({ t: 'state', state: { title: 'Kesariya', artist: 'Arijit', playing: true, junk: 'x'.repeat(50) } }));
+  const seen = b.got.at(-1).devices.find((d) => d.id === 'ida');
+  assert.deepEqual(seen.state, { title: 'Kesariya', artist: 'Arijit', art: '', playing: true });
+  obj.webSocketMessage(b, JSON.stringify({ t: 'cmd', to: 'ida', cmd: 'pause' }));
+  assert.deepEqual(a.got.at(-1), { t: 'cmd', cmd: 'pause', from: 'Phone B' });
+  const bCount = b.got.length;
+  obj.webSocketMessage(b, JSON.stringify({ t: 'cmd', to: 'ida', cmd: 'delete_everything' }));
+  obj.webSocketMessage(b, 'not json');
+  assert.equal(a.got.at(-1).cmd, 'pause', 'unknown commands are dropped');
+  assert.equal(b.got.length, bCount);
+  b.readyState = 3; obj.webSocketClose(b);
+  assert.deepEqual(a.got.at(-1).devices.map((d) => d.id), ['ida'], 'a closed phone leaves the list');
+}
+
 console.log('all server checks passed');

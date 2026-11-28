@@ -354,6 +354,22 @@ class Account {
     }
   }
 
+  /// A WebSocket to the JARX server as this account (null: not signed in or
+  /// no connection).
+  Future<WebSocket?> socket(String path) async {
+    final token = _token;
+    if (token == null) return null;
+    try {
+      return await WebSocket.connect(
+              jarxServer.replaceFirst('https://', 'wss://') + path,
+              headers: await _headers(token))
+          .timeout(const Duration(seconds: 20));
+    } catch (e) {
+      log('socket $path failed: $e', name: 'Account');
+      return null;
+    }
+  }
+
   /// A random id for this phone, kept across sign-outs (its listening time
   /// is stored under it).
   static Future<String> deviceId() async {

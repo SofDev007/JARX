@@ -6,6 +6,10 @@
 
 import { FAVICON_PNG_B64 } from './favicon.js';
 import * as ai from './ai.js';
+import * as remote from './remote.js';
+
+// The account's Durable Object (remote control between its phones).
+export { Remote } from './remote.js';
 
 const GOOGLE_CERTS = 'https://www.googleapis.com/oauth2/v3/certs';
 const SESSION_DAYS = 180;
@@ -77,7 +81,7 @@ async function sessionUser(req, env) {
   const m = /^Bearer ([0-9a-f]{64})$/.exec(req.headers.get('authorization') || '');
   if (!m) return null;
   return env.DB.prepare(
-    `SELECT u.*, s.token_hash FROM sessions s JOIN users u ON u.id = s.user_id
+    `SELECT u.*, s.token_hash, s.device AS session_device FROM sessions s JOIN users u ON u.id = s.user_id
      WHERE s.token_hash = ? AND s.expires_at > ?`)
     .bind(await sha256Hex(m[1]), now()).first();
 }
@@ -318,6 +322,8 @@ async function route(req, env) {
       return ai.tags(req, env, user);
     case 'POST /ai/report':
       return ai.report(req, env, user);
+    case 'GET /remote':
+      return remote.connect(req, env, user);
     case 'POST /report':
       return reportProblem(req, env, user);
     case 'GET /admin/problems':
@@ -347,6 +353,7 @@ export default {
         if (!(await env.LIMITER.limit({ key: ip })).success) return json({ error: 'slow_down' }, 429);
       }
       const res = await route(req, env);
+      if (res.status === 101) return res; // a WebSocket: its headers can't change
       res.headers.set('x-content-type-options', 'nosniff');
       return res;
     } catch (e) {
@@ -678,7 +685,8 @@ profile photo. JARX never sees your Google password.</li>
 <li><b>Your music:</b> your playlists, Liked songs, what JARX learned about your taste
 (artists, languages and moods you play, and when), and how long you have listened.</li>
 <li><b>Your phones:</b> the phone model name, the JARX version, and when you first and
-last used JARX.</li>
+last used JARX. While JARX is open, the song each of your phones is
+playing is passed to your other signed-in phones (so you can control them); it is not stored.</li>
 </ul>
 
 <h2>Why</h2>
